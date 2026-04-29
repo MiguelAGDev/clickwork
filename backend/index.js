@@ -1,8 +1,8 @@
 // Authors: 
 //      * Azucena Rodriguez Flores  
 //      * Miguel Angel Avila Garcia
-// Description:
-// Date: 
+// Description: This is the main entry point of the ClickWork backend API. It sets up the Express server, configures middleware, and defines the routes for handling authentication, user management, announcements, applications, and admin functionalities. The server listens on a specified port and uses environment variables for configuration. Additionally, it includes a custom error handler to manage errors across the API.
+// Date: April 28th 2026
 
 // Lastest Update:
 // Date:
@@ -23,7 +23,7 @@ import {errorHandler} from './src/middlewares/errorHandler.js'; // Import custom
 dotenv.config(); // Load environment variables
 
 const app = express(); // Create an instance of Express
-const PORT = process.env.PORT || 3000; // Define the port to run the server
+const PORT = process.env.PORT || 5000; // Define the port to run the server
 
 app.use( cors({ origin: process.env.FRONTEND_URL }) ); // Allow to make request APIs from the frontend  
 app.use( express.json() );// Activate JSON body parser so the server can understand and process request bodies in JSON format
@@ -36,7 +36,8 @@ app.use('/api/announcements', announcementRoutes);
 app.use('/api/applications', applicationsRoutes);
 app.use('/api/admin', adminRoutes);
 
+app.use(errorHandler);
 
-
-
-
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
