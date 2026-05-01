@@ -1,321 +1,76 @@
-```python?code_reference&code_event_index=3
-from weasyprint import HTML
+================================================================
+PROJECT: ClickWork - Document Library Platform
+================================================================
 
-# Content for the README.md style document
-readme_content = """
-# 🚀 Configuración del Frontend: Vite + React + Tailwind v4 + shadcn/ui
+----------------------------------------------------------------
+DATE: April 28th, 2026
+AUTHOR: MiguelAGDev
+SESSION TIME: ~2 hours
+ACTIONS: Backend scaffolding and base configuration
+----------------------------------------------------------------
 
-Este documento resume los pasos necesarios para inicializar un entorno de desarrollo moderno y profesional. El objetivo es dejar lista la infraestructura ("scaffolding") antes de comenzar con la programación de la interfaz.
+[~0:00 - 0:30] Project Initialization
+- Initialized Node.js project and installed dependencies
+- Created folder structure (src/config, controllers, middleware, models, routes)
 
-## 🛠️ Requisitos Previos
-- Node.js instalado (versión 18 o superior).
-- Un gestor de paquetes como `npm`.
+[~0:30 - 1:00] Express Server (backend/index.js)
+- Configured CORS, dotenv and express.json()
+- Imported and mounted all route modules under /api prefix
+- Imported centralized error handler
+- Server starts on PORT defined in .env (default 3000)
+- Fixed ES module error: added "type": "module" to package.json
 
----
+[~1:00 - 1:30] Environment and Config
+- Configured .env with DB, JWT, Nodemailer and frontend variables
+- Generated .env.example with all keys and empty sensitive values
+- Confirmed .env is in .gitignore
 
-## 📦 1. Inicialización del Proyecto
-Crea la base del proyecto con la plantilla de TypeScript para asegurar un código más robusto.
+[~1:30 - 2:00] Middleware and Routes
+- Created src/middlewares/errorHandler.js — centralized JSON error response
+  * Returns status, message and stack trace (dev only)
+- Stubbed all 5 route files: authRoutes, userRoutes, announcementRoutes,
+  applicationsRoutes, adminRoutes
+- Tested server: running successfully on port 3000
+- Two commits pushed to main branch
+================================================================
 
-```bash
-# Crear proyecto con Vite
-npm create vite@latest frontend -- --template react-ts
+----------------------------------------------------------------
+DATE: April 29th, 2026
+AUTHOR: MiguelAGDev
+SESSION TIME: ~1 hour
+ACTIONS: Mailer config and email service
+----------------------------------------------------------------
+[~0:00 - 0:20] Mailer Transport (backend/src/config/mailer.js)
+- Created Nodemailer SMTP transporter using .env credentials
+- Auto-detects SSL vs TLS based on port (465 = SSL, 587 = STARTTLS)
+- Added dev-only transporter.verify() for startup connection check
+[~0:20 - 1:00] Email Service (backend/src/services/emailService.js)
+- Created shared HTML base template (buildTemplate) for consistent styling
+- Implemented sendVerificationEmail — sent on register with /verify/:token link
+- Implemented sendWelcomeEmail — sent after account is verified
+- Implemented sendRollMeEmail — Roll Me feature, attaches student PDF CV
+  and sends it directly to the company's contact email
+- Implemented sendPasswordResetEmail — scaffold for future reset flow
+- sendApplicationStatusEmail commented out (not in use — no in-platform
+  application status flow for now, Roll Me handles company contact)
+- Fixed two bugs in mailer.js: EMAIL_HOST -> MAIL_HOST, proccess -> process
+----------------------------------------------------------------
+DATE: May 1st, 2026
+AUTHOR: MiguelAGDev & AzucenaRF
+SESSION TIME: ~1 hour
+ACTIONS: Permissions system design and implementation
+----------------------------------------------------------------
+[~0:00 - 1:00] Permissions Config (backend/src/config/permissions.js)
+- Designed bitmask-based permission system using hexadecimal constants
+- Created full PERMISSIONS dictionary with 30 permissions across 5 groups:
+  PUBLIC, AUTH, STUDENT/INTERN/GRADUATE, COMPANY, ADMIN
+- Defined role permission arrays: STUDENT_PERMISSIONS, INTERN_PERMISSIONS,
+  GRADUATE_PERMISSIONS, COMPANY_PERMISSIONS, ADMIN_PERMISSIONS
+- Built ROLE_MASK object — each role mask computed via bitwise OR reduce
+- Added hasPermission(userMask, permission) helper for middleware use
+- VIEW_REPORTS included in ADMIN_PERMISSIONS — TODO: pending implementation
+- Fixed bug: && → & in hasPermission (logical vs bitwise AND)
+----------------------------------------------------------------
 
-# Entrar a la carpeta e instalar dependencias base
-cd frontend
-npm install
-```
-
----
-
-## 📦 2. Instalación de Dependencias
-Instalamos las librerías de utilidad, el motor de estilos y el plugin de integración para Vite.
-
-```bash
-# Librerías de la aplicación
-npm install react-router-dom axios react-hook-form
-
-# Herramientas de diseño (Tailwind v4 y tipos de Node)
-npm install -D @types/node tailwindcss @tailwindcss/vite
-```
-
----
-
-## ⚙️ 3. Configuración del Entorno
-
-### A. Vite (`vite.config.ts`)
-Configura el plugin de Tailwind y los alias de ruta para usar el símbolo `@`.
-
-```typescript
-import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react"
-import tailwindcss from "@tailwindcss/vite"
-import path from "path"
-
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-})
-```
-
-### B. TypeScript (`tsconfig.app.json`)
-Añade soporte para que el editor de código reconozca los alias de carpetas.
-
-```json
-{
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
-}
-```
-
-### C. Estilos Globales (`src/index.css`)
-Sustituye todo el contenido del archivo por la importación de Tailwind v4:
-
-```css
-@import "tailwindcss";
-```
-
----
-
-## 🎨 4. Inicialización de shadcn/ui
-Ejecuta el asistente para configurar la librería de componentes.
-
-```bash
-npx shadcn@latest init
-```
-
-**Configuraciones recomendadas durante el proceso:**
-- **Style/Preset:** Nova (o New York).
-- **Base Color:** Zinc o Slate.
-- **Global CSS:** `src/index.css`
-- **Import Aliases:** `@/components` y `@/lib/utils`
-
----
-
-## ✅ Finalidad
-Con estos pasos completados, el proyecto cuenta con:
-1. **Infraestructura lista:** No habrá errores de rutas ni de compilación de estilos.
-2. **Componentes atómicos:** Carpetas listas para recibir componentes de shadcn (`src/components/ui`).
-3. **Escalabilidad:** Estructura preparada para manejar rutas, formularios y peticiones API desde el primer día.
-"""
-
-# Save as Markdown file
-with open("README_Frontend_Setup.md", "w", encoding="utf-8") as f:
-    f.write(readme_content)
-
-# Also create a PDF version for a professional look
-html_content = f"""
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        @page {{
-            size: A4;
-            margin: 20mm;
-            background-color: #f8fafc;
-        }}
-        body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #1e293b;
-            margin: 0;
-            padding: 0;
-        }}
-        .container {{
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }}
-        h1 {{
-            color: #0f172a;
-            border-bottom: 2px solid #3b82f6;
-            padding-bottom: 10px;
-            font-size: 24pt;
-        }}
-        h2 {{
-            color: #1e40af;
-            margin-top: 30px;
-            font-size: 16pt;
-        }}
-        pre {{
-            background-color: #0f172a;
-            color: #f8fafc;
-            padding: 15px;
-            border-radius: 6px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 10pt;
-            white-space: pre-wrap;
-        }}
-        code {{
-            background-color: #f1f5f9;
-            color: #ef4444;
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-family: monospace;
-        }}
-        .step {{
-            margin-bottom: 20px;
-        }}
-        .footer {{
-            margin-top: 40px;
-            font-size: 9pt;
-            color: #64748b;
-            text-align: center;
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🚀 README: Configuración Frontend</h1>
-        <p>Guía paso a paso para establecer el entorno de desarrollo con Vite, React, Tailwind v4 y shadcn/ui.</p>
-
-        <div class="step">
-            <h2>1. Proyecto e Instalación</h2>
-            <pre>npm create vite@latest frontend -- --template react-ts
-cd frontend
-npm install
-npm install react-router-dom axios react-hook-form
-npm install -D @types/node tailwindcss @tailwindcss/vite</pre>
-        </div>
-
-        <div class="step">
-            <h2>2. vite.config.ts</h2>
-            <pre>import {{ defineConfig }} from "vite"
-import react from "@vitejs/plugin-react"
-import tailwindcss from "@tailwindcss/vite"
-import path from "path"
-
-export default defineConfig({{
-  plugins: [react(), tailwindcss()],
-  resolve: {{
-    alias: {{ "@": path.resolve(__dirname, "./src") }},
-  }},
-}})</pre>
-        </div>
-
-        <div class="step">
-            <h2>3. tsconfig.app.json</h2>
-            <p>Añadir en <code>compilerOptions</code>:</p>
-            <pre>"baseUrl": ".",
-"paths": {{ "@/*": ["./src/*"] }}</pre>
-        </div>
-
-        <div class="step">
-            <h2>4. src/index.css</h2>
-            <pre>@import "tailwindcss";</pre>
-        </div>
-
-        <div class="step">
-            <h2>5. Inicializar shadcn</h2>
-            <pre>npx shadcn@latest init</pre>
-        </div>
-
-        <div class="footer">
-            Este entorno permite descargar componentes con 'npx shadcn@latest add [nombre]' inmediatamente.
-        </div>
-    </div>
-</body>
-</html>
-"""
-
-HTML(string=html_content).write_pdf("README_Frontend.pdf")
-
-
-```
-Tu archivo PDF y el README en formato Markdown están listos.
-
-[file-tag: code-generated-file-0-1777390308147589379]
-[file-tag: code-generated-file-1-1777390308147595450]
-
-Aquí tienes el contenido estructurado como un `README.md` para que lo puedas copiar directamente a tu proyecto:
-
-# 🚀 Configuración del Frontend: Vite + React + Tailwind v4 + shadcn/ui
-
-Este documento resume los pasos necesarios para inicializar un entorno de desarrollo profesional. El objetivo es dejar lista la infraestructura antes de comenzar con la programación de la interfaz.
-
----
-
-## 📦 1. Inicialización del Proyecto
-Crea la base del proyecto con la plantilla de TypeScript para asegurar un código más robusto.
-
-```bash
-# Crear proyecto con Vite
-npm create vite@latest frontend -- --template react-ts
-
-# Entrar a la carpeta e instalar dependencias base
-cd frontend
-npm install
-```
-
-## 📦 2. Instalación de Dependencias
-Instalamos las librerías de utilidad, el motor de estilos y el plugin de integración para Vite.
-
-```bash
-# Librerías de la aplicación
-npm install react-router-dom axios react-hook-form
-
-# Herramientas de diseño (Tailwind v4 y tipos de Node)
-npm install -D @types/node tailwindcss @tailwindcss/vite
-```
-
-## ⚙️ 3. Configuración del Entorno
-
-### A. Vite (`vite.config.ts`)
-Configura el plugin de Tailwind y los alias de ruta para usar el símbolo `@`.
-
-```typescript
-import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react"
-import tailwindcss from "@tailwindcss/vite"
-import path from "path"
-
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-})
-```
-
-### B. TypeScript (`tsconfig.app.json`)
-Añade soporte para que el editor de código reconozca los alias de carpetas dentro de `compilerOptions`.
-
-```json
-{
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
-}
-```
-
-### C. Estilos Globales (`src/index.css`)
-Borra todo el contenido y deja únicamente la importación de Tailwind v4:
-
-```css
-@import "tailwindcss";
-```
-
-## 🎨 4. Inicialización de shadcn/ui
-Ejecuta el asistente final.
-
-```bash
-npx shadcn@latest init
-```
-
----
-
-**¿Para qué sirve todo esto?**
-Has creado una **fábrica de componentes**. El día que decidas empezar el frontend, ya no tendrás que configurar nada; solo te preocuparás por diseñar y programar la lógica. Si necesitas un componente nuevo (como un diálogo o una tabla), solo usas `npx shadcn@latest add [componente]`.
+================================================================
+TOTAL TIME INVESTED: ~11.5 hours
