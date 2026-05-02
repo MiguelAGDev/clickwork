@@ -32,7 +32,6 @@ ACTIONS: Backend scaffolding and base configuration
   applicationsRoutes, adminRoutes
 - Tested server: running successfully on port 3000
 - Two commits pushed to main branch
-================================================================
 
 ----------------------------------------------------------------
 DATE: April 29th, 2026
@@ -54,6 +53,7 @@ ACTIONS: Mailer config and email service
 - sendApplicationStatusEmail commented out (not in use — no in-platform
   application status flow for now, Roll Me handles company contact)
 - Fixed two bugs in mailer.js: EMAIL_HOST -> MAIL_HOST, proccess -> process
+
 ----------------------------------------------------------------
 DATE: May 1st, 2026
 AUTHOR: MiguelAGDev & AzucenaRF
@@ -70,7 +70,24 @@ ACTIONS: Permissions system design and implementation
 - Added hasPermission(userMask, permission) helper for middleware use
 - VIEW_REPORTS included in ADMIN_PERMISSIONS — TODO: pending implementation
 - Fixed bug: && → & in hasPermission (logical vs bitwise AND)
+
+
+----------------------------------------------------------------
+DATE: May 2nd, 2026
+AUTHOR: MiguelAGDev
+SESSION TIME: ~1 hour
+ACTIONS: Database schema and connection setup
+----------------------------------------------------------------
+[~0:00 - 1:00] Database Setup
+- Ran database schema (database.sql) on local MySQL instance
+- Created clickwork database with 11 tables:
+  careers, app_user, company, student, graduate, intern,
+  job_posting, application, role_history, audit_log, permissions
+- Configured MySQL2 connection pool (backend/src/config/db.js)
+- Fixed timezone warning: replaced 'Z' with '+00:00' (UTC)
+- Verified connection successfully with node -e "require('./src/config/db')"
+- Committed: database.sql + db.js
 ----------------------------------------------------------------
 
 ================================================================
-TOTAL TIME INVESTED: ~11.5 hours
+TOTAL TIME INVESTED: ~12.5 hours

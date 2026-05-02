@@ -1,7 +1,7 @@
 // Authors: 
 //      * Azucena Rodriguez Flores  
 //      * Miguel Angel Avila Garcia
-// Description: 
+// Description: Database connection using mysql2 
 // Date: May 1st 2026
 
 // Lastest Update:

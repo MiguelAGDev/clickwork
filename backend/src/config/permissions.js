@@ -2,9 +2,9 @@
 // Authors:
 //      * Azucena Rodriguez Flores
 //      * Miguel Angel Avila Garcia
-// Description:  
+// Description: Role-based permission system using bitmasks for efficient access control.
 // Date: April 30th 2026
- 
+
 // Latest Update:
 // Date:
 // By:
