@@ -13,7 +13,7 @@ const {
     getPending
 } = require('../models/jobPostingModel.cjs');
 
-const runTests = async () => {
+async function runTests() {
     console.log('🧪 Iniciando pruebas de jobPostingModel...\n');
 
     const companyId = 1; // 👈 un userId que tenga empresa registrada en tu DB

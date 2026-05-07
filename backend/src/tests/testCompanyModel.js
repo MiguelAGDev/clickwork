@@ -3,7 +3,7 @@ const require = createRequire(import.meta.url);
 
 const { create, findByUserId, update, updateApprovalStatus, getPending } = require('../models/companyModel.js');
 
-const runTests = async () => {
+async function runTests() {
     console.log('🧪 Iniciando pruebas de companyModel...\n');
 
     const fakeUserId = 1;
