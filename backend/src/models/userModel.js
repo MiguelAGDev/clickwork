@@ -160,7 +160,7 @@ async function findByToken( token ) {
 }
  
 
-export default {
+export {
     findById,
     findByEmail,
     create,
