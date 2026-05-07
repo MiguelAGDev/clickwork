@@ -9,11 +9,11 @@
 // Date:
 // By:
 
-const { pool } = require("../config/db.cjs"); // Import database connection
+import { pool } from "../config/db.cjs"; // Import database connection
 
 //  Create a new job posting
 // Inserts a job posting with default approval status 'pending'
-const create = async (companyId, data) => {
+async function create(companyId, data) {
     // Extract job posting fields
     const {
         jb_pst_job_title,
@@ -30,7 +30,7 @@ const create = async (companyId, data) => {
     } = data;
 
     // SQL query to insert job posting
-    const query = 
+    const sql = 
     `INSERT INTO job_posting(
         jb_pst_job_title,
         jb_pst_requirements,
@@ -50,7 +50,7 @@ const create = async (companyId, data) => {
     VALUES (?,?,?,?,?,?,?,?,?,?,?, 'pending', NULL, ?)`; 
     
     // Execute query
-    const [result] = await pool.query(query, [
+    const [result] = await pool.query(sql, [
         jb_pst_job_title,
         jb_pst_requirements,
         jb_pst_benefits,
@@ -71,33 +71,33 @@ const create = async (companyId, data) => {
 
 //  Get job posting by ID
 // Returns a single job or null if not found
-const getById = async (id) => {
-    const query = `
+async function getById(id) {
+    const sql = `
         SELECT * FROM job_posting
         WHERE jb_pst_id = ?
     `;
 
-    const [result] = await pool.query(query, [id]);
+    const [result] = await pool.query(sql, [id]);
 
     return result.length > 0 ? result[0] : null;
 }
 
 // 🔹 Get job postings by company
 // Returns all job postings belonging to a specific company
-const getByCompany = async (companyId) => {
-    const query = `
+async function getByCompany(companyId) {
+    const sql = `
         SELECT * FROM job_posting
         WHERE jb_pst_id_company = ?
     `;
 
-    const [result] = await pool.query(query, [companyId]);
+    const [result] = await pool.query(sql, [companyId]);
 
     return result;
 }
 
 //  Get all approved job postings with optional filters
 // Filters include modality, contract type, experience level, career, and search text
-const getAll = async (filters = {}) => {
+async function getAll(filters = {}) {
 
     let query = `
         SELECT jp.*
@@ -140,38 +140,38 @@ const getAll = async (filters = {}) => {
         values.push(`%${filters.search}%`, `%${filters.search}%`);
     }
 
-    const [result] = await pool.query(query, values);
+    const [result] = await pool.query(sql, values);
     return result;
-};
+}
 
 //  Attach careers to a job posting
 // Inserts multiple records into the relation table
-const attachCareers = async (jobId, careerIds) => {
+async function attachCareers(jobId, careerIds) {
     for (const careerId of careerIds) {
-        const query = `
+        const sql = `
             INSERT INTO job_posting_career (jpc_id_job_posting, jpc_id_career)
             VALUES (?, ?)
         `;
 
-        await pool.query(query, [jobId, careerId]);
+        await pool.query(sql, [jobId, careerId]);
     }
 }
 
 //  Remove all careers associated with a job posting
-const detachCareers = async (jobId) => {
-    const query = `
+async function detachCareers(jobId) {
+    const sql = `
         DELETE FROM job_posting_career
         WHERE jpc_id_job_posting = ?
     `;
 
-    const [result] = await pool.query(query, [jobId]);
+    const [result] = await pool.query(sql, [jobId]);
 
     return result.affectedRows;
 }
 
 // Update job posting data
 // Updates editable fields only
-const update = async (id, data) => {
+async function update(id, data) {
     const {
         jb_pst_job_title,
         jb_pst_requirements,
@@ -185,7 +185,7 @@ const update = async (id, data) => {
         jb_pst_image_url
     } = data;
 
-    const query = `
+    const sql = `
         UPDATE job_posting SET
             jb_pst_job_title = ?,
             jb_pst_requirements = ?,
@@ -200,7 +200,7 @@ const update = async (id, data) => {
         WHERE jb_pst_id = ?
     `;
 
-    const [result] = await pool.query(query, [
+    const [result] = await pool.query(sql, [
         jb_pst_job_title,
         jb_pst_requirements,
         jb_pst_benefits,
@@ -219,28 +219,28 @@ const update = async (id, data) => {
 
 // Update approval status
 // Changes job status and handles rejection reason
-const updateApprovalStatus = async (id, status, reason) => {
+async function updateApprovalStatus(id, status, reason) {
 
     if (status !== 'rejected') {
         reason = null;
     }
 
-    const query = `
+    const sql = `
         UPDATE job_posting
         SET jb_pst_approval_status = ?, 
             jb_pst_rejection_reason = ?
         WHERE jb_pst_id = ?
     `;
 
-    const [result] = await pool.query(query, [status, reason, id]);
+    const [result] = await pool.query(sql, [status, reason, id]);
 
     return result.affectedRows;
 }
 
 // Get all pending job postings
 // Used for admin approval flow
-const getPending = async () => {
-    const query = `
+async function getPending() {
+    const sql = `
         SELECT * FROM job_posting
         WHERE jb_pst_approval_status = 'pending'
         ORDER BY jb_pst_publication_date DESC
@@ -250,8 +250,9 @@ const getPending = async () => {
 
     return result;
 }
+
 // Export all model methods
-module.exports = {
+export  {
     create,
     getById,
     getByCompany,

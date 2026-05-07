@@ -10,13 +10,13 @@
 // Date:
 // By:
 
-const pool = require('../config/db.cjs'); // Import database connection pool
+import { pool } from '../config/db.cjs'; // Import database connection pool
 
 // Create a new company associated with a user
 // Inserts company data into the database with default approval status 'pending'
-const create = async (userId, data) => {
+async function create(userId, data) {
     // Extract relevant fields from input object
-    try{
+    
     const {
         cmp_name,
         cmp_size,
@@ -28,14 +28,14 @@ const create = async (userId, data) => {
     } = data;
 
     // SQL query to insert new company
-    const query =
+    const sql =
         `INSERT INTO company 
          (cmp_id_user,cmp_name,cmp_size,cmp_industry,cmp_city,cmp_state,
           cmp_address,cmp_contact_email,cmp_approval_status,cmp_rejection_reason)
           VALUES (?,?,?,?,?,?,?,?,'pending',NULL)`;
 
     // Execute query with parameterized values to prevent SQL injection
-    const [result] = await pool.query(query, [
+    const [result] = await _query(sql, [
         userId,
         cmp_name,
         cmp_size,
@@ -48,27 +48,24 @@ const create = async (userId, data) => {
 
     // Return the generated ID of the new company
     return result.insertId;
-    }catch(error){
-        console.error("Error creating company:", error.message);
-        throw error;
-    }
-};
+
+}
 
 // Retrieve company by user ID
 // Returns the first matching company or null if not found
-const findByUserId = async (userId) => {
-    const query = `SELECT * FROM company WHERE cmp_id_user = ?`;
+async function findByUserId(userId) {
+    const sql = `SELECT * FROM company WHERE cmp_id_user = ?`;
 
     // Execute query
-    const [result] = await pool.query(query, [userId]);
+    const [result] = await _query(sql, [userId]);
 
     // Return first result if exists, otherwise null
     return result.length > 0 ? result[0] : null;
-};
+}
 
 // Update company data
 // Updates editable fields for a company associated with a user
-const update = async (userId, data) => {
+async function update(userId, data) {
     // Extract editable fields
     const {
         cmp_name,
@@ -81,7 +78,7 @@ const update = async (userId, data) => {
     } = data;
 
     // SQL query to update company fields
-    const query =
+    const sql =
         `UPDATE company SET
             cmp_name = ?,
             cmp_size = ?,
@@ -93,7 +90,7 @@ const update = async (userId, data) => {
          WHERE cmp_id_user = ?`;
 
     // Execute update query
-    const [result] = await pool.query(query, [
+    const [result] = await _query(sql, [
         cmp_name,
         cmp_size,
         cmp_industry,
@@ -106,11 +103,11 @@ const update = async (userId, data) => {
 
     // Return number of affected rows
     return result.affectedRows;
-};
+}
 
 // Update approval status of a company
 // Handles approval workflow logic including validation of status and rejection reason
-const updateApprovalStatus = async (userId, status, reason) => {
+async function updateApprovalStatus(userId, status, reason) {
     
     // Handle rejection reason logic
     if (status !== 'rejected') {
@@ -120,32 +117,32 @@ const updateApprovalStatus = async (userId, status, reason) => {
     }
 
     // SQL query to update approval status
-    const query =
+    const sql =
         `UPDATE company
          SET cmp_approval_status = ?, cmp_rejection_reason = ?
          WHERE cmp_id_user = ?`;
 
     // Execute update
-    const [result] = await pool.query(query, [status, reason, userId]);
+    const [result] = await _query(sql, [status, reason, userId]);
 
     // Return number of affected rows
     return result.affectedRows;
-};
+}
 
 // Get all pending companies
 // Retrieves all companies with approval status 'pending' ordered by user ID
-const getPending = async () => {
-    const query =
+async function getPending() {
+    const sql =
         `SELECT * FROM company 
          WHERE cmp_approval_status = 'pending'
          ORDER BY cmp_id_user DESC`;
 
     // Execute query
-    const [result] = await pool.query(query);
+    const [result] = await _query(query);
 
     // Return array of pending companies
     return result;
-};
+}
 
 // Export all model methods
-module.exports = { create, findByUserId, update, updateApprovalStatus, getPending };
+export default { create, findByUserId, update, updateApprovalStatus, getPending };

@@ -53,7 +53,7 @@ const buildTemplate = (content) => `
 //  Sends a verification email after a new user registers.
 //  The link redirects to the frontend verify page which calls GET /api/auth/verify/:token.
  
-export const sendVerificationEmail = async ({ to, token }) => {
+export async function sendVerificationEmail({ to, token }) {
     const verifyUrl = `${process.env.FRONTEND_URL}/verify/${token}`;
 
     const html = buildTemplate(`
@@ -71,10 +71,10 @@ export const sendVerificationEmail = async ({ to, token }) => {
         subject: 'Verifica tu cuenta de ClickWork',
         html,
     });
-};
+}
 
 // Sends a welcome email once the user has verified their account.
-export const sendWelcomeEmail = async ({ to, name }) => {
+export async function sendWelcomeEmail({ to, name }) {
     const loginUrl = `${process.env.FRONTEND_URL}/login`;
 
     const html = buildTemplate(`
@@ -95,7 +95,7 @@ export const sendWelcomeEmail = async ({ to, name }) => {
 
 //   Sends the student's CV as an attachment to the company's registered email.
 //   This is the "Roll me" feature.
-export const sendRollMeEmail = async ({ to, companyName, studentName, announcementTitle, cvPath }) => {
+export async function sendRollMeEmail({ to, companyName, studentName, announcementTitle, cvPath }) {
     const html = buildTemplate(`
         <p>Estimada empresa <strong>${companyName}</strong>,</p>
         <p>El/la estudiante <strong>${studentName}</strong> está interesado/a en la siguiente convocatoria:</p>
@@ -122,7 +122,7 @@ export const sendRollMeEmail = async ({ to, companyName, studentName, announceme
 
 //   Sends a password-reset email with a time-limited link.
 //   (Scaffold — implement when the reset flow is built.)
-export const sendPasswordResetEmail = async ({ to, name, token }) => {
+export async function sendPasswordResetEmail({ to, name, token }) {
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
     const html = buildTemplate(`
@@ -149,7 +149,7 @@ export const sendPasswordResetEmail = async ({ to, name, token }) => {
 /*
 //  Sends an email to notify a student that their application status has changed.
 //  e.g. "Pending" → "Accepted" or "Rejected".
-export const sendApplicationStatusEmail = async ({ to, studentName, announcementTitle, status }) => {
+export async function sendApplicationStatusEmail({ to, studentName, announcementTitle, status }) {
     const statusMessages = {
         accepted: { label: 'Aceptada ✅', text: 'Felicidades, tu postulación ha sido <strong>aceptada</strong>. La empresa se pondrá en contacto contigo próximamente.' },
         rejected: { label: 'No seleccionado', text: 'Lamentablemente tu postulación <strong>no fue seleccionada</strong> en esta ocasión. Te animamos a seguir explorando otras convocatorias.' },
@@ -174,5 +174,5 @@ export const sendApplicationStatusEmail = async ({ to, studentName, announcement
         subject: `Actualización de tu postulación — ${announcementTitle}`,
         html,
     });
-};
+}
 */
