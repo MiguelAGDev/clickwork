@@ -9,7 +9,7 @@
 // By:
  
 
-const pool = require('../config/db');
+import { execute } from '../config/db';
 
 
 
@@ -30,7 +30,7 @@ async function findById( id ) {
         WHERE au.ap_usr_id = ?
     `;
     
-    const [ rows ] = await pool.execute( sql, [ id ] );
+    const [ rows ] = await execute( sql, [ id ] );
     return rows[0] ?? null;
 
 };
@@ -51,7 +51,7 @@ async function findByEmail( email ){
         WHERE au.ap_usr_email = ?
     `;
 
-    const [ rows ] = await pool.execute( sql, [ email ] );
+    const [ rows ] = await execute( sql, [ email ] );
     return rows[0] ?? null;
     
 };
@@ -67,7 +67,7 @@ async function create( { email, phone = null, password, careerId = null } ) {
         VALUES (?, ?, ?, ?)
     `;
 
-    const [ result ] = await pool.execute( sql, [ email, phone, password, careerId ] );
+    const [ result ] = await execute( sql, [ email, phone, password, careerId ] );
 
     return result.insertId;
 };
@@ -84,7 +84,7 @@ async function update( id, { phone = null, careerId } ) {
         WHERE ap_usr_id = ?
     `;
 
-    const [ result ] = await pool.execute( sql, [ phone, careerId, id ] );
+    const [ result ] = await execute( sql, [ phone, careerId, id ] );
     return result.affectedRows;
 };
 
@@ -98,7 +98,7 @@ async function updateCvUrl ( id, url ) {
         WHERE ap_usr_id = ?
     `;
 
-    const [ result ] = await pool.execute( sql, [ url, id ] );
+    const [ result ] = await execute( sql, [ url, id ] );
     return result.affectedRows;
 
 };  
@@ -115,7 +115,7 @@ async function updateToken ( id, token, expiration ) {
         WHERE ap_usr_id = ?
     `;
 
-    const [ result ] = await pool.execute( sql, [ token, expiration, id ] );
+    const [ result ] = await execute( sql, [ token, expiration, id ] );
     return result.affectedRows;
 };
 
@@ -132,7 +132,7 @@ async function verifyEmail( id ) {
         WHERE ap_usr_id = ?
     `;
 
-    const [ result ] = await pool.execute( sql, [ id ] );
+    const [ result ] = await execute( sql, [ id ] );
     return result.affectedRows;
 
 };
@@ -154,13 +154,13 @@ async function findByToken( token ) {
         WHERE au.ap_usr_token = ?
     `;
  
-    const [ rows ] = await pool.execute( sql, [ token ] );
+    const [ rows ] = await execute( sql, [ token ] );
     return rows[0] ?? null;
  
 }
  
 
-module.exports = {
+export default {
     findById,
     findByEmail,
     create,

@@ -8,7 +8,7 @@
 // Date:
 // By:
 
-const pool = require('../config/db');
+import { execute } from '../config/db';
 
 
 // Returns all careers ordered alphabetically.
@@ -23,7 +23,7 @@ async function getAll() {
         ORDER BY c.car_name ASC
     `;
 
-    const [ rows ] = await pool.execute( sql );
+    const [ rows ] = await execute( sql );
     return rows;
 
 }
@@ -41,12 +41,12 @@ async function getById( id ) {
         WHERE c.car_id = ?
     `;
 
-    const [ rows ] = await pool.execute( sql, [ id ] );
+    const [ rows ] = await execute( sql, [ id ] );
     return rows[0] ?? null;
 
 }
 
-module.exports = {
+export {
     getAll,
     getById,
 };

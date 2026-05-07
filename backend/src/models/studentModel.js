@@ -8,7 +8,7 @@
 // Date:
 // By: 
 
-const pool = require('../config/db'); // Import connection
+import { execute } from '../config/db'; // Import connection
 
 // IMPORTANT:
 
@@ -40,7 +40,7 @@ async function createStudent( userId, { semester, stdId } ) {
     `;
 
     
-    await pool.execute( sql, [ userId, semester, stdId ] );
+    await execute( sql, [ userId, semester, stdId ] );
     
 };
 
@@ -64,7 +64,7 @@ async function findStudentByUserId( userId ){
     WHERE s.std_id_user = ?
     `;
 
-    const [rows] = await pool.execute(sql, [userId]);
+    const [rows] = await execute(sql, [userId]);
     return rows[0] ?? null;
 
 };
@@ -78,7 +78,7 @@ async function updateStudent( userId, {semester} ){
         WHERE std_id_user = ? 
     `; 
 
-    const [ result ] = await pool.execute( sql, [ semester, userId ] );
+    const [ result ] = await execute( sql, [ semester, userId ] );
     return result.affectedRows;
     
 }
@@ -97,7 +97,7 @@ async function createIntern ( userId, {
         VALUES ( ?, ?, ?, ?, ? )
     `;
 
-    await pool.execute( sql, [ userId, hostCompany, project, startDate, endDate ] );
+    await execute( sql, [ userId, hostCompany, project, startDate, endDate ] );
             
 };
 
@@ -125,7 +125,7 @@ async function findInternByUserId ( userId ){
 
     `;
 
-    const [ rows ] = await pool.execute( sql, [ userId ] );
+    const [ rows ] = await execute( sql, [ userId ] );
 
     return rows[0] ?? null;
 
@@ -143,7 +143,7 @@ async function updateIntern( userId, { hostCompany, project, endDate } ) {
         WHERE itn_id_user = ? 
     `; 
 
-    const [ result ] = await pool.execute(
+    const [ result ] = await execute(
                         sql, 
                         [ hostCompany ?? null, project ?? null, 
                         endDate ?? null, userId ] 
@@ -163,7 +163,7 @@ async function createGraduate( userId, { graduationYear, currentJob = null } ) {
         VALUES (?, ?, ?) 
     `;
 
-    await pool.execute( sql, [userId, graduationYear, currentJob ] );
+    await execute( sql, [userId, graduationYear, currentJob ] );
     
 };
 
@@ -186,7 +186,7 @@ async function findGraduateByUserId( userId ) {
         WHERE g.grd_id_user = ?
     `;
 
-    const [ rows ] = await pool.execute( sql, [ userId ] );
+    const [ rows ] = await execute( sql, [ userId ] );
     return rows[0] ?? null;
     
 };
@@ -199,12 +199,12 @@ async function updateGraduate( userId, { currentJob } ) {
         WHERE grd_id_user = ?
     `;
 
-    const [ result ] = await pool.execute( sql, [ currentJob ?? null, userId ] );
+    const [ result ] = await execute( sql, [ currentJob ?? null, userId ] );
     return result.affectedRows;
 };
 
 
-module.exports = {
+export  {
 
     // STUDENT 
     createStudent,
