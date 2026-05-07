@@ -1,0 +1,151 @@
+// Authors: 
+//      * Azucena Rodriguez Flores  
+//      * Miguel Angel Avila Garcia
+// Description: Company model that manages database interactions for the company entity.
+//              Includes methods for creating, retrieving, updating company data,
+//              as well as handling approval status and pending company queries.
+// Date: May 2nd 2026
+
+// Lastest Update:
+// Date:
+// By:
+
+const pool = require('../config/db.cjs'); // Import database connection pool
+
+// Create a new company associated with a user
+// Inserts company data into the database with default approval status 'pending'
+const create = async (userId, data) => {
+    // Extract relevant fields from input object
+    try{
+    const {
+        cmp_name,
+        cmp_size,
+        cmp_industry,
+        cmp_city,
+        cmp_state,
+        cmp_address,
+        cmp_contact_email
+    } = data;
+
+    // SQL query to insert new company
+    const query =
+        `INSERT INTO company 
+         (cmp_id_user,cmp_name,cmp_size,cmp_industry,cmp_city,cmp_state,
+          cmp_address,cmp_contact_email,cmp_approval_status,cmp_rejection_reason)
+          VALUES (?,?,?,?,?,?,?,?,'pending',NULL)`;
+
+    // Execute query with parameterized values to prevent SQL injection
+    const [result] = await pool.query(query, [
+        userId,
+        cmp_name,
+        cmp_size,
+        cmp_industry,
+        cmp_city,
+        cmp_state,
+        cmp_address,
+        cmp_contact_email
+    ]);
+
+    // Return the generated ID of the new company
+    return result.insertId;
+    }catch(error){
+        console.error("Error creating company:", error.message);
+        throw error;
+    }
+};
+
+// Retrieve company by user ID
+// Returns the first matching company or null if not found
+const findByUserId = async (userId) => {
+    const query = `SELECT * FROM company WHERE cmp_id_user = ?`;
+
+    // Execute query
+    const [result] = await pool.query(query, [userId]);
+
+    // Return first result if exists, otherwise null
+    return result.length > 0 ? result[0] : null;
+};
+
+// Update company data
+// Updates editable fields for a company associated with a user
+const update = async (userId, data) => {
+    // Extract editable fields
+    const {
+        cmp_name,
+        cmp_size,
+        cmp_industry,
+        cmp_city,
+        cmp_state,
+        cmp_address,
+        cmp_contact_email
+    } = data;
+
+    // SQL query to update company fields
+    const query =
+        `UPDATE company SET
+            cmp_name = ?,
+            cmp_size = ?,
+            cmp_industry = ?,
+            cmp_city = ?,
+            cmp_state = ?,
+            cmp_address = ?,
+            cmp_contact_email = ?
+         WHERE cmp_id_user = ?`;
+
+    // Execute update query
+    const [result] = await pool.query(query, [
+        cmp_name,
+        cmp_size,
+        cmp_industry,
+        cmp_city,
+        cmp_state,
+        cmp_address,
+        cmp_contact_email,
+        userId
+    ]);
+
+    // Return number of affected rows
+    return result.affectedRows;
+};
+
+// Update approval status of a company
+// Handles approval workflow logic including validation of status and rejection reason
+const updateApprovalStatus = async (userId, status, reason) => {
+    
+    // Handle rejection reason logic
+    if (status !== 'rejected') {
+        reason = null; // Clear reason if not rejected
+    } else if (!reason) {
+        throw new Error('Rejection reason required'); // Require reason if rejected
+    }
+
+    // SQL query to update approval status
+    const query =
+        `UPDATE company
+         SET cmp_approval_status = ?, cmp_rejection_reason = ?
+         WHERE cmp_id_user = ?`;
+
+    // Execute update
+    const [result] = await pool.query(query, [status, reason, userId]);
+
+    // Return number of affected rows
+    return result.affectedRows;
+};
+
+// Get all pending companies
+// Retrieves all companies with approval status 'pending' ordered by user ID
+const getPending = async () => {
+    const query =
+        `SELECT * FROM company 
+         WHERE cmp_approval_status = 'pending'
+         ORDER BY cmp_id_user DESC`;
+
+    // Execute query
+    const [result] = await pool.query(query);
+
+    // Return array of pending companies
+    return result;
+};
+
+// Export all model methods
+module.exports = { create, findByUserId, update, updateApprovalStatus, getPending };
