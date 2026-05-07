@@ -87,7 +87,45 @@ ACTIONS: Database schema and connection setup
 - Fixed timezone warning: replaced 'Z' with '+00:00' (UTC)
 - Verified connection successfully with node -e "require('./src/config/db')"
 - Committed: database.sql + db.js
+
 ----------------------------------------------------------------
+DATE: May 6th, 2026
+AUTHOR: MiguelAGDev & AzucenaRF
+SESSION TIME: ~2 hours
+ACTIONS: Models — studentModel, userModel, careerModel
+----------------------------------------------------------------
+[~0:00 - 1:00] studentModel.js (backend/src/models/studentModel.js)
+- Implemented CRUD queries for student, intern and graduate tables
+- All three role types covered in a single file (shared app_user parent)
+- Fixed 11 bugs across multiple review rounds:
+  * Wrong parameter name in findStudentByUserId (user -> userId)
+  * Typo in WHERE clause of updateStudent (st_id_user -> std_id_user)
+  * Wrong table name in createIntern (inter -> intern)
+  * Column name with space (itn_end date -> itn_end_date)
+  * Typo in startDate parameter (starDate -> startDate)
+  * Wrong column ap_usr_activate -> ap_usr_active in findInternByUserId
+  * Missing comma after career_id alias in findInternByUserId
+  * Wrong table name in LEFT JOIN (career -> careers)
+  * Wrong WHERE column (it_id_user -> itn_id_user)
+  * Double p typo in findGraduateByUserId (app_usr_id -> ap_usr_id)
+  * Wrong alias in LEFT JOIN (au -> ua) in findGraduateByUserId
+  * Typo in alias carrer_id -> career_id
+  * findInterByUserId renamed to findInternByUserId (missing 'n')
+
+[~1:00 - 1:45] userModel.js (backend/src/models/userModel.js)
+- Implemented 8 queries for app_user table:
+  findById, findByEmail, create, update, updateCvUrl,
+  updateToken, verifyEmail, findByToken
+- Fixed 3 bugs across review rounds:
+  * pool.execute called with object {} instead of array []
+  * Wrong column name ap_usr_career -> ap_usr_id_career
+  * Trailing comma before WHERE in verifyEmail SQL
+  * Duplicate ap_usr_email_verified column in findByEmail SELECT
+
+[~1:45 - 2:00] careerModel.js (backend/src/models/careerModel.js)
+- Implemented 2 queries for careers table: getAll, getById
+- getAll returns careers ordered alphabetically for frontend dropdowns
+- getById used for careerId validation in service layer
 
 ================================================================
-TOTAL TIME INVESTED: ~12.5 hours
+TOTAL TIME INVESTED: ~14.5 hours
