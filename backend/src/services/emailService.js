@@ -53,11 +53,11 @@ const buildTemplate = (content) => `
 //  Sends a verification email after a new user registers.
 //  The link redirects to the frontend verify page which calls GET /api/auth/verify/:token.
  
-export const sendVerificationEmail = async ({ to, name, token }) => {
+export const sendVerificationEmail = async ({ to, token }) => {
     const verifyUrl = `${process.env.FRONTEND_URL}/verify/${token}`;
 
     const html = buildTemplate(`
-        <p>Hola, <strong>${name}</strong> 👋</p>
+        <p>Hola, usuario 👋</p>
         <p>Gracias por registrarte en ClickWork. Para activar tu cuenta, haz clic en el botón de abajo:</p>
         <a href="${verifyUrl}" class="btn">Verificar mi cuenta</a>
         <hr class="divider"/>
