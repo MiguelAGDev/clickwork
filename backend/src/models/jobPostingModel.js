@@ -9,7 +9,7 @@
 // Date:
 // By:
 
-import { pool } from "../config/db.cjs"; // Import database connection
+import { pool } from "../config/db.js"; // Import database connection
 
 //  Create a new job posting
 // Inserts a job posting with default approval status 'pending'

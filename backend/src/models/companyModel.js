@@ -10,7 +10,7 @@
 // Date:
 // By:
 
-import { pool } from '../config/db.cjs'; // Import database connection pool
+import { pool } from '../config/db.js'; // Import database connection pool
 
 // Create a new company associated with a user
 // Inserts company data into the database with default approval status 'pending'

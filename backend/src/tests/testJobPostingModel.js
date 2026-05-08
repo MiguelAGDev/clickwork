@@ -1,7 +1,4 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-
-const {
+import {
     create,
     getById,
     getByCompany,
@@ -11,7 +8,7 @@ const {
     update,
     updateApprovalStatus,
     getPending
-} = require('../models/jobPostingModel.cjs');
+} from '../models/jobPostingModel.js';
 
 async function runTests() {
     console.log('🧪 Iniciando pruebas de jobPostingModel...\n');
