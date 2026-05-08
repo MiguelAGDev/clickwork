@@ -14,12 +14,12 @@
  * Catches errors thrown anywhere in the app and returns a clean JSON response.
  * Must be mounted LAST in index.js (after all routes).
  */
-export const errorHandler = (err, req, res, next) =>{
+export async function errorHandler(err, req, res, next) {
 
     const status = err.status || 500;
     const message = err.message || 'Internal Server Error';
 
-    if(proccess.env.NODE_ENV == 'development'){
+    if(process.env.NODE_ENV == 'development'){
         console.error( `[ERROR] ${status} - ${message}` );
         console.error( err.stack );
     }
@@ -33,4 +33,4 @@ export const errorHandler = (err, req, res, next) =>{
     });
 
 
-};
+}

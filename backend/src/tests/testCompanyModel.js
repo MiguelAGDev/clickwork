@@ -1,7 +1,4 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-
-const { create, findByUserId, update, updateApprovalStatus, getPending } = require('../models/companyModel.js');
+import { create, findByUserId, update, updateApprovalStatus, getPending } from '../models/companyModel.js';
 
 async function runTests() {
     console.log('🧪 Iniciando pruebas de companyModel...\n');

@@ -155,9 +155,9 @@ const ROLE_MASK = {
 
 const hasPermission = (userMask, permissions) => {
   return (userMask & permissions) == permissions;
-}
+};
 
-module.export = {
+export {
 
   PERMISSIONS,
   STUDENT_PERMISSIONS,

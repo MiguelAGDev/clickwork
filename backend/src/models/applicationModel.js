@@ -9,7 +9,8 @@
 // Date:
 // By:
 
-const { pool } = require("../config/db.cjs"); // Import database connection
+import { pool } from "../config/db.js"; // Import database connection
+
 
 // Create a new application
 // Registers a user application for a specific job posting
@@ -76,7 +77,7 @@ async function getByJobPosting(jobPostingId) {
     return result;
 }
 //Export all model methods
-module.exports = {
+export {
     create,
     getByJobPosting,
     getByUser

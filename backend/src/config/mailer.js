@@ -45,4 +45,4 @@ if( process.env.NODE_ENV === 'development'){
 }
 
 // Export the transporter to be used in any part of the backend that needs to send emails
-export default transporter;
+export {transporter};
