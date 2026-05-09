@@ -127,5 +127,53 @@ ACTIONS: Models — studentModel, userModel, careerModel
 - getAll returns careers ordered alphabetically for frontend dropdowns
 - getById used for careerId validation in service layer
 
+----------------------------------------------------------------
+DATE: May 8th, 2026
+AUTHOR: MiguelAGDev & AzucenaRF
+SESSION TIME: ~3 hours
+ACTIONS: ES Module migration, db.js refactor, authService
+----------------------------------------------------------------
+
+[~0:00 - 0:30] ES Module migration (entire backend)
+- Converted all model files from CommonJS (require/module.exports)
+  to ES Modules (import/export)
+- Decided on named exports across all model files for consistency
+- Fixed userModel.js which was using export default {} — changed
+  to named export { } to match careerModel and studentModel
+- Added "type": "module" to package.json
+
+[~0:30 - 1:00] db.js refactor (backend/src/config/db.js)
+- Converted from CommonJS to ES Modules
+- Added named export execute() — thin wrapper around pool.execute()
+  so models can call execute(sql, params) directly
+- Added named export getConnection() — exposes raw pool connection
+  for authService audit-log trigger support
+- Removed export default pool, replaced with export { execute, getConnection }
+- Removed dotenv.config() — moved responsibility to index.js
+
+[~1:00 - 2:30] authService.js (backend/src/services/authService.js)
+- Implemented 3 public functions: register, login, verifyEmail
+- Implemented 3 private functions: _borrowConnection, _detectRole,
+  _getPermissions (prefixed with _ convention = not exported)
+- register: duplicate email check, bcrypt hash, userModel.create,
+  role switch (student/intern/graduate), token generation, email send
+- login: findByEmail, email_verified check, active check,
+  bcrypt compare, role detection, permissions bitmask, JWT sign
+- verifyEmail: findByToken, expiration check, markEmailVerified
+- Company branch in register left as TODO (waiting for Azucena)
+- role_history insert left as TODO (waiting for roleHistoryModel.js)
+- Fixed 8 bugs across review rounds:
+  * Duplicate imports: error from console and bcrypt (removed)
+  * Register condition inverted (!existing -> existing)
+  * Date.now missing parentheses (Date.now -> Date.now())
+  * error.statusCode typo in login (error -> err) x2
+  * Missing throw after wrong password check in login
+  * bcrypt.compare called with bcrypt instead of bcryptjs
+  * Default case using single quotes instead of backticks for ${role}
+  * JWT_EXPIRE_IN typo fixed to JWT_EXPIRES_IN
+  * Missing new before Error() in verifyEmail
+  * rows[0].mask changed to rows[0]?.mask in _getPermissions
+
 ================================================================
-TOTAL TIME INVESTED: ~14.5 hours
+TOTAL TIME INVESTED: ~17.5 hours
+================================================================
