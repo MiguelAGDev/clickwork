@@ -54,6 +54,10 @@ const buildTemplate = (content) => `
 //  The link redirects to the frontend verify page which calls GET /api/auth/verify/:token.
  
 export async function sendVerificationEmail({ to, token }) {
+    
+    // FLOW WORK:
+    //Email link → Frontend /verify/:token → Frontend calls API → GET /api/auth/verify/:token → backend
+
     const verifyUrl = `${process.env.FRONTEND_URL}/verify/${token}`;
 
     const html = buildTemplate(`
