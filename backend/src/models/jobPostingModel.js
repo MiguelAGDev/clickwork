@@ -9,7 +9,7 @@
 // Date:
 // By:
 
-import { pool } from "../config/db.js"; // Import database connection
+import { execute } from "../config/db.js"; // Import database connection
 
 //  Create a new job posting
 // Inserts a job posting with default approval status 'pending'
@@ -50,7 +50,7 @@ async function create(companyId, data) {
     VALUES (?,?,?,?,?,?,?,?,?,?,?, 'pending', NULL, ?)`; 
     
     // Execute query
-    const [result] = await pool.query(sql, [
+    const [result] = await execute(sql, [
         jb_pst_job_title,
         jb_pst_requirements,
         jb_pst_benefits,
@@ -77,7 +77,7 @@ async function getById(id) {
         WHERE jb_pst_id = ?
     `;
 
-    const [result] = await pool.query(sql, [id]);
+    const [result] = await execute(sql, [id]);
 
     return result.length > 0 ? result[0] : null;
 }
@@ -90,7 +90,7 @@ async function getByCompany(companyId) {
         WHERE jb_pst_id_company = ?
     `;
 
-    const [result] = await pool.query(sql, [companyId]);
+    const [result] = await execute(sql, [companyId]);
 
     return result;
 }
@@ -140,7 +140,7 @@ async function getAll(filters = {}) {
         values.push(`%${filters.search}%`, `%${filters.search}%`);
     }
 
-    const [result] = await pool.query(sql, values);
+    const [result] = await execute(query, values);
     return result;
 }
 
@@ -153,7 +153,7 @@ async function attachCareers(jobId, careerIds) {
             VALUES (?, ?)
         `;
 
-        await pool.query(sql, [jobId, careerId]);
+        await execute(sql, [jobId, careerId]);
     }
 }
 
@@ -164,7 +164,7 @@ async function detachCareers(jobId) {
         WHERE jpc_id_job_posting = ?
     `;
 
-    const [result] = await pool.query(sql, [jobId]);
+    const [result] = await execute(sql, [jobId]);
 
     return result.affectedRows;
 }
@@ -200,7 +200,7 @@ async function update(id, data) {
         WHERE jb_pst_id = ?
     `;
 
-    const [result] = await pool.query(sql, [
+    const [result] = await execute(sql, [
         jb_pst_job_title,
         jb_pst_requirements,
         jb_pst_benefits,
@@ -232,7 +232,7 @@ async function updateApprovalStatus(id, status, reason) {
         WHERE jb_pst_id = ?
     `;
 
-    const [result] = await pool.query(sql, [status, reason, id]);
+    const [result] = await execute(sql, [status, reason, id]);
 
     return result.affectedRows;
 }
@@ -246,7 +246,7 @@ async function getPending() {
         ORDER BY jb_pst_publication_date DESC
     `;
 
-    const [result] = await pool.query(query);
+    const [result] = await execute(sql);
 
     return result;
 }
