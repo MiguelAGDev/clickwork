@@ -174,6 +174,42 @@ ACTIONS: ES Module migration, db.js refactor, authService
   * Missing new before Error() in verifyEmail
   * rows[0].mask changed to rows[0]?.mask in _getPermissions
 
+----------------------------------------------------------------
+DATE: May 8th, 2026
+AUTHOR: MiguelAGDev
+SESSION TIME: ~2 hour
+ACTIONS: authController, authRoutes, bug fixes
+----------------------------------------------------------------
+
+[~0:00 - 0:20] Bug fixes across existing files
+- errorHandler.js: changed err.status to err.statusCode ?? err.status ?? 500
+  to match the convention used in authService (statusCode not status)
+- errorHandler.js: removed async keyword — Express v4 silently ignores
+  async error handlers, uncaught rejections would bypass the handler
+- mailer.js: changed export { transporter } to export default transporter
+  to match the default import used in emailService.js
+- careerModels.js, studentModel.js, userModel.js: added .js extension
+  to db import — required by Node ESM ("type": "module")
+
+[~0:20 - 1:00] authController.js (backend/src/controllers/authController.js)
+- Implemented 3 handlers: registerHandler, loginHandler, verifyEmailHandler
+- Thin HTTP layer only — reads req, calls authService, writes res
+- All errors forwarded with next(err) to errorHandler
+- Fixed loginHandler returning 201 instead of 200
+
+[~1:00 - 2:00] authRoutes.js (backend/src/routes/authRoutes.js)
+- Wired all 3 routes: POST /register, POST /login, GET /verify/:token
+- Added validate() middleware using express-validator
+- Role-conditional validation: semester/stdId for student,
+  startDate/endDate for intern, graduationYear for graduate
+- Fixed 6 bugs across review rounds:
+  * router never declared (const router = Router() missing)
+  * Missing / prefix on /register and /login routes
+  * whithMessage typo → withMessage
+  * isISO08601 typo → isISO8601 (twice)
+  * statrDate typo → startDate
+  * role isIn() had one string instead of four separate values
+
 ================================================================
-TOTAL TIME INVESTED: ~17.5 hours
+TOTAL TIME INVESTED: ~19.5 hours
 ================================================================
