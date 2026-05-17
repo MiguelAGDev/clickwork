@@ -9,7 +9,7 @@
 // Date:
 // By:
 
-import { pool } from "../config/db.js"; // Import database connection
+import { execute } from "../config/db.js"; // Import database connection
 
 
 // Create a new application
@@ -32,7 +32,7 @@ async function create(userId, job_posting_id) {
     `;
 
     // Execute insert query
-    const [result] = await pool.query(sql, [
+    const [result] = await execute(sql, [
         userId,
         job_posting_id
     ]);
@@ -54,7 +54,7 @@ async function getByUser(userId) {
         WHERE a.app_id_user = ?
     `;
 
-    const [result] = await pool.query(sql, [userId]);
+    const [result] = await execute(sql, [userId]);
 
     return result;
 }
@@ -72,7 +72,7 @@ async function getByJobPosting(jobPostingId) {
         WHERE a.app_id_job_posting = ?
     `;
 
-    const [result] = await pool.query(sql, [jobPostingId]);
+    const [result] = await execute(sql, [jobPostingId]);
 
     return result;
 }

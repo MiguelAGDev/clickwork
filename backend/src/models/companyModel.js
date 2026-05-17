@@ -10,7 +10,7 @@
 // Date:
 // By:
 
-import { pool } from '../config/db.js'; // Import database connection pool
+import { execute } from '../config/db.js'; // Import database connection
 
 // Create a new company associated with a user
 // Inserts company data into the database with default approval status 'pending'
@@ -35,7 +35,7 @@ async function create(userId, data) {
           VALUES (?,?,?,?,?,?,?,?,'pending',NULL)`;
 
     // Execute query with parameterized values to prevent SQL injection
-    const [result] = await _query(sql, [
+    const [result] = await execute(sql, [
         userId,
         cmp_name,
         cmp_size,
@@ -57,7 +57,7 @@ async function findByUserId(userId) {
     const sql = `SELECT * FROM company WHERE cmp_id_user = ?`;
 
     // Execute query
-    const [result] = await _query(sql, [userId]);
+    const [result] = await execute(sql, [userId]);
 
     // Return first result if exists, otherwise null
     return result.length > 0 ? result[0] : null;
@@ -90,7 +90,7 @@ async function update(userId, data) {
          WHERE cmp_id_user = ?`;
 
     // Execute update query
-    const [result] = await _query(sql, [
+    const [result] = await execute(sql, [
         cmp_name,
         cmp_size,
         cmp_industry,
@@ -123,7 +123,7 @@ async function updateApprovalStatus(userId, status, reason) {
          WHERE cmp_id_user = ?`;
 
     // Execute update
-    const [result] = await _query(sql, [status, reason, userId]);
+    const [result] = await execute(sql, [status, reason, userId]);
 
     // Return number of affected rows
     return result.affectedRows;
@@ -138,7 +138,7 @@ async function getPending() {
          ORDER BY cmp_id_user DESC`;
 
     // Execute query
-    const [result] = await _query(query);
+    const [result] = await execute(sql);
 
     // Return array of pending companies
     return result;
