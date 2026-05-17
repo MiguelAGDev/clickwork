@@ -8,7 +8,7 @@
 // Date:
 // By: 
 
-import { execute } from '../config/db'; // Import connection
+import { execute } from '../config/db.js';  // Import connection
 
 // IMPORTANT:
 

@@ -9,7 +9,7 @@
 // By:
  
 
-import { execute } from '../config/db';
+import { execute } from '../config/db.js'; 
 
 
 

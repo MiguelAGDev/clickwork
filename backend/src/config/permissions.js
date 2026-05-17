@@ -17,7 +17,7 @@ const PERMISSIONS = {
     REGISTER:                   0x00000002,
     VERIFY_EMAIL:               0x00000004,
     VIEW_JOBS:                  0x00000008,
-    VIEW_JOB_DETAIL:           0x00000010,
+    VIEW_JOB_DETAIL:            0x00000010,
 
     // AUTH: any logged-in user
     LOGOUT:                     0x00000020,
@@ -25,23 +25,23 @@ const PERMISSIONS = {
     EDIT_OWN_PROFILE:           0x00000080,
 
     //  STUDENT - INTERN - GRADUATE
-    UPLOAD_CV:                  0x0000100,
-    ROLL_ME:                    0x0000200,
-    APPLY_TO_JOB:               0x0000400,
-    VIEW_OWN_APPLICATIONS:      0x0000800,
+    UPLOAD_CV:                  0x00000100,
+    ROLL_ME:                    0x00000200,
+    APPLY_TO_JOB:               0x00000400,
+    VIEW_OWN_APPLICATIONS:      0x00000800,
 
     // COMPANY
     CREATE_JOB_POSTING:         0x00001000,
     EDIT_OWN_JOB_POSTING:       0x00002000,
-    DELETE_OWN_JOB_POSTING:      0x00004000,
+    DELETE_OWN_JOB_POSTING:     0x00004000,
     VIEW_OWN_APPLICANTS:        0x00008000,
-    UPDATE_APPLICATION_STATUS: 0x00010000,
+    UPDATE_APPLICATION_STATUS:  0x00010000,
 
     // ADMIN ONLY 
     APPROVE_COMPANY:            0x00020000,
     REJECT_COMPANY:             0x00040000,
-    APPROVE_JOB_POSTING:    0x00080000,
-    REJECT_JOB_POSTING:     0x00100000,
+    APPROVE_JOB_POSTING:        0x00080000,
+    REJECT_JOB_POSTING:         0x00100000,
     EDIT_ANY_JOB_POSTING:       0x00200000,
     DELETE_ANY_JOB_POSTING:     0x00400000,
     VIEW_ALL_USERS:             0x00800000,

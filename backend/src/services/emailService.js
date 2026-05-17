@@ -10,7 +10,7 @@
 // Date:
 // By:
 
-import transporter from '../config/mailer.js';
+import { transporter } from '../config/mailer.js';
 
 
 // Base HTML function, wraps any given contend inside a syled HTML email layout

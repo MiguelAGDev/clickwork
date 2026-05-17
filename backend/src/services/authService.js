@@ -75,6 +75,7 @@ async function _detectRole( userId ) {
 
             // Fourth Check: does this user exist in the graduate table?
             { role: 'graduate', sql: 'SELECT 1 FROM graduate WHERE grd_id_user  = ? LIMIT 1' }
+        
         ];
 
         for( const { role, sql } of checks ){

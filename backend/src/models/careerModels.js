@@ -8,7 +8,7 @@
 // Date:
 // By:
 
-import { execute } from '../config/db';
+import { execute } from '../config/db.js'; 
 
 
 // Returns all careers ordered alphabetically.
