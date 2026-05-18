@@ -11,8 +11,9 @@
 // By: Miguel Angel Avila Garcia
 
 
-import { Router }                   from 'express';
-import { body, validationResult }   from 'express-validator';
+import { Router }           from 'express';
+import { body }             from 'express-validator';
+import { validate }         from '../middlewares/validate.js';
 
 import {
 
@@ -24,27 +25,11 @@ import {
 
 const router = Router();
 
-// VALIDATION MIDDLEWARE
-function validate( req, res, next ){
-
-    const errors = validationResult( req );
-
-    if( !errors.isEmpty() ){
-        
-        return res.status(422).json({
-            success: false,
-            message: 'Validation failed',
-            errors: errors.array(),
-        });
-
-    }
-
-    next();
-
-}
-
 // POST /api/auth/register
 router.post(
+
+    // /register/[informacion]
+
 
     '/register', 
     [
