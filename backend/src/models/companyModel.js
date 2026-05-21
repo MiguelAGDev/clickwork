@@ -145,4 +145,4 @@ async function getPending() {
 }
 
 // Export all model methods
-export default { create, findByUserId, update, updateApprovalStatus, getPending };
+export { create, findByUserId, update, updateApprovalStatus, getPending };
