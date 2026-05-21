@@ -34,6 +34,13 @@ import {
 
         } from '../models/studentModel.js';
 
+// Import functions from company queries
+import {
+
+            create, 
+    
+        } from '../models/companyModel.js';
+
 
 // How many bcrypt rounds to use when hashing passwords
 const SALT_ROUND = 12;
@@ -131,6 +138,9 @@ async function register ( body ) {
         // Graduate data
         graduationYear, currentJob,
 
+        //Company 
+        companyData,
+
 
     } = body;
 
@@ -172,8 +182,7 @@ async function register ( body ) {
         break;
 
         case 'company': {
-            const { default: companyModel } = await import('../models/companyModel.js');
-            const companyData = {
+            /*const companyData = {
                 cmp_name: body.cmp_name ?? null,
                 cmp_size: body.cmp_size ?? null,
                 cmp_industry: body.cmp_industry ?? null,
@@ -181,9 +190,9 @@ async function register ( body ) {
                 cmp_state: body.cmp_state ?? null,
                 cmp_address: body.cmp_address ?? null,
                 cmp_contact_email: body.cmp_contact_email ?? null,
-            };
+            };*/
 
-            await companyModel.create(userId, companyData);
+            await create(userId, companyData);
         }
         break;
 

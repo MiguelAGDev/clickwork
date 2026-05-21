@@ -7,7 +7,7 @@
 
 // Lastest Update:
 // Date:
-// By:
+// By: Azucena Rodriguez Flores 
 
 import { execute } from "../config/db.js"; // Import database connection
 
