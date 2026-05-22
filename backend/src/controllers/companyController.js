@@ -13,7 +13,10 @@ import * as companyModel from '../models/companyModel.js';
 // Creates a new company linked to the authenticated user
 async function createCompany(req, res, next) {
     try {
-        const userId = req.user.id; // Injected by auth middleware
+
+        const {  } = ; 
+
+        const userId = req.userId; // Injected by auth middleware
         const insertId = await companyModel.create(userId, req.body);
 
         res.status(201).json({
