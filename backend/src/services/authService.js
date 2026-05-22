@@ -34,11 +34,9 @@ import {
 
         } from '../models/studentModel.js';
 
-// Import functions from company queries
+//  TO_DO: IMPORT companyModel.js
 import {
-
-            create, 
-    
+            createCompany
         } from '../models/companyModel.js';
 
 
@@ -138,8 +136,14 @@ async function register ( body ) {
         // Graduate data
         graduationYear, currentJob,
 
-        //Company 
-        companyData,
+        // TO_DO: Company
+            name,
+            size,
+            industry,
+            city,
+            state,
+            address,
+            contact_email,
 
 
     } = body;
@@ -181,19 +185,10 @@ async function register ( body ) {
             await createGraduate( userId, {graduationYear, currentJob} );
         break;
 
-        case 'company': {
-            /*const companyData = {
-                cmp_name: body.cmp_name ?? null,
-                cmp_size: body.cmp_size ?? null,
-                cmp_industry: body.cmp_industry ?? null,
-                cmp_city: body.cmp_city ?? null,
-                cmp_state: body.cmp_state ?? null,
-                cmp_address: body.cmp_address ?? null,
-                cmp_contact_email: body.cmp_contact_email ?? null,
-            };*/
-
-            await create(userId, companyData);
-        }
+        case 'company':
+            // TO_DO: Implement when companyModel.js (Azucena) is ready
+            //        Call companyModel.create( params )
+            await createCompany(userId,{name,size,industry,city,state,address,contact_email});
         break;
 
         default: {
@@ -300,4 +295,3 @@ async function verifyEmail( token ) {
 };
 
 export { register, login, verifyEmail };
-
