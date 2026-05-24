@@ -24,6 +24,7 @@ async function registerHandler( req, res, next ) {
             message: 'Account created. Please check your inbox to verify your email.',
         });
 
+        
     }catch( err ){ next(err); }
     
 }
@@ -36,7 +37,7 @@ async function loginHandler( req, res, next ) {
         const { email, password } = req.body;
         const result = await login( email, password );
 
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             ...result,
 
@@ -53,7 +54,7 @@ async function verifyEmailHandler( req, res, next ) {
 
         await verifyEmail( req.params.token );
 
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: 'Email verified successfully. You can now log in.',
         });

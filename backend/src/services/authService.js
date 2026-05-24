@@ -34,6 +34,8 @@ import {
 
         } from '../models/studentModel.js';
 
+//  TO_DO: IMPORT companyModel.js
+
 
 // How many bcrypt rounds to use when hashing passwords
 const SALT_ROUND = 12;
@@ -131,6 +133,8 @@ async function register ( body ) {
         // Graduate data
         graduationYear, currentJob,
 
+        // TO_DO: Company
+
 
     } = body;
 
@@ -171,20 +175,10 @@ async function register ( body ) {
             await createGraduate( userId, {graduationYear, currentJob} );
         break;
 
-        case 'company': {
-            const { default: companyModel } = await import('../models/companyModel.js');
-            const companyData = {
-                cmp_name: body.cmp_name ?? null,
-                cmp_size: body.cmp_size ?? null,
-                cmp_industry: body.cmp_industry ?? null,
-                cmp_city: body.cmp_city ?? null,
-                cmp_state: body.cmp_state ?? null,
-                cmp_address: body.cmp_address ?? null,
-                cmp_contact_email: body.cmp_contact_email ?? null,
-            };
-
-            await companyModel.create(userId, companyData);
-        }
+        case 'company':
+            await create
+            // TO_DO: Implement when companyModel.js (Azucena) is ready
+            //        Call companyModel.create( params )
         break;
 
         default: {
