@@ -17,6 +17,7 @@ import userRoutes from './src/routes/userRoutes.js'; // Import user routes (mana
 import announcementRoutes from './src/routes/announcementRoutes.js'; // Import announcemente routes (job posting created by companies)
 import applicationsRoutes from './src/routes/applicationsRoutes.js'; // Import application routes (Applications submitted by students)
 import adminRoutes from './src/routes/adminRoutes.js'; // Import admin routes (approve announcements, manage users and so on).
+import companyRoutes from './src/routes/companyRoutes.js';
 
 import {errorHandler} from './src/middlewares/errorHandler.js'; // Import custom error handler (centralized error handler for the API).
 
@@ -34,7 +35,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/applications', applicationsRoutes);
+app.use('/api/company', companyRoutes);
 app.use('/api/admin', adminRoutes);
+
+
 
 app.use(errorHandler);
 

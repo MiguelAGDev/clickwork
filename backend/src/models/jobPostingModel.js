@@ -1,265 +1,292 @@
 // Authors: 
 //      * Azucena Rodriguez Flores  
 //      * Miguel Angel Avila Garcia
-// Description: Job Posting model that manages database operations related to job postings.
-//              Includes CRUD operations, dynamic filtering, and career associations.
+// Description: Job Posting model — queries for the job_posting and job_posting_career tables.
+//              Handles creation, retrieval, filtering, career associations,
+//              content updates, and the admin approval workflow.
 // Date: May 5th 2026
 
-// Lastest Update:
+// Latest Update:
 // Date:
 // By:
 
-import { execute } from "../config/db.js"; // Import database connection
+import { execute } from '../config/db.js';
 
-//  Create a new job posting
-// Inserts a job posting with default approval status 'pending'
-async function create(companyId, data) {
-    // Extract job posting fields
-    const {
-        jb_pst_job_title,
-        jb_pst_requirements,
-        jb_pst_benefits,
-        jb_pst_modality,
-        jb_pst_schedule,
-        jb_pst_contract_type,
-        jb_pst_experience_level,
-        jb_pst_publication_date,
-        jb_pst_expiration_date,
-        jb_pst_salary,
-        jb_pst_image_url
-    } = data;
 
-    // SQL query to insert job posting
-    const sql = 
-    `INSERT INTO job_posting(
-        jb_pst_job_title,
-        jb_pst_requirements,
-        jb_pst_benefits,
-        jb_pst_modality,
-        jb_pst_schedule,
-        jb_pst_contract_type,
-        jb_pst_experience_level,
-        jb_pst_publication_date,
-        jb_pst_expiration_date,
-        jb_pst_salary,
-        jb_pst_image_url,
-        jb_pst_approval_status,
-        jb_pst_rejection_reason,
-        jb_pst_id_company
-    )
-    VALUES (?,?,?,?,?,?,?,?,?,?,?, 'pending', NULL, ?)`; 
-    
-    // Execute query
-    const [result] = await execute(sql, [
-        jb_pst_job_title,
-        jb_pst_requirements,
-        jb_pst_benefits,
-        jb_pst_modality,
-        jb_pst_schedule,
-        jb_pst_contract_type,
-        jb_pst_experience_level,
-        jb_pst_publication_date,
-        jb_pst_expiration_date,
-        jb_pst_salary,
-        jb_pst_image_url,
-        companyId 
-    ]);
+// Inserts a new job posting linked to a company.
+// Approval status defaults to 'pending'. Returns the new posting ID.
+// Called by companyController right before attachJobPostingCareers().
+async function createJobPosting( companyId, {
+    job_title,
+    requirements    = null,
+    benefits        = null,
+    modality,
+    schedule        = null,
+    contract_type,
+    experience_level,
+    publication_date,
+    expiration_date = null,
+    salary          = null,
+    image_url       = null,
+} ) {
 
-    // Return generated ID
+    const sql = `
+        INSERT INTO job_posting (
+            jb_pst_job_title,
+            jb_pst_requirements,
+            jb_pst_benefits,
+            jb_pst_modality,
+            jb_pst_schedule,
+            jb_pst_contract_type,
+            jb_pst_experience_level,
+            jb_pst_publication_date,
+            jb_pst_expiration_date,
+            jb_pst_salary,
+            jb_pst_image_url,
+            jb_pst_approval_status,
+            jb_pst_rejection_reason,
+            jb_pst_id_company
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NULL, ?)
+    `;
+
+    const [ result ] = await execute( sql, [
+        job_title,
+        requirements,
+        benefits,
+        modality,
+        schedule,
+        contract_type,
+        experience_level,
+        publication_date,
+        expiration_date,
+        salary,
+        image_url,
+        companyId,
+    ] );
+
     return result.insertId;
+
 }
 
-//  Get job posting by ID
-// Returns a single job or null if not found
-async function getById(id) {
+
+// Fetches a single job posting by primary key.
+// Returns null if not found. Used by convocatoriasController (detail page).
+async function findJobPostingById( id ) {
+
     const sql = `
-        SELECT * FROM job_posting
+        SELECT *
+        FROM job_posting
         WHERE jb_pst_id = ?
     `;
 
-    const [result] = await execute(sql, [id]);
+    const [ rows ] = await execute( sql, [ id ] );
 
-    return result.length > 0 ? result[0] : null;
+    return rows[0] ?? null;
+
 }
 
-// 🔹 Get job postings by company
-// Returns all job postings belonging to a specific company
-async function getByCompany(companyId) {
+
+// Returns all job postings created by a specific company, regardless of approval status.
+// Used by companyController for the "my postings" page.
+async function findJobPostingsByCompany( companyId ) {
+
     const sql = `
-        SELECT * FROM job_posting
+        SELECT *
+        FROM job_posting
         WHERE jb_pst_id_company = ?
     `;
 
-    const [result] = await execute(sql, [companyId]);
+    const [ rows ] = await execute( sql, [ companyId ] );
 
-    return result;
+    return rows;
+
 }
 
-//  Get all approved job postings with optional filters
-// Filters include modality, contract type, experience level, career, and search text
-async function getAll(filters = {}) {
+
+// Returns all approved job postings with optional filters.
+// Accepts modality, contract_type, experience_level, career_id, and a text search.
+// Used by convocatoriasController for the browse/search page.
+async function getAllJobPostings( filters = {} ) {
 
     let query = `
         SELECT jp.*
         FROM job_posting jp
-        LEFT JOIN job_posting_career jpc 
+        LEFT JOIN job_posting_career jpc
             ON jp.jb_pst_id = jpc.jpc_id_job_posting
         WHERE jp.jb_pst_approval_status = 'approved'
     `;
 
-    let values = [];
+    const values = [];
 
-    if (filters.modality) {
+    if ( filters.modality ) {
         query += ` AND jp.jb_pst_modality = ?`;
-        values.push(filters.modality);
+        values.push( filters.modality );
     }
 
-    if (filters.contractType) {
+    if ( filters.contract_type ) {
         query += ` AND jp.jb_pst_contract_type = ?`;
-        values.push(filters.contractType);
+        values.push( filters.contract_type );
     }
 
-    if (filters.experienceLevel) {
+    if ( filters.experience_level ) {
         query += ` AND jp.jb_pst_experience_level = ?`;
-        values.push(filters.experienceLevel);
+        values.push( filters.experience_level );
     }
 
-    
-    if (filters.careerId) {
+    if ( filters.career_id ) {
         query += ` AND jpc.jpc_id_career = ?`;
-        values.push(filters.careerId);
+        values.push( filters.career_id );
     }
 
-    if (filters.search) {
+    if ( filters.search ) {
         query += `
             AND (
-                jp.jb_pst_job_title LIKE ?
+                jp.jb_pst_job_title    LIKE ?
                 OR jp.jb_pst_requirements LIKE ?
             )
         `;
-        values.push(`%${filters.search}%`, `%${filters.search}%`);
+        values.push( `%${ filters.search }%`, `%${ filters.search }%` );
     }
 
-    const [result] = await execute(query, values);
-    return result;
+    const [ rows ] = await execute( query, values );
+
+    return rows;
+
 }
 
-//  Attach careers to a job posting
-// Inserts multiple records into the relation table
-async function attachCareers(jobId, careerIds) {
-    for (const careerId of careerIds) {
+
+// Inserts rows in job_posting_career to associate careers with a posting.
+// Called right after createJobPosting() or during an edit to sync the career list.
+async function attachJobPostingCareers( jobId, careerIds ) {
+
+    for ( const careerId of careerIds ) {
+
         const sql = `
             INSERT INTO job_posting_career (jpc_id_job_posting, jpc_id_career)
             VALUES (?, ?)
         `;
 
-        await execute(sql, [jobId, careerId]);
+        await execute( sql, [ jobId, careerId ] );
+
     }
+
 }
 
-//  Remove all careers associated with a job posting
-async function detachCareers(jobId) {
+
+// Deletes all career associations for a posting.
+// Always called before re-inserting an updated career list during an edit.
+async function detachJobPostingCareers( jobId ) {
+
     const sql = `
         DELETE FROM job_posting_career
         WHERE jpc_id_job_posting = ?
     `;
 
-    const [result] = await execute(sql, [jobId]);
+    const [ result ] = await execute( sql, [ jobId ] );
 
     return result.affectedRows;
+
 }
 
-// Update job posting data
-// Updates editable fields only
-async function update(id, data) {
-    const {
-        jb_pst_job_title,
-        jb_pst_requirements,
-        jb_pst_benefits,
-        jb_pst_modality,
-        jb_pst_schedule,
-        jb_pst_contract_type,
-        jb_pst_experience_level,
-        jb_pst_expiration_date,
-        jb_pst_salary,
-        jb_pst_image_url
-    } = data;
+
+// Updates the editable content fields of a job posting.
+// Does not touch approval status or publication date.
+async function updateJobPosting( id, {
+    job_title,
+    requirements    = null,
+    benefits        = null,
+    modality,
+    schedule        = null,
+    contract_type,
+    experience_level,
+    expiration_date = null,
+    salary          = null,
+    image_url       = null,
+} ) {
 
     const sql = `
         UPDATE job_posting SET
-            jb_pst_job_title = ?,
-            jb_pst_requirements = ?,
-            jb_pst_benefits = ?,
-            jb_pst_modality = ?,
-            jb_pst_schedule = ?,
-            jb_pst_contract_type = ?,
+            jb_pst_job_title        = ?,
+            jb_pst_requirements     = ?,
+            jb_pst_benefits         = ?,
+            jb_pst_modality         = ?,
+            jb_pst_schedule         = ?,
+            jb_pst_contract_type    = ?,
             jb_pst_experience_level = ?,
-            jb_pst_expiration_date = ?,
-            jb_pst_salary = ?,
-            jb_pst_image_url = ?
+            jb_pst_expiration_date  = ?,
+            jb_pst_salary           = ?,
+            jb_pst_image_url        = ?
         WHERE jb_pst_id = ?
     `;
 
-    const [result] = await execute(sql, [
-        jb_pst_job_title,
-        jb_pst_requirements,
-        jb_pst_benefits,
-        jb_pst_modality,
-        jb_pst_schedule,
-        jb_pst_contract_type,
-        jb_pst_experience_level,
-        jb_pst_expiration_date,
-        jb_pst_salary,
-        jb_pst_image_url,
-        id
-    ]);
+    const [ result ] = await execute( sql, [
+        job_title,
+        requirements,
+        benefits,
+        modality,
+        schedule,
+        contract_type,
+        experience_level,
+        expiration_date,
+        salary,
+        image_url,
+        id,
+    ] );
 
     return result.affectedRows;
+
 }
 
-// Update approval status
-// Changes job status and handles rejection reason
-async function updateApprovalStatus(id, status, reason) {
 
-    if (status !== 'rejected') {
+// Called by admin to approve or reject a job posting.
+// Clears rejection reason automatically when approving.
+async function updateJobPostingApprovalStatus( id, status, reason = null ) {
+
+    if ( status !== 'rejected' ) {
         reason = null;
     }
 
     const sql = `
         UPDATE job_posting
-        SET jb_pst_approval_status = ?, 
+        SET jb_pst_approval_status  = ?,
             jb_pst_rejection_reason = ?
         WHERE jb_pst_id = ?
     `;
 
-    const [result] = await execute(sql, [status, reason, id]);
+    const [ result ] = await execute( sql, [ status, reason, id ] );
 
     return result.affectedRows;
+
 }
 
-// Get all pending job postings
-// Used for admin approval flow
-async function getPending() {
+
+// Returns all job postings pending admin review.
+// Used by adminController to populate the admin panel.
+async function getPendingJobPostings() {
+
     const sql = `
-        SELECT * FROM job_posting
+        SELECT *
+        FROM job_posting
         WHERE jb_pst_approval_status = 'pending'
         ORDER BY jb_pst_publication_date DESC
     `;
 
-    const [result] = await execute(sql);
+    const [ rows ] = await execute( sql );
 
-    return result;
+    return rows;
+
 }
 
-// Export all model methods
-export  {
-    create,
-    getById,
-    getByCompany,
-    getAll,
-    attachCareers,
-    detachCareers,
-    update,
-    updateApprovalStatus,
-    getPending
+
+export {
+    createJobPosting,
+    findJobPostingById,
+    findJobPostingsByCompany,
+    getAllJobPostings,
+    attachJobPostingCareers,
+    detachJobPostingCareers,
+    updateJobPosting,
+    updateJobPostingApprovalStatus,
+    getPendingJobPostings,
 };
