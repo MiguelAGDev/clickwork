@@ -35,6 +35,12 @@ import {
         } from '../models/studentModel.js';
 
 //  TO_DO: IMPORT companyModel.js
+<<<<<<< HEAD
+=======
+import {
+            createCompany
+        } from '../models/companyModel.js';
+>>>>>>> f799e3e1b062372fa3862fe1eab3da15cc82990a
 
 
 // How many bcrypt rounds to use when hashing passwords
@@ -134,6 +140,16 @@ async function register ( body ) {
         graduationYear, currentJob,
 
         // TO_DO: Company
+<<<<<<< HEAD
+=======
+            name,
+            size,
+            industry,
+            city,
+            state,
+            address,
+            contact_email,
+>>>>>>> f799e3e1b062372fa3862fe1eab3da15cc82990a
 
 
     } = body;
@@ -176,9 +192,15 @@ async function register ( body ) {
         break;
 
         case 'company':
+<<<<<<< HEAD
             await create
             // TO_DO: Implement when companyModel.js (Azucena) is ready
             //        Call companyModel.create( params )
+=======
+            // TO_DO: Implement when companyModel.js (Azucena) is ready
+            //        Call companyModel.create( params )
+            await createCompany(userId,{name,size,industry,city,state,address,contact_email});
+>>>>>>> f799e3e1b062372fa3862fe1eab3da15cc82990a
         break;
 
         default: {
@@ -285,4 +307,3 @@ async function verifyEmail( token ) {
 };
 
 export { register, login, verifyEmail };
-

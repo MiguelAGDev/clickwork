@@ -1,84 +1,80 @@
 // Authors: 
 //      * Azucena Rodriguez Flores  
 //      * Miguel Angel Avila Garcia
-// Description: Application model that manages job applications between users
-//              and job postings. Includes creation and retrieval of applications.
+// Description: Application model — queries for the application table.
+//              Logs every CV send (Roll Me action) and supports retrieval
+//              by user and by job posting.
 // Date: May 5th 2026
 
-// Lastest Update:
+// Latest Update:
 // Date:
 // By:
 
-import { execute } from "../config/db.js"; // Import database connection
+import { execute } from '../config/db.js';
 
 
-// Create a new application
-// Registers a user application for a specific job posting
-async function create(userId, job_posting_id) {
+// Logs a CV send. Called immediately after emailService sends the CV.
+// Status defaults to 'pending'. Returns the new application ID.
+// Called by postulacionController (Roll Me button).
+async function createApplication( userId, jobPostingId ) {
 
     const sql = `
-        INSERT INTO application(
+        INSERT INTO application (
             app_date,
             app_status,
             app_id_user,
             app_id_job_posting
         )
-        VALUES (
-            CURRENT_TIMESTAMP,
-            'pending',
-            ?,
-            ?
-        )
+        VALUES (CURRENT_TIMESTAMP, 'pending', ?, ?)
     `;
 
-    // Execute insert query
-    const [result] = await execute(sql, [
-        userId,
-        job_posting_id
-    ]);
+    const [ result ] = await execute( sql, [ userId, jobPostingId ] );
 
-    // Return generated application ID
     return result.insertId;
+
 }
 
-// Get all applications by user
-// Returns all applications made by a specific user
-// Includes related job posting information
-async function getByUser(userId) {
+
+// Returns all applications made by a specific user, joined with job posting data.
+// Used by postulacionController for the "my Roll Me history" page.
+async function findApplicationsByUser( userId ) {
 
     const sql = `
-        SELECT * 
+        SELECT *
         FROM application a
         JOIN job_posting jp
             ON a.app_id_job_posting = jp.jb_pst_id
         WHERE a.app_id_user = ?
     `;
 
-    const [result] = await execute(sql, [userId]);
+    const [ rows ] = await execute( sql, [ userId ] );
 
-    return result;
+    return rows;
+
 }
 
-// Get all applications for a job posting
-// Returns all users who applied to a specific job posting
-// Includes related user information
-async function getByJobPosting(jobPostingId) {
+
+// Returns all applicants for a specific posting, joined with user data.
+// Used by companyController so companies can see who sent their CV.
+async function findApplicationsByJobPosting( jobPostingId ) {
 
     const sql = `
-        SELECT * 
+        SELECT *
         FROM application a
         JOIN app_user au
             ON a.app_id_user = au.ap_usr_id
         WHERE a.app_id_job_posting = ?
     `;
 
-    const [result] = await execute(sql, [jobPostingId]);
+    const [ rows ] = await execute( sql, [ jobPostingId ] );
 
-    return result;
+    return rows;
+
 }
-//Export all model methods
+
+
 export {
-    create,
-    getByJobPosting,
-    getByUser
+    createApplication,
+    findApplicationsByUser,
+    findApplicationsByJobPosting,
 };

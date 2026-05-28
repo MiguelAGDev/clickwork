@@ -13,7 +13,7 @@
 
 import { Router }           from 'express';
 import { body }             from 'express-validator';
-import { validate }         from '../middlewares/validate.js';
+import { validate }         from '../middlewares/validateRequest.js';
 
 import {
 

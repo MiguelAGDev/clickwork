@@ -90,7 +90,7 @@ async function update( id, { phone = null, careerId } ) {
 
 // Saves the file path of the uploaded CV PDF into ap_usr_cv_url.
 // Called by userController after Multer processes the file upload.
-async function updateCvUrl ( id, url ) {
+async function updateCvUrl ( id, url ) { 
 
     const sql = `
         UPDATE app_user
