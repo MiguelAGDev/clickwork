@@ -18,13 +18,14 @@ async function findById( id ) {
 
     const sql = `
         SELECT
-            au.ap_usr_id            AS id,
-            au.ap_usr_email         AS email,
-            au.ap_usr_phone         AS phone,
-            au.ap_usr_active        AS active,
-            au.ap_usr_cv_url        AS resume_url,
-            au.ap_usr_id_career     AS career_id,
-            c.car_name              AS career_name
+            au.ap_usr_id                AS id,
+            au.ap_usr_email             AS email,
+            au.ap_usr_phone             AS phone,
+            au.ap_usr_active            AS active,
+            au.ap_usr_email_verified    AS email_verified,
+            au.ap_usr_cv_url            AS resume_url,
+            au.ap_usr_id_career         AS career_id,
+            c.car_name                  AS career_name
         FROM app_user au
         LEFT JOIN careers c ON c.car_id = au.ap_usr_id_career
         WHERE au.ap_usr_id = ?
