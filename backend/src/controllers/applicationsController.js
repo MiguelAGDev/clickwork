@@ -12,8 +12,8 @@
 // Date:
 // By: Azucena Rodriguez Flores 
 
-import { create,getByJobPosting,getByUser } from '../models/applicationModel.js';
-import { getById } from '../jobPostingModel.js';
+import { createApplication, findApplicationsByUser, findApplicationsByJobPosting } from '../models/applicationModel.js';
+import { findJobPostingById } from '../models/jobPostingModel.js';
 
 // POST /api/applications
 // Registers the authenticated user's application to a job posting
@@ -29,18 +29,18 @@ async function applyToJob(req,res,next) {
 
             const err = new Error ('job_posting_id is required' );
             err.statusCode = 400;
-            next (err)
+            return next (err)
 
         }
 
         // Verify that the job posting exists
-        const posting = await getById(job_posting_id);
+        const posting = await findJobPostingById(job_posting_id);
 
         if(!posting){
 
             const err = new Error ('Job posting not found')
             err.statusCode = 404;
-             next(err);
+            return next(err);
 
         }
 
@@ -49,12 +49,12 @@ async function applyToJob(req,res,next) {
 
             const err = new Error ('Cannot apply to a job posting that is not approved');
             err.statusCode = 400;
-            next(err);
+            return next(err);
 
         }
 
         // Create application record
-        const insertId = await create(userId,job_posting_id);
+        const insertId = await createApplication(userId,job_posting_id);
 
         // Return successful response
         res.status(201).json({
@@ -78,7 +78,7 @@ async function getMyApplications(req,res,next) {
     try{
 
         const userId = req.user.id;
-        const applications = await getByUser(userId);
+        const applications = await findApplicationsByUser(userId);
 
         res.status(200).json({
             success: true,
@@ -95,12 +95,12 @@ async function getMyApplications(req,res,next) {
 
 // GET /api/applications/job-posting/:jobPostingId
 // Returns all applications associated with a specific job posting
-async function getApplicationsByJobPosting(req,res,next) {
+async function getMyApplicationByJobPosting(req,res,next) {
 
     try{
 
         const {jobPostingId} = req.params;
-        const applications = await getByJobPosting(jobPostingId);
+        const applications = await findApplicationsByJobPosting(jobPostingId);
 
         res.status(200).json({
             success: true,
@@ -115,4 +115,4 @@ async function getApplicationsByJobPosting(req,res,next) {
     
 }
 
-export{getApplicationsByJobPosting,getMyApplications,applyToJob};
+export{getMyApplicationByJobPosting,getMyApplications,applyToJob};
