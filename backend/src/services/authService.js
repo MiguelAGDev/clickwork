@@ -1,12 +1,20 @@
 // Authors: 
 //      * Azucena Rodriguez Flores  
 //      * Miguel Angel Avila Garcia
-// Description: AuthServices - 
+// Description: AuthServices - Handles user registration, login, and email verification.
+//              Uses role-based permission system with bitmasks stored in role-specific tables.
+//              Registration: creates app_user → role record → sets role permissions → sends verification email.
+//              Login: detects role → retrieves permissions from role table → signs JWT.
 // Date: May 6th 2026
 
 // Latest Update:
-// Date:
-// By:
+// Date: June 7th 2026
+// By: Miguel Angel Avila Garcia
+// Changes: Implemented permission initialization during registration. Added _updatePermissions() method
+//          to set permission bitmasks in role-specific columns (std_permissions, itn_permissions,
+//          grd_permissions, cmp_permissions). Modified _getPermissions() to read from role-specific
+//          tables instead of central permissions table. Ensures all users get correct permissions
+//          immediately upon registration.
 
 
 import bcryptjs    from 'bcryptjs';     // Library 'bcrypts' for hashing passwors securely 
@@ -35,12 +43,13 @@ import {
         } from '../models/studentModel.js';
 
 //  TO_DO: IMPORT companyModel.js
-<<<<<<< HEAD
-=======
+
 import {
             createCompany
         } from '../models/companyModel.js';
->>>>>>> f799e3e1b062372fa3862fe1eab3da15cc82990a
+
+// Import permission bitmasks
+import { ROLE_MASK } from '../config/permissions.js';
 
 
 // How many bcrypt rounds to use when hashing passwords
@@ -63,6 +72,44 @@ async function _borrowConnection(  ) { // The '_' in the begining mean -> functi
     
 };
 
+
+// Function: Update permission bitmask in role-specific table after role creation
+async function _updatePermissions( userId, role ) {
+
+    const { execute, release } = await _borrowConnection();
+
+    try {
+        switch (role) {
+            case 'student':
+                await execute(
+                    'UPDATE student SET std_permissions = ? WHERE std_id_user = ?',
+                    [ROLE_MASK.student, userId]
+                );
+                break;
+            case 'intern':
+                await execute(
+                    'UPDATE intern SET itn_permissions = ? WHERE itn_id_user = ?',
+                    [ROLE_MASK.intern, userId]
+                );
+                break;
+            case 'graduate':
+                await execute(
+                    'UPDATE graduate SET grd_permissions = ? WHERE grd_id_user = ?',
+                    [ROLE_MASK.graduate, userId]
+                );
+                break;
+            case 'company':
+                await execute(
+                    'UPDATE company SET cmp_permissions = ? WHERE cmp_id_user = ?',
+                    [ROLE_MASK.company, userId]
+                );
+                break;
+        }
+    } finally {
+        release();
+    }
+
+}
 
 // Function: Determines which role sub-tale user belons to.
 async function _detectRole( userId ) {
@@ -103,19 +150,39 @@ async function _getPermissions ( userId ) {
 
     try{
 
-        const sql = `
-            SELECT prm_bitmask AS mask
-            FROM permissions
-            WHERE ap_usr_id = ? LIMIT 1;
-        `;
+        // First, detect the user's role
+        const role = await _detectRole( userId );
+
+        if (!role) {
+            return 0; // No role found, return no permissions
+        }
+
+        // Based on role, query the appropriate permissions column from role-specific table
+        let sql;
+
+        switch (role) {
+            case 'student':
+                sql = 'SELECT std_permissions AS mask FROM student WHERE std_id_user = ? LIMIT 1';
+                break;
+            case 'intern':
+                sql = 'SELECT itn_permissions AS mask FROM intern WHERE itn_id_user = ? LIMIT 1';
+                break;
+            case 'graduate':
+                sql = 'SELECT grd_permissions AS mask FROM graduate WHERE grd_id_user = ? LIMIT 1';
+                break;
+            case 'company':
+                sql = 'SELECT cmp_permissions AS mask FROM company WHERE cmp_id_user = ? LIMIT 1';
+                break;
+            default:
+                return 0;
+        }
 
         const [ rows ] = await execute( sql, [ userId ] );
-
         return rows[0]?.mask ?? 0;
 
     }finally{ release(); };
     
-}
+};
 
 
 // PUBLIC FUNCTIONS
@@ -140,8 +207,7 @@ async function register ( body ) {
         graduationYear, currentJob,
 
         // TO_DO: Company
-<<<<<<< HEAD
-=======
+
             name,
             size,
             industry,
@@ -149,8 +215,6 @@ async function register ( body ) {
             state,
             address,
             contact_email,
->>>>>>> f799e3e1b062372fa3862fe1eab3da15cc82990a
-
 
     } = body;
 
@@ -192,15 +256,10 @@ async function register ( body ) {
         break;
 
         case 'company':
-<<<<<<< HEAD
-            await create
-            // TO_DO: Implement when companyModel.js (Azucena) is ready
-            //        Call companyModel.create( params )
-=======
             // TO_DO: Implement when companyModel.js (Azucena) is ready
             //        Call companyModel.create( params )
             await createCompany(userId,{name,size,industry,city,state,address,contact_email});
->>>>>>> f799e3e1b062372fa3862fe1eab3da15cc82990a
+
         break;
 
         default: {
@@ -213,15 +272,18 @@ async function register ( body ) {
 
     }
 
+    // 6. Set permission bitmask for the role in role-specific table
+    await _updatePermissions( userId, role );
+
     // TO_DO: insert role_history row when roleHistoryModel.js is ready
 
-    // 6. Generate verification token
+    // 7. Generate verification token
     const verifyToken = crypto.randomBytes( 32 ).toString( 'hex' );
     const expiration  = new Date( Date.now() + 24 * 60 * 60 * 1000 ); // +24 h
 
     await updateToken( userId, verifyToken, expiration );
 
-    // 7. Send verification email
+    // 8. Send verification email
     await sendVerificationEmail({to: email, token: verifyToken});
 
 };
@@ -271,7 +333,7 @@ async function login( email, password ) {
     const token = jwt.sign(
         { id: user.id, email: user.email, role, permissions },
         process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN ?? '7d' } 
+        { expiresIn: process.env.JWT_EXPIRES_IN ?? '3h' } 
     );
 
     return {
