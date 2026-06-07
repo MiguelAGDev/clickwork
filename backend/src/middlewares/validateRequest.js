@@ -9,7 +9,7 @@ import { validationResult } from 'express-validator';
 /**
  * Generic validation middleware.
  * Checks for validation errors and returns a clean JSON response.
- * Must be placed after validation chain middleware in routes.
+ * Must be placed after validation chain middleware in routes. 
  */
 export function validate(req, res, next) {
     const errors = validationResult(req);
