@@ -3,21 +3,27 @@
 //      * Miguel Angel Avila Garcia
 // Description: Controller for company-related endpoints.
 //              Handles creation, retrieval, update, and approval of companies.
+
 // Date: May 17th 2026
 // Lastest Update:
 // Date:
 // By: Azucena Rodirguez Flores 
-import * as companyModel from '../models/companyModel.js';
+
+import {
+    createCompany,
+    findCompanyByUserId,
+    updateCompany,
+    getPendingCompanies,
+    updateCompanyApprovalStatus
+} from '../models/companyModel.js';
 
 // POST /api/companies
 // Creates a new company linked to the authenticated user
 async function createCompany(req, res, next) {
     try {
 
-        // const {  } = ; 
-
-        const userId = req.userId; // Injected by auth middleware
-        const insertId = await companyModel.create(userId, req.body);
+        const userId = req.user.id;
+        const insertId = await createCompany(userId, req.body);
 
         res.status(201).json({
             success: true,
@@ -34,12 +40,12 @@ async function createCompany(req, res, next) {
 async function getMyCompany(req, res, next) {
     try {
         const userId = req.user.id;
-        const company = await companyModel.findByUserId(userId);
+        const company = await findCompanyByUserId(userId);
 
         if (!company) {
             const err = new Error('Company not found for this user');
             err.statusCode = 404;
-            next(err);
+            return next(err);
         }
 
         res.status(200).json({
@@ -56,12 +62,12 @@ async function getMyCompany(req, res, next) {
 async function updateMyCompany(req, res, next) {
     try {
         const userId = req.user.id;
-        const affectedRows = await companyModel.update(userId, req.body);
+        const affectedRows = await updateCompany(userId, req.body);
 
         if (affectedRows === 0) {
             const err = new Error('Company not found or nothing changed');
             err.statusCode = 404;
-            next(err);
+            return next(err);
         }
 
         res.status(200).json({
@@ -77,7 +83,7 @@ async function updateMyCompany(req, res, next) {
 // Returns all companies with approval status 'pending'
 async function getPendingCompanies(req, res, next) {
     try {
-        const companies = await companyModel.getPending();
+        const companies = await getPendingCompanies();
 
         res.status(200).json({
             success: true,
@@ -100,15 +106,15 @@ async function updateCompanyApproval(req, res, next) {
         if (!validStatuses.includes(status)) {
             const err = new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
             err.statusCode = 400;
-            next(err);
+            return next(err);
         }
 
-        const affectedRows = await companyModel.updateApprovalStatus(userId, status, reason);
+        const affectedRows = await updateCompanyApprovalStatus(userId, status, reason);
 
         if (affectedRows === 0) {
             const err = new Error('Company not found');
             err.statusCode = 404;
-            next(err);
+            return next(err);
         }
 
         res.status(200).json({

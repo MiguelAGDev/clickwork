@@ -11,8 +11,21 @@
 // By: Azucena Rodirguez Flores 
 
 
-import * as jobPostingModel from '../models/jobPostingModel.js';
-import * as companyModel from '../models/companyModel.js';
+import {
+    createJobPosting,
+    getAllJobPostings,
+    findJobPostingById,
+    findJobPostingsByCompany,
+    updateJobPosting,
+    attachJobPostingCareers,
+    detachJobPostingCareers,
+    getPendingJobPostings,
+    updateJobPostingApprovalStatus
+} from '../models/jobPostingModel.js';
+
+import {
+    findCompanyByUserId
+} from '../models/companyModel.js';
 
 
 
@@ -31,7 +44,7 @@ async function createJobPosting(req, res, next) {
 
         // Find company associated with user
         const company =
-            await companyModel.findByUserId(userId);
+            await findCompanyByUserId(userId);
 
         // Validate that user has a registered company
         if (!company) {
@@ -42,7 +55,7 @@ async function createJobPosting(req, res, next) {
 
             err.statusCode = 403;
 
-            next(err);
+            return next(err);
         }
 
         // Validate company approval status
@@ -54,13 +67,13 @@ async function createJobPosting(req, res, next) {
 
             err.statusCode = 403;
 
-            next(err);
+            return next(err);
         }
 
         // Create job posting in database
         const insertId =
-            await jobPostingModel.create(
-                company.cmp_id,
+            await createJobPosting(
+                company.cmp_id_user,
                 req.body
             );
 
@@ -70,7 +83,7 @@ async function createJobPosting(req, res, next) {
         // Attach careers if provided
         if (Array.isArray(careerIds) && careerIds.length > 0) {
 
-            await jobPostingModel.attachCareers(
+            await attachJobPostingCareers(
                 insertId,
                 careerIds
             );
@@ -99,7 +112,6 @@ async function createJobPosting(req, res, next) {
     }
 
 }
-
 
 
 
@@ -138,7 +150,7 @@ async function getAllJobPostings(req, res, next) {
 
         // Fetch job postings from database
         const postings =
-            await jobPostingModel.getAll(filters);
+            await getAllJobPostings(filters);
 
         // Send successful response
         res.status(200).json({
@@ -171,7 +183,7 @@ async function getJobPostingById(req, res, next) {
 
         // Fetch job posting by ID
         const posting =
-            await jobPostingModel.getById(req.params.id);
+            await findJobPostingById(req.params.id);
 
         // Validate existence of posting
         if (!posting) {
@@ -182,7 +194,7 @@ async function getJobPostingById(req, res, next) {
 
             err.statusCode = 404;
 
-            next(err);
+            return next(err);
         }
 
         // Send successful response
@@ -224,7 +236,7 @@ async function getMyCompanyJobPostings(
 
         // Find associated company
         const company =
-            await companyModel.findByUserId(userId);
+            await findCompanyByUserId(userId);
 
         // Validate company existence
         if (!company) {
@@ -235,13 +247,13 @@ async function getMyCompanyJobPostings(
 
             err.statusCode = 404;
 
-            next(err);
+            return next(err);
         }
 
         // Fetch company job postings
         const postings =
-            await jobPostingModel.getByCompany(
-                company.cmp_id
+            await findJobPostingsByCompany(
+                company.cmp_id_user
             );
 
         // Send successful response
@@ -282,11 +294,11 @@ async function updateJobPosting(req, res, next) {
 
         // Find associated company
         const company =
-            await companyModel.findByUserId(userId);
+            await findCompanyByUserId(userId);
 
         // Fetch job posting information
         const posting =
-            await jobPostingModel.getById(postingId);
+            await findJobPostingById(postingId);
 
         // Validate posting existence
         if (!posting) {
@@ -297,13 +309,13 @@ async function updateJobPosting(req, res, next) {
 
             err.statusCode = 404;
 
-            next(err);
+            return next(err);
         }
 
         // Validate company ownership
         if (
             !company ||
-            posting.jb_pst_id_company !== company.cmp_id
+            posting.jb_pst_id_company !== company.cmp_id_user
         ) {
 
             const err = new Error(
@@ -312,12 +324,12 @@ async function updateJobPosting(req, res, next) {
 
             err.statusCode = 403;
 
-            next(err);
+            return next(err);
         }
 
         // Update job posting
         const affectedRows =
-            await jobPostingModel.update(
+            await updateJobPosting(
                 postingId,
                 req.body
             );
@@ -329,14 +341,14 @@ async function updateJobPosting(req, res, next) {
         if (Array.isArray(careerIds)) {
 
             // Remove old careers
-            await jobPostingModel.detachCareers(
+            await detachJobPostingCareers(
                 postingId
             );
 
             // Attach new careers
             if (careerIds.length > 0) {
 
-                await jobPostingModel.attachCareers(
+                await attachJobPostingCareers(
                     postingId,
                     careerIds
                 );
@@ -386,7 +398,7 @@ async function getPendingJobPosting(
 
         // Fetch pending postings
         const postings =
-            await jobPostingModel.getPending();
+            await getPendingJobPostings();
 
         // Send successful response
         res.status(200).json({
@@ -446,7 +458,7 @@ async function updateJobPostingApproval(
 
             err.statusCode = 400;
 
-            next(err);
+            return next(err);
         }
 
         // Validate rejection reason
@@ -463,7 +475,7 @@ async function updateJobPostingApproval(
 
         // Update approval status in database
         const affectedRows =
-            await jobPostingModel.updateApprovalStatus(
+            await updateJobPostingApprovalStatus(
                 id,
                 status,
                 reason
@@ -478,7 +490,7 @@ async function updateJobPostingApproval(
 
             err.statusCode = 404;
 
-            next(err);
+            return next(err);
         }
 
         // Send successful response
