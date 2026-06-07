@@ -14,7 +14,7 @@ import * as companyModel from '../models/companyModel.js';
 async function createCompany(req, res, next) {
     try {
 
-        const {  } = ; 
+        // const {  } = ; 
 
         const userId = req.userId; // Injected by auth middleware
         const insertId = await companyModel.create(userId, req.body);
