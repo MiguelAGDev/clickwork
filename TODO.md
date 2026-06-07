@@ -30,10 +30,79 @@
 
 
 
-* [ ] Roles are not asigned in  <b>/api/auth/register</b>  
+* [ ] <b>Database refactor (both agree first)</b>
+    - Add ap_usr_role and ap_usr_permissions columns to app_user
+    - Drop permissions columns from student, intern, graduate, company tables
 
-    ![bug](https://img.shields.io/badge/bug-d73a4a) 
-    ![helpwanted](https://img.shields.io/badge/help%20wanted-008672)
+    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
+
+<br>
+
+* [ ] <b>authService.js refactor</b>
+    - Simplify _detectRole() — reads ap_usr_role from app_user
+    - Simplify _getPermissions() — reads ap_usr_permissions from app_user  
+    - Simplify _updatePermissions() — updates ap_usr_permissions in app_user
+
+    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
+
+<br>
+
+* [ ] <b>Middlewares</b>
+    - uploadMiddleware.js    ← Multer, PDF only, 5MB max
+    - roleMiddleware.js      ← checks req.user.role === 'admin'
+
+    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
+
+<br>
+
+* [ ] <b>Career</b>
+    - careerController.js   ← getAllCareers()
+    - careerRoutes.js       ← GET /api/careers
+
+    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
+
+<br>
+
+* [ ] <b>User</b>
+    - userController.js     ← getMe(), updateMe(), uploadCv()
+    - userRoutes.js         ← wire routes with authMiddleware + uploadMiddleware
+
+    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
+
+<br>
+
+* [ ] <b>Admin</b>
+    - adminController.js    ← getPendingCompanies(), updateCompanyApproval(),
+                               getPendingJobPostings(), updateJobPostingApproval(),
+                               getAllUsers(), toggleUserActive()
+    - adminRoutes.js        ← wire routes with authMiddleware + roleMiddleware
+
+    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
+
+<br>
+
+* [ ] <b>userModel.js — two new functions needed for admin</b>
+    - getAllUsers()          ← admin needs to list all users
+    - toggleUserActive()    ← admin needs to activate/deactivate users
+
+    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
+
+<br>
+
+* [ ] <b>Wire authMiddleware into Azucena's routes</b>
+    - companyRoutes.js
+    - jobPostingRoutes.js
+    - applicationRouter.js
+
+    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
+
+<br>
+
+* [ ] <b>index.js</b>
+    - Mount all routes
+    - Mount errorHandler last
+
+    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
 
 <br>
 
