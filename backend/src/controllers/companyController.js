@@ -10,7 +10,7 @@
 // By: Azucena Rodirguez Flores 
 
 import {
-    createCompany,
+    createCompany as createCompanyModel,
     findCompanyByUserId,
     updateCompany,
     getPendingCompanies,
@@ -23,7 +23,7 @@ async function createCompany(req, res, next) {
     try {
 
         const userId = req.user.id;
-        const insertId = await createCompany(userId, req.body);
+        const insertId = await createCompanyModel(userId, req.body);
 
         res.status(201).json({
             success: true,
