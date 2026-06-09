@@ -213,7 +213,7 @@ async function register(body) {
     }
 
     // 6. Set permission bitmask for the role in role-specific table
-    await _updatePermissions( userId, role );
+    await _updateUserRoleAndPermissions( userId, role );
 
     // TO_DO: insert role_history row when roleHistoryModel.js is ready
 
