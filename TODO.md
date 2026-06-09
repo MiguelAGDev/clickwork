@@ -29,24 +29,6 @@
 # <img src="https://img.shields.io/badge/backend-475569" alt="backend" height="30" />
 
 
-
-* [ ] <b>Database refactor (both agree first)</b>
-    - Add ap_usr_role and ap_usr_permissions columns to app_user
-    - Drop permissions columns from student, intern, graduate, company tables
-
-    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
-
-<br>
-
-* [ ] <b>authService.js refactor</b>
-    - Simplify _detectRole() — reads ap_usr_role from app_user
-    - Simplify _getPermissions() — reads ap_usr_permissions from app_user  
-    - Simplify _updatePermissions() — updates ap_usr_permissions in app_user
-
-    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
-
-<br>
-
 * [ ] <b>Middlewares</b>
     - uploadMiddleware.js    ← Multer, PDF only, 5MB max
     - roleMiddleware.js      ← checks req.user.role === 'admin'
@@ -89,14 +71,6 @@
 
 <br>
 
-* [ ] <b>Wire authMiddleware into Azucena's routes</b>
-    - companyRoutes.js
-    - jobPostingRoutes.js
-    - applicationRouter.js
-
-    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
-
-<br>
 
 * [ ] <b>index.js</b>
     - Mount all routes
@@ -114,21 +88,6 @@
 
 <br>
 
-* [ ] <b>Announcement vs JobPosting consolidation</b>
-    - `jobPostingRoutes.js` contains the implemented routes; `announcementRoutes.js` is a scaffold.
-    - Consolidate by keeping `jobPostingRoutes.js` as canonical and removing the obsolete `announcementRoutes.js`.
-
-    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
-
-<br>
-
-* [ ] <b>Email verified alias inconsistency</b>
-    - `userModel.js` and services currently use `email_verified` while `authMiddleware.js` referenced `emailVerified`.
-    - Canonicalize to `email_verified` across models, services and middleware.
-
-    ![bug](https://img.shields.io/badge/bug-d73a4a)
-
-<br>
 
 * [ ] <b>Missing route protection (authMiddleware)</b>
     - Many routes are unprotected though controllers expect `req.user`: review and apply `authMiddleware` where appropriate (document-only for now).
@@ -152,12 +111,7 @@
 
 <br>
 
-* [ ] <b>Validation typos</b>
-    - Fix typos and incorrect values in validators (example: `jobPostingRoutes.js` approval validator contains `pendidng` and misspellings).
 
-    ![bug](https://img.shields.io/badge/bug-d73a4a)
-
-<br>
 
 # <img src="https://img.shields.io/badge/frontend-0f766e" alt="frontend" height="30"/>
 
