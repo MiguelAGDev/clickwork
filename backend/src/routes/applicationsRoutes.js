@@ -15,44 +15,42 @@
 import { Router } from 'express';
 
 // Import validation utilities from express-validator
-import { body } from 'express-validator';
+import { body, param } from 'express-validator';
+
+// Import authentication middleware
+import { authMiddleware } from '../middlewares/authMiddleware.js';
+
+// Import custom middleware for validation handling
+import { validate } from '../middlewares/validateRequest.js';
 
 // Import controller methods
 import {
     applyToJob,
     getMyApplications,
-    getMyApplicationByJobPosting
+    getApplicationsByJobPosting,
 } from '../controllers/applicationsController.js';
-
-// Import custom middleware for validation handling
-import { validate } from '../middlewares/validateRequest.js';
 
 // Create Express router instance
 const router = Router();
+
 /*
 |--------------------------------------------------------------------------
 | Validation Rules
 |--------------------------------------------------------------------------
-| Validates the request body for job applications.
-| Ensures:
-|   - job_posting_id exists
-|   - job_posting_id is a valid integer greater than 0
 */
- 
 const applicationBodyValidation = [
-
-    // Validate job_posting_id field
     body('job_posting_id')
-
-        // Check field is not empty
         .notEmpty()
-        .withMessage('job_positng_id is required')
-
-        // Check field is an integer >= 1
+        .withMessage('job_posting_id is required')
         .isInt({ min: 1 })
-        .withMessage('job_positng_id must be a valid integer')
+        .withMessage('job_posting_id must be a valid integer')
+        .toInt(),
+];
 
-        // Convert value to integer
+const jobPostingParamValidation = [
+    param('jobPostingId')
+        .isInt({ min: 1 })
+        .withMessage('jobPostingId must be a valid integer')
         .toInt(),
 ];
 
@@ -71,16 +69,10 @@ const applicationBodyValidation = [
 |   }
 */
 router.post(
-
     '/',
-
-    // Apply validation rules
+    authMiddleware,
     applicationBodyValidation,
-
-    // Execute validation middleware
     validate,
-
-    // Controller function
     applyToJob
 );
 
@@ -94,16 +86,14 @@ router.post(
 |   GET /api/applications/me
 */
 router.get(
-
     '/me',
-
-    // Controller function
+    authMiddleware,
     getMyApplications
 );
 
 /*
 |--------------------------------------------------------------------------
-| GET /job-positng/:jobPostingId
+| GET /job-posting/:jobPostingId
 |--------------------------------------------------------------------------
 | Returns applications related to a specific job posting.
 |
@@ -111,14 +101,14 @@ router.get(
 |   jobPostingId -> ID of the job posting
 |
 | Example:
-|   /api/applications/job-positng/5
+|   /api/applications/job-posting/5
 */
 router.get(
-
     '/job-posting/:jobPostingId',
-
-    // Controller function
-    getMyApplicationByJobPosting
+    authMiddleware,
+    jobPostingParamValidation,
+    validate,
+    getApplicationsByJobPosting
 );
 
 /*
@@ -135,11 +125,11 @@ router.get(
 |   /api/applications/company/applicants/5
 */
 router.get(
-
     '/company/applicants/:jobPostingId',
-
-    // Controller function
-    getMyApplicationByJobPosting
+    authMiddleware,
+    jobPostingParamValidation,
+    validate,
+    getApplicationsByJobPosting
 );
 
 // Export router module
