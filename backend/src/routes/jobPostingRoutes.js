@@ -10,9 +10,10 @@ import {
     updateJobPosting,
     getPendingJobPostings,
     updateJobPostingApproval,
-}from '../controllers/jobPostingController.js'
+} from '../controllers/jobPostingController.js';
 
 const router = Router();
+
 const jobPostingBodyValidation = [
     body('jb_pst_job_title')
         .notEmpty()
@@ -50,7 +51,7 @@ const jobPostingBodyValidation = [
     body('jb_pst_experience_level')
         .notEmpty()
         .withMessage('Experience level is required.')
-        .isIn(['junior', 'mid', 'senior', 'no-experience'])
+        .isIn(['junior', 'mid', 'senior'])
         .withMessage('Invalid experience level.'),
 
     body('jb_pst_publication_date')
@@ -82,50 +83,65 @@ const jobPostingBodyValidation = [
         .toInt(),
 ];
 
-const approvalBodyValidation =[
+const approvalBodyValidation = [
     body('status')
-        .isIn(['approved','rejected','pendidng'])
-        .withMessage('Status must be approved,rejectet oir pending'),
-    body('reason')    
+        .isIn(['approved', 'rejected', 'pending'])
+        .withMessage('Status must be approved, rejected or pending'),
+
+    body('reason')
         .if(body('status').equals('rejected'))
         .notEmpty()
         .withMessage('A rejection reason is required when status is rejected.')
         .trim(),
 ];
 
+// Public route: list all job postings
 router.get(
     '/',
     getAllJobPostings
 );
 
+// Authenticated routes
 router.post(
     '/',
+    authMiddleware,
     jobPostingBodyValidation,
     validate,
     createJobPosting
 );
+
 router.get(
     '/company/me',
+    authMiddleware,
     getMyCompanyJobPostings
 );
+
 router.get(
     '/pending',
+    authMiddleware,
     getPendingJobPostings
 );
+
 router.patch(
     '/:id/approval',
+    authMiddleware,
     approvalBodyValidation,
     validate,
     updateJobPostingApproval
 );
-router.get(
-    '/:id',
-    getJobPostingById
-);
+
 router.put(
     '/:id',
+    authMiddleware,
     jobPostingBodyValidation,
     validate,
     updateJobPosting
 );
+
+// Public route: must be declared after /pending so "pending" is not treated as an id.
+router.get(
+    '/:id',
+    getJobPostingById
+);
+
 export default router;
