@@ -10,9 +10,10 @@ import {
     updateJobPosting,
     getPendingJobPostings,
     updateJobPostingApproval,
-}from '../controllers/jobPostingController.js'
+    }  from '../controllers/jobPostingController.js'
 
 const router = Router();
+
 const jobPostingBodyValidation = [
     body('jb_pst_job_title')
         .notEmpty()
@@ -84,7 +85,7 @@ const jobPostingBodyValidation = [
 
 const approvalBodyValidation =[
     body('status')
-        .isIn(['approved','rejected','pendidng'])
+        .isIn(['approved','rejected','pending'])
         .withMessage('Status must be approved,rejectet oir pending'),
     body('reason')    
         .if(body('status').equals('rejected'))
@@ -104,28 +105,34 @@ router.post(
     validate,
     createJobPosting
 );
+
 router.get(
     '/company/me',
     getMyCompanyJobPostings
 );
+
 router.get(
     '/pending',
     getPendingJobPostings
 );
+
 router.patch(
     '/:id/approval',
     approvalBodyValidation,
     validate,
     updateJobPostingApproval
 );
+
 router.get(
     '/:id',
     getJobPostingById
 );
+
 router.put(
     '/:id',
     jobPostingBodyValidation,
     validate,
     updateJobPosting
 );
+
 export default router;
