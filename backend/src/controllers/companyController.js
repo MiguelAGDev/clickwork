@@ -13,7 +13,7 @@ import {
     createCompany as createCompanyModel,
     findCompanyByUserId,
     updateCompany,
-    getPendingCompanies,
+    getPendingCompanies as getPendingCompaniesModel,
     updateCompanyApprovalStatus
 } from '../models/companyModel.js';
 
@@ -83,7 +83,7 @@ async function updateMyCompany(req, res, next) {
 // Returns all companies with approval status 'pending'
 async function getPendingCompanies(req, res, next) {
     try {
-        const companies = await getPendingCompanies();
+        const companies = await getPendingCompaniesModel();
 
         res.status(200).json({
             success: true,
