@@ -21,7 +21,7 @@ import { findById } from '../models/userModel.js';  // Import function to know i
 //            *res: the response object.
 //            *next: a function to move on to the next middleware or controller 
 
-async function auhtMiddleware( req, res, next ) {
+async function authMiddleware( req, res, next ) {
 
     try {
          
@@ -31,7 +31,7 @@ async function auhtMiddleware( req, res, next ) {
         if ( !authHeader || !authHeader.startsWith('Bearer ') ){
             const err = new Error( 'No token provided' );
             err.statusCode = 401;
-            throw err;
+            return next(err);
         }
 
         const token = authHeader.slice(7); // Remove 'Bearer ' prefix
@@ -50,21 +50,23 @@ async function auhtMiddleware( req, res, next ) {
             const err = new Error( 'Your account has been deactived. Contact support.' );
 
             err.statusCode = 403;
-            throw err;
+            return next(err);
 
         }
 
-        // 5. Check if email is verified
-        if ( !user.emailVerified ){
+        // 5. Check if email is verified (use canonical `email_verified` only)
+        const emailVerified = Boolean(user.email_verified);
+        if ( !emailVerified ){
             const err = new Error( 'Please verify your email before accessing this resource.' );
             err.statusCode = 403;
-            throw err;
-        }   
+            return next(err);
+        }
 
-        // 6. Attach fresh user + role from token to req.user 
+        // 6. Attach fresh user + role from token to req.user (use canonical snake_case)
         req.user = {
 
             ...user,
+            email_verified: emailVerified,
             role:        decoded.role,
             permissions: decoded.permissions,
 
@@ -87,5 +89,5 @@ async function auhtMiddleware( req, res, next ) {
 
 }
 
-export { auhtMiddleware };
+export { authMiddleware };
     

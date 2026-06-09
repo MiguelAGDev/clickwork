@@ -106,6 +106,59 @@
 
 <br>
 
+* [ ] <b>Consolidate application routes</b>
+    - Copy implementation from `applicationRouter.js` into `applicationsRoutes.js` and make `applicationsRoutes.js` the canonical file.
+    - Delete `applicationRouter.js` after migration and verify `/api/applications` is served by the canonical router.
+
+    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
+
+<br>
+
+* [ ] <b>Announcement vs JobPosting consolidation</b>
+    - `jobPostingRoutes.js` contains the implemented routes; `announcementRoutes.js` is a scaffold.
+    - Consolidate by keeping `jobPostingRoutes.js` as canonical and removing the obsolete `announcementRoutes.js`.
+
+    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
+
+<br>
+
+* [ ] <b>Email verified alias inconsistency</b>
+    - `userModel.js` and services currently use `email_verified` while `authMiddleware.js` referenced `emailVerified`.
+    - Canonicalize to `email_verified` across models, services and middleware.
+
+    ![bug](https://img.shields.io/badge/bug-d73a4a)
+
+<br>
+
+* [ ] <b>Missing route protection (authMiddleware)</b>
+    - Many routes are unprotected though controllers expect `req.user`: review and apply `authMiddleware` where appropriate (document-only for now).
+    - Examples: `companyRoutes.js` (POST `/`, GET `/me`, PUT `/me`), `jobPostingRoutes.js` (POST `/`, GET `/company/me`, PUT `/:id`), `applicationsRoutes.js` (POST `/`, GET `/me`).
+
+    ![bug](https://img.shields.io/badge/bug-d73a4a)
+
+<br>
+
+* [ ] <b>uploadMiddlewares.js missing implementation</b>
+    - File present but empty; required for CV uploads (Multer configuration: PDF-only, 5MB max).
+
+    ![help%20wanted](https://img.shields.io/badge/help%20wanted-008672)
+
+<br>
+
+* [ ] <b>Admin scaffolds incomplete</b>
+    - `adminRoutes.js` and admin controller functions are scaffolds; admin approval flows need full implementation.
+
+    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
+
+<br>
+
+* [ ] <b>Validation typos</b>
+    - Fix typos and incorrect values in validators (example: `jobPostingRoutes.js` approval validator contains `pendidng` and misspellings).
+
+    ![bug](https://img.shields.io/badge/bug-d73a4a)
+
+<br>
+
 # <img src="https://img.shields.io/badge/frontend-0f766e" alt="frontend" height="30"/>
 
 

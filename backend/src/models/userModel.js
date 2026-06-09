@@ -148,7 +148,7 @@ async function findByToken( token ) {
             au.ap_usr_id                AS id,
             au.ap_usr_email             AS email,
             au.ap_usr_active            AS active,
-            au.ap_usr_email_verified    AS emailVerified,
+            au.ap_usr_email_verified    AS email_verified,
             au.ap_usr_token             AS token,
             au.ap_usr_token_expiration  AS tokenExpiration
         FROM app_user au
