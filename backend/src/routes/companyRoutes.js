@@ -19,6 +19,9 @@ import { Router } from 'express';
 // Import validation methods from express-validator
 import { body } from 'express-validator';
 
+// Import authentication middleware
+import { authMiddleware } from '../middlewares/authMiddleware.js';
+
 // Import custom validation middleware
 import { validate } from '../middlewares/validateRequest.js';
 
@@ -50,108 +53,42 @@ const router = Router();
 |   - cmp_contact_email
 */
 const companyBodyValidation = [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Company Name Validation
-    |--------------------------------------------------------------------------
-    */
     body('cmp_name')
-
-        // Field cannot be empty
         .notEmpty()
         .withMessage('Company name is required')
-
-        // Maximum allowed length
         .isLength({ max: 100 })
         .withMessage('Company name must not exceed 100 characters.')
-
-        // Remove extra spaces
         .trim(),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Company Size Validation
-    |--------------------------------------------------------------------------
-    */
     body('cmp_size')
-
-        // Field cannot be empty
         .notEmpty()
         .withMessage('Company size is required')
-
-        // Allowed values
-        .isIn(['micro', 'pequeña', 'mediana', 'grande'])
+        .isIn(['micro', 'small', 'medium', 'large'])
         .withMessage('Invalid company size'),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Industry Validation
-    |--------------------------------------------------------------------------
-    */
-    body('cmp_idustry')
-
-        // Field cannot be empty
+    body('cmp_industry')
         .notEmpty()
         .withMessage('Industry is required')
-
-        // Remove extra spaces
         .trim(),
 
-    /*
-    |--------------------------------------------------------------------------
-    | City Validation
-    |--------------------------------------------------------------------------
-    */
     body('cmp_city')
-
-        // Field cannot be empty
         .notEmpty()
         .withMessage('City is required')
-
-        // Remove extra spaces
         .trim(),
 
-    /*
-    |--------------------------------------------------------------------------
-    | State Validation
-    |--------------------------------------------------------------------------
-    */
     body('cmp_state')
-
-        // Field cannot be empty
         .notEmpty()
         .withMessage('State is required')
-
-        // Remove extra spaces
         .trim(),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Address Validation
-    |--------------------------------------------------------------------------
-    */
     body('cmp_address')
-
-        // Field cannot be empty
         .notEmpty()
         .withMessage('Address is required')
-
-        // Remove extra spaces
         .trim(),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Contact Email Validation
-    |--------------------------------------------------------------------------
-    */
     body('cmp_contact_email')
-
-        // Validate email format
         .isEmail()
         .withMessage('A valid contact email is required.')
-
-        // Normalize email format
         .normalizeEmail(),
 ];
 
@@ -165,35 +102,15 @@ const companyBodyValidation = [
 |   - status
 |   - reason
 */
-const approvalBodyVlidation = [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Status Validation
-    |--------------------------------------------------------------------------
-    */
+const approvalBodyValidation = [
     body('status')
-
-        // Allowed approval statuses
         .isIn(['approved', 'rejected', 'pending'])
         .withMessage('Status must be approved, rejected or pending'),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Rejection Reason Validation
-    |--------------------------------------------------------------------------
-    | Required only when status = rejected
-    */
     body('reason')
-
-        // Conditional validation
         .if(body('status').equals('rejected'))
-
-        // Reason is mandatory for rejection
         .notEmpty()
         .withMessage('A rejection reason is required when status is rejected')
-
-        // Remove extra spaces
         .trim(),
 ];
 
@@ -207,14 +124,10 @@ const approvalBodyVlidation = [
 |   POST /api/company
 */
 router.post(
-     '/',
-    // Validation rules
+    '/',
+    authMiddleware,
     companyBodyValidation,
-
-    // Validation middleware
     validate,
-
-    // Controller function
     createCompany
 );
 
@@ -228,10 +141,8 @@ router.post(
 |   GET /api/company/me
 */
 router.get(
-
     '/me',
-
-    // Controller function
+    authMiddleware,
     getMyCompany
 );
 
@@ -245,16 +156,10 @@ router.get(
 |   PUT /api/company/me
 */
 router.put(
-
     '/me',
-
-    // Validation rules
+    authMiddleware,
     companyBodyValidation,
-
-    // Validation middleware
     validate,
-
-    // Controller function
     updateMyCompany
 );
 
@@ -268,16 +173,14 @@ router.put(
 |   GET /api/company/pending
 */
 router.get(
-
     '/pending',
-
-    // Controller function
+    authMiddleware,
     getPendingCompanies
 );
 
 /*
 |--------------------------------------------------------------------------
-| PATCH /userId/approval
+| PATCH /:userId/approval
 |--------------------------------------------------------------------------
 | Updates approval status for a company.
 |
@@ -295,16 +198,10 @@ router.get(
 |   }
 */
 router.patch(
-
     '/:userId/approval',
-
-    // Validation rules
-    approvalBodyVlidation,
-
-    // Validation middleware
+    authMiddleware,
+    approvalBodyValidation,
     validate,
-
-    // Controller function
     updateCompanyApproval
 );
 
