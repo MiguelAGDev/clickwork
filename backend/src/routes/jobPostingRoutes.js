@@ -1,7 +1,7 @@
 import {Router}  from 'express';
 import {body} from 'express-validator';
 import {validate} from '../middlewares/validate.js';
-
+import { authMiddleware } from '../middlewares/authMiddleware.js';
 import {
     createJobPosting,
     getAllJobPostings,

@@ -22,7 +22,7 @@ import { body } from 'express-validator';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
 
 // Import custom middleware for validation handling
-import { validate } from '../middlewares/validateRequest.js';
+import { validate } from '../middlewares/validate.js';
 
 // Import controller methods
 import {

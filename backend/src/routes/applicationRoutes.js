@@ -21,7 +21,7 @@ import { body, param } from 'express-validator';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
 
 // Import custom middleware for validation handling
-import { validate } from '../middlewares/validateRequest.js';
+import { validate } from '../middlewares/validate.js';
 
 // Import controller methods
 import {
@@ -29,9 +29,6 @@ import {
     getMyApplications,
     getApplicationsByJobPosting,
 } from '../controllers/applicationsController.js';
-
-// Import custom middleware for validation handling
-import { validate } from '../middlewares/validate.js';
 
 // Create Express router instance
 const router = Router();
