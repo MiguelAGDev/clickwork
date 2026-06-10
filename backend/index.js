@@ -14,8 +14,8 @@ import dotenv   from 'dotenv';      // Import dontenv to load environment variab
 
 import authRoutes           from './src/routes/authRoutes.js';          // Import authentication routes (handles login, register, verify email and so on).
 import userRoutes           from './src/routes/userRoutes.js';          // Import user routes (manages user profile, resume upload, roll me features) 
-import announcementRoutes   from './src/routes/announcementRoutes.js';  // Import announcemente routes (job posting created by companies)
-import applicationsRoutes   from './src/routes/applicationsRoutes.js';  // Import application routes (Applications submitted by students)
+import jobPostingRoutes     from './src/routes/jobPostingRoutes.js';    // Import job posting routes (job postings created by companies)
+import applicationRoutes   from './src/routes/applicationRoutes.js';  // Import application routes (Applications submitted by students)
 import adminRoutes          from './src/routes/adminRoutes.js';         // Import admin routes (approve announcements, manage users and so on).
 import companyRoutes        from './src/routes/companyRoutes.js';       // Import company routes (company registration, company profile management and so on).
 
@@ -33,8 +33,9 @@ app.use( express.json() );                              // Activate JSON body pa
 // Mount routes under /api/route prefix to organize API endpoints and void conflicts 
 app.use( '/api/auth',          authRoutes ); 
 app.use( '/api/users',         userRoutes );
-app.use( '/api/announcements', announcementRoutes );
-app.use( '/api/applications',  applicationsRoutes );
+app.use( '/api/job-postings',  jobPostingRoutes );
+app.use( '/api/announcements', jobPostingRoutes );
+app.use( '/api/applications',  applicationRoutes );
 app.use( '/api/company',       companyRoutes );
 app.use( '/api/admin',         adminRoutes );
 

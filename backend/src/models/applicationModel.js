@@ -34,6 +34,22 @@ async function createApplication( userId, jobPostingId ) {
 
 }
 
+async function findApplicationByUserAndJobPosting( userId, jobPostingId ) {
+
+    const sql = `
+        SELECT *
+        FROM application
+        WHERE app_id_user = ?
+          AND app_id_job_posting = ?
+        LIMIT 1
+    `;
+
+    const [ rows ] = await execute( sql, [ userId, jobPostingId ] );
+
+    return rows[0] ?? null;
+
+}
+
 
 // Returns all applications made by a specific user, joined with job posting data.
 // Used by postulacionController for the "my Roll Me history" page.
@@ -75,6 +91,7 @@ async function findApplicationsByJobPosting( jobPostingId ) {
 
 export {
     createApplication,
+    findApplicationByUserAndJobPosting,
     findApplicationsByUser,
     findApplicationsByJobPosting,
 };

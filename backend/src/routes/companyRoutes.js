@@ -44,49 +44,49 @@ const router = Router();
 | Validates company registration and update requests.
 |
 | Fields validated:
-|   - cmp_name
-|   - cmp_size
-|   - cmp_industry
-|   - cmp_city
-|   - cmp_state
-|   - cmp_address
-|   - cmp_contact_email
+|   - name
+|   - size
+|   - industry
+|   - city
+|   - state
+|   - address
+|   - contact_email
 */
 const companyBodyValidation = [
-    body('cmp_name')
+    body('name')
         .notEmpty()
         .withMessage('Company name is required')
         .isLength({ max: 100 })
         .withMessage('Company name must not exceed 100 characters.')
         .trim(),
 
-    body('cmp_size')
+    body('size')
         .notEmpty()
         .withMessage('Company size is required')
         .isIn(['micro', 'small', 'medium', 'large'])
         .withMessage('Invalid company size'),
 
-    body('cmp_industry')
+    body('industry')
         .notEmpty()
         .withMessage('Industry is required')
         .trim(),
 
-    body('cmp_city')
+    body('city')
         .notEmpty()
         .withMessage('City is required')
         .trim(),
 
-    body('cmp_state')
+    body('state')
         .notEmpty()
         .withMessage('State is required')
         .trim(),
 
-    body('cmp_address')
+    body('address')
         .notEmpty()
         .withMessage('Address is required')
         .trim(),
 
-    body('cmp_contact_email')
+    body('contact_email')
         .isEmail()
         .withMessage('A valid contact email is required.')
         .normalizeEmail(),

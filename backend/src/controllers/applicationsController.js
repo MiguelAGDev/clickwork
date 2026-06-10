@@ -95,7 +95,7 @@ async function getMyApplications(req,res,next) {
 
 // GET /api/applications/job-posting/:jobPostingId
 // Returns all applications associated with a specific job posting
-async function getMyApplicationByJobPosting(req,res,next) {
+async function getApplicationsByJobPosting(req,res,next) {
 
     try{
 
@@ -115,4 +115,4 @@ async function getMyApplicationByJobPosting(req,res,next) {
     
 }
 
-export{getMyApplicationByJobPosting,getMyApplications,applyToJob};
+export{getApplicationsByJobPosting,getMyApplications,applyToJob};
