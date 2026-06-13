@@ -26,7 +26,6 @@ const transporter = nodemailer.createTransport({
 
 });
 
-
 // Error handling: Run only in development mode
 // if it fails, it logs the error message
 // else logs confirmation message

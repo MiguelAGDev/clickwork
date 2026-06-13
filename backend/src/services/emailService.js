@@ -89,12 +89,7 @@ export async function sendWelcomeEmail({ to, name }) {
         <p>Si tienes alguna duda, contáctanos a través de la plataforma.</p>
     `);
 
-    await transporter.sendMail({
-        from: process.env.MAIL_FROM,
-        to,
-        subject: '¡Tu cuenta de ClickWork está lista!',
-        html,
-    });
+   
 };
 
 //   Sends the student's CV as an attachment to the company's registered email.
