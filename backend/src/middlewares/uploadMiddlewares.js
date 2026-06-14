@@ -41,7 +41,19 @@ const storage = multer.diskStorage({
     // req.user from authMiddleware so always exist
     filename: ( req, _file, cb ) => {
         const userId = req.user?.id ?? 'unknown';
-
-    }
+        const timestamp = Date.now();
+        cb( null, `cv_${ userId }_${ timestamp }.pdf` );
+    },
 
 });
+
+// File filter — reject anything that is not a PDF
+const fileFilter = (_req, file, cb) => {
+
+    if( file.mimitype === 'application/pdf' ){
+        cb( null, true );
+    }
+
+
+}
+
