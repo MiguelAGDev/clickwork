@@ -7,25 +7,27 @@
 // Date: May 17th 2026
 
 // Lastest Update:
-// Date:
-// By: Azucena Rodirguez Flores 
+// Date: 9th June 2026
+// By: Miguel Angel Avila Garcia
 
 
 import {
-    createJobPosting,
-    getAllJobPostings,
+
+    createJobPosting as createJobPostingModel,
+    getAllJobPostings as getAllJobPostingsModel,
     findJobPostingById,
     findJobPostingsByCompany,
-    updateJobPosting,
+    updateJobPosting as updateJobPostingModel,
     attachJobPostingCareers,
     detachJobPostingCareers,
-    getPendingJobPostings,
+    getPendingJobPostings as getPendingJobPostingsModel,
     updateJobPostingApprovalStatus
-} from '../models/jobPostingModel.js';
+
+    } from '../models/jobPostingModel.js';
 
 import {
     findCompanyByUserId
-} from '../models/companyModel.js';
+    } from '../models/companyModel.js';
 
 
 
@@ -72,7 +74,7 @@ async function createJobPosting(req, res, next) {
 
         // Create job posting in database
         const insertId =
-            await createJobPosting(
+            await createJobPostingModel(
                 company.cmp_id_user,
                 req.body
             );
@@ -150,7 +152,7 @@ async function getAllJobPostings(req, res, next) {
 
         // Fetch job postings from database
         const postings =
-            await getAllJobPostings(filters);
+            await getAllJobPostingsModel(filters);
 
         // Send successful response
         res.status(200).json({
@@ -329,7 +331,7 @@ async function updateJobPosting(req, res, next) {
 
         // Update job posting
         const affectedRows =
-            await updateJobPosting(
+            await updateJobPostingModel(
                 postingId,
                 req.body
             );
@@ -388,7 +390,7 @@ async function updateJobPosting(req, res, next) {
 // Returns all pending job postings
 // awaiting admin approval
 // ==========================================
-async function getPendingJobPosting(
+async function getPendingJobPostings(
     req,
     res,
     next
@@ -398,7 +400,7 @@ async function getPendingJobPosting(
 
         // Fetch pending postings
         const postings =
-            await getPendingJobPostings();
+            await getPendingJobPostingsModel();
 
         // Send successful response
         res.status(200).json({
@@ -525,7 +527,7 @@ export {
     getJobPostingById,
     getMyCompanyJobPostings,
     updateJobPosting,
-    getPendingJobPosting,
+    getPendingJobPostings,
     updateJobPostingApproval
 
 };
