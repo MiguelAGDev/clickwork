@@ -23,7 +23,7 @@ async function findById( id ) {
             au.ap_usr_phone             AS phone,
             au.ap_usr_active            AS active,
             au.ap_usr_email_verified    AS email_verified,
-            au.ap_usr_cv_url            AS resume_url,
+            au.ap_usr_cv_url            AS cv_url,
             au.ap_usr_id_career         AS career_id,
             c.car_name                  AS career_name
         FROM app_user au
@@ -77,6 +77,7 @@ async function create( { email, phone = null, password, careerId = null } ) {
 // Password, token, and email are intentionally excluded — they have dedicated functions.
 async function update( id, { phone = null, careerId } ) {
 
+
     const sql = `
         UPDATE app_user
         SET
@@ -85,7 +86,9 @@ async function update( id, { phone = null, careerId } ) {
         WHERE ap_usr_id = ?
     `;
 
+
     const [ result ] = await execute( sql, [ phone, careerId, id ] );
+
     return result.affectedRows;
 };
 

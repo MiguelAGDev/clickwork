@@ -135,7 +135,7 @@ async function getAllJobPostings(req, res, next) {
 
             experienceLevel: req.query.experienceLevel,
 
-            careerId: req.query.careerId,
+            careerId: req.query.career_id,
 
             search: req.query.search
 
