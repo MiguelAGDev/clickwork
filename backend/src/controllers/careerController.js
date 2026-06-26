@@ -51,6 +51,6 @@ async function getCareerById( req, res, next ){
     }catch( err ){ 
         next( err )
     }
-
-
 };
+
+export { getAllCareers, getCareerById };
