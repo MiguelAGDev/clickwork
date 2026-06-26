@@ -72,9 +72,26 @@ async function findApplicationsByJobPosting( jobPostingId ) {
 
 }
 
+// Returns a single application for a specific user and job posting.
+// Used by userController ( Roll Me ) to prevent duplicate applications. Returns null if no application exists.
+async function findApplicationByUserAndJobPosting( userId, jobPostingId ){
+
+    const sql = `
+        SELECT *
+        FROM application a
+        WHERE app_id_user           = ? 
+            AND app_id_job_posting  = ?
+        LIMIT 1
+    `;
+
+    const [ rows ] = await execute( sql, [ userId, jobPostingId ] );
+
+    return rows[ 0 ] ?? null;
+}
 
 export {
     createApplication,
     findApplicationsByUser,
     findApplicationsByJobPosting,
+    findApplicationByUserAndJobPosting,
 };
