@@ -47,13 +47,30 @@ const storage = multer.diskStorage({
 
 });
 
-// File filter — reject anything that is not a PDF
+// File filter: reject anything that is not a PDF
 const fileFilter = (_req, file, cb) => {
 
-    if( file.mimitype === 'application/pdf' ){
-        cb( null, true );
+    if( file.mimetype != 'application/pdf' ){
+        const err = new Error('Only PDF files are allowed');
+        err.statusCode = 400; // HTTP 400 Bad request
+        cb( err, false ); // Reject file
     }
 
+    cb( null, true ); // Accept File
 
-}
+};
 
+// Multer instance: Creates an upload middleware instance
+//      * storage: where/how to save files
+//      * limits: file size limit
+//      * fileFilter: validate file type
+const upload = multer({
+    
+    storage,
+    fileFilter,
+    limits: { fileSize: MAX_SIZE_BYTES }
+
+});
+
+// Export single file upload on field 'cv'.
+export const uploadCv = upload.single( 'cv' );
