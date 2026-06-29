@@ -72,6 +72,64 @@ function _assertValidRole(role) {
     }
 }
 
+function _throwValidationError(message) {
+    const err = new Error(message);
+    err.statusCode = 422;
+    throw err;
+}
+
+// Function: validates role-specific registration payload before inserting app_user.
+function _assertRolePayload(role, body) {
+    switch (role) {
+        case 'student': {
+            const semester = Number(body.semester);
+            if (!Number.isInteger(semester) || semester < 1 || semester > 12) {
+                _throwValidationError('Semester is required for students and must be a valid integer between 1 and 12.');
+            }
+            break;
+        }
+
+        case 'intern': {
+            if (body.startDate && Number.isNaN(Date.parse(body.startDate))) {
+                _throwValidationError('Start Date must be a valid date (YYYY-MM-DD).');
+            }
+            if (body.endDate && Number.isNaN(Date.parse(body.endDate))) {
+                _throwValidationError('End Date must be a valid date (YYYY-MM-DD).');
+            }
+            break;
+        }
+
+        case 'graduate': {
+            const year = Number(body.graduationYear);
+            const currentYear = new Date().getFullYear();
+            if (!Number.isInteger(year) || year < 1965 || year > currentYear) {
+                _throwValidationError('Graduation Year is required for graduates and must be a valid year.');
+            }
+            break;
+        }
+
+        case 'company': {
+            if (!body.name || !body.name.toString().trim()) {
+                _throwValidationError('Company name is required.');
+            }
+            const sizes = ['micro', 'small', 'medium', 'large'];
+            if (!body.size || !sizes.includes(body.size)) {
+                _throwValidationError('Company size is required and must be micro, small, medium, or large.');
+            }
+            if (!body.industry || !body.industry.toString().trim()) {
+                _throwValidationError('Industry is required.');
+            }
+            if (body.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.contact_email)) {
+                _throwValidationError('Company contact email must be valid.');
+            }
+            break;
+        }
+
+        default:
+            break;
+    }
+}
+
 // Function: returns the permission bitmask assigned to a role.
 function _getRolePermissions(role) {
     return ROLE_MASK[role] ?? 0;
@@ -156,6 +214,10 @@ async function register(body) {
 
     // 2. Validate role before creating any row
     _assertValidRole(role);
+    _assertRolePayload(role, body);
+
+    // 2.1 Toggle colum active user
+    const active = ( role === 'company' )? 0 : 1; 
 
     // 3. Verify if the user exists
     const existing = await findByEmail(email);
@@ -175,6 +237,7 @@ async function register(body) {
         phone: phone ?? null,
         password: hashedPassword,
         careerId: careerId ?? null,
+        active,
     });
 
     // 6. Store role and permissions in app_user

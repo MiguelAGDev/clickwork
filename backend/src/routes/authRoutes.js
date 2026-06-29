@@ -82,7 +82,25 @@ router.post(
             .isInt({ min: 1965, max: new Date().getFullYear() })
             .withMessage('Graduation must be a valid year.')
             .toInt(),
-            
+
+        // COMPANY-only fields
+        body('name').if(body('role').equals('company'))
+            .notEmpty().withMessage('Company name is required.')
+            .isString().trim(),
+
+        body('size').if(body('role').equals('company'))
+            .notEmpty().withMessage('Company size is required.')
+            .isIn(['micro','small','medium','large'])
+            .withMessage('Insert a valid company size.'),
+
+        body('industry').if(body('role').equals('company'))
+            .notEmpty().withMessage('Industry is required.')
+            .isString().trim(),
+
+        body('contact_email').if(body('role').equals('company'))
+            .optional({nullable: true, checkFalsy: true})
+            .isEmail().withMessage('Company contact email must be valid.')
+            .normalizeEmail(),
 
     ],
     validate,
