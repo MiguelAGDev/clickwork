@@ -133,7 +133,6 @@ async function register(body) {
 
         // Student data
         semester,
-        stdId,
 
         // Intern data
         hostCompany,
@@ -184,7 +183,7 @@ async function register(body) {
     // 7. Create role-specific profile row
     switch (role) {
         case 'student':
-            await createStudent(userId, { semester, stdId });
+            await createStudent(userId, { semester });
             break;
 
         case 'intern':
