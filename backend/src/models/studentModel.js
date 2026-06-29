@@ -32,7 +32,7 @@ import { execute } from '../config/db.js';  // Import connection
 //  ** STUDENTS **  //
 
 // Create a new student record linked to a user (app_user table)
-async function createStudent( userId, { semester} ) {
+async function createStudent( userId, { semester } ) {
 
     const sql = ` 
         INSERT INTO student (std_id_user, std_semester)

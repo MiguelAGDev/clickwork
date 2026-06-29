@@ -58,17 +58,17 @@ async function findByEmail( email ){
 };
 
 // Inserts a new app_user row.
-// email_verified defaults to 0, active defaults to 1 (handled by DB).
+// email_verified defaults to 0, active is explicitly set based on role (1 for most, 0 for company pending approval).
 // Returns the new user's insertId so authService can create the role row next.
-async function create( { email, phone = null, password, careerId = null } ) {
+async function create( { email, phone = null, password, careerId = null, active } ) {
 
     const sql = `
         INSERT INTO app_user
-            (ap_usr_email, ap_usr_phone, ap_usr_password, ap_usr_id_career)
-        VALUES (?, ?, ?, ?)
+            (ap_usr_email, ap_usr_phone, ap_usr_password, ap_usr_id_career, ap_usr_active)
+        VALUES (?, ?, ?, ?, ?)
     `;
 
-    const [ result ] = await execute( sql, [ email, phone, password, careerId ] );
+    const [ result ] = await execute( sql, [ email, phone, password, careerId, active ] );
 
     return result.insertId;
 };
