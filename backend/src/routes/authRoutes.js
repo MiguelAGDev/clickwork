@@ -67,10 +67,6 @@ router.post(
             .isInt({min : 1, max: 12}).withMessage('Insert a valid semester (1-12).')
             .toInt(),
 
-        body('stdId').if(body('role').equals('student'))
-            .notEmpty().withMessage('stdId is required for students.')
-            .isString().trim(),
-
         // INTERN-only fields
         body('startDate').if(body('role').equals('intern'))
             .optional({nullable: true, checkFalsy: true})
