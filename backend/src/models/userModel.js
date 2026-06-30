@@ -251,4 +251,6 @@ export {
     updateToken,
     verifyEmail,
     findByToken,
+    getAllUsers,
+    toggleUserActive
 };
