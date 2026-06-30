@@ -29,14 +29,6 @@
 # <img src="https://img.shields.io/badge/backend-475569" alt="backend" height="30" />
 
 
-* [ ] <b>Middlewares</b>
-    - uploadMiddleware.js    ← Multer, PDF only, 5MB max
-    - roleMiddleware.js      ← checks req.user.role === 'admin'
-
-    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
-
-<br>
-
 * [ ] <b>Career</b>
     - careerController.js   ← getAllCareers()
     - careerRoutes.js       ← GET /api/careers
@@ -53,23 +45,7 @@
 
 <br>
 
-* [ ] <b>Admin</b>
-    - adminController.js    ← getPendingCompanies(), updateCompanyApproval(),
-                               getPendingJobPostings(), updateJobPostingApproval(),
-                               getAllUsers(), toggleUserActive()
-    - adminRoutes.js        ← wire routes with authMiddleware + roleMiddleware
 
-    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
-
-<br>
-
-* [ ] <b>userModel.js — two new functions needed for admin</b>
-    - getAllUsers()          ← admin needs to list all users
-    - toggleUserActive()    ← admin needs to activate/deactivate users
-
-    ![enhancement](https://img.shields.io/badge/enhancement-a2eeef)
-
-<br>
 
 
 * [ ] <b>index.js</b>
@@ -120,12 +96,7 @@
 
 
 
-<br>
-
-# <img src="https://img.shields.io/badge/testing-16a34a" alt="testing" height="30" />
-
-
-* [ ] Example testing task
+] Example testing task
 
 
 <br>
