@@ -4,9 +4,9 @@
 // Description: User model — queries for the app_user table
 // Date: May 5nd 2026
  
-// Latest Update:
-// Date:
-// By:
+// Latest Update: Add admin functions getAllUsers and toggleActiveUser 
+// Date: June 28th 2026 
+// By: Miguel Angel Avila Garcia
  
 
 import { execute } from '../config/db.js'; 
@@ -162,7 +162,85 @@ async function findByToken( token ) {
     return rows[0] ?? null;
  
 }
+
+
+// ──────────────────────────
+//      ADMIN FUNCTIONS
+// ──────────────────────────
  
+// Returns all users with role-specific info joined from student, intern, graduate, company tables.
+// Used by adminController to display all registered users with comprehensive data.
+// Includes role-specific fields for each user type.
+async function getAllUsers () {
+
+    const sql = `
+    
+        SELECT
+            au.ap_usr_id                AS id,
+            au.ap_usr_email             AS email,
+            au.ap_usr_phone             AS phone,
+            au.ap_usr_active            AS active,
+            au.ap_usr_email_verified    AS email_verified,
+            au.ap_usr_role              AS role,
+            au.ap_usr_cv_url            AS cv_url,
+            c.car_id                    AS career_id,
+            c.car_name                  AS career_name,
+ 
+            -- Student-specific fields
+            s.std_semester              AS student_semester,
+            s.std_id                    AS student_id,
+ 
+            -- Intern-specific fields
+            i.itn_host_company          AS intern_host_company,
+            i.itn_project               AS intern_project,
+            i.itn_start_date            AS intern_start_date,
+            i.itn_end_date              AS intern_end_date,
+ 
+            -- Graduate-specific fields
+            g.grd_graduation_year       AS graduate_graduation_year,
+            g.grd_current_job           AS graduate_current_job,
+ 
+            -- Company-specific fields
+            cmp.cmp_name                AS company_name,
+            cmp.cmp_size                AS company_size,
+            cmp.cmp_industry            AS company_industry,
+            cmp.cmp_approval_status     AS company_approval_status,
+            cmp.cmp_rejection_reason    AS company_rejection_reason
+        FROM app_user au
+        LEFT JOIN careers c ON c.car_id = au.ap_usr_id_career
+        LEFT JOIN student s ON s.std_id_user = au.ap_usr_id
+        LEFT JOIN intern i ON i.itn_id_user = au.ap_usr_id
+        LEFT JOIN graduate g ON g.grd_id_user = au.ap_usr_id
+        LEFT JOIN company cmp ON cmp.cmp_id_user = au.ap_usr_id
+        ORDER BY au.ap_usr_id DESC 
+
+    `;
+
+    const [ rows ] = await execute( sql );
+    return rows;
+
+};
+
+
+// Toggles a user's active status (1 ↔ 0).
+// Active = 1: user can access the platform.
+// Active = 0: user is deactivated and cannot log in.
+// Used by admin to activate/deactivate user accounts.
+// Returns the number of affected rows (0 if user not found, 1 if toggled).
+async function toggleUserActive( id ) {
+
+    const sql = `
+        UPDATE app_user
+            SET ap_usr_active = IF( ap_usr_active = 1, 0, 1 )
+            WHERE ap_usr_id = ?
+    `;
+
+    const [ result ] = await execute( sql, [ id ] );
+    return result.affectedRows;
+    
+}
+
+
 
 export {
     findById,

@@ -210,6 +210,115 @@ ACTIONS: authController, authRoutes, bug fixes
   * statrDate typo → startDate
   * role isIn() had one string instead of four separate values
 
+----------------------------------------------------------------
+DATE: May 5th, 2026
+AUTHOR: MiguelAGDev & AzucenaRF
+SESSION TIME: ~2 hours
+ACTIONS: Company, job posting, and application model implementation
+----------------------------------------------------------------
+[~0:00 - 0:45] Company Model
+- Implemented company CRUD and approval workflow in backend/src/models/companyModel.js
+- Added createCompany, findCompanyByUserId, updateCompany,
+  updateCompanyApprovalStatus, getPendingCompanies
+- Approval reject path stores rejection reason; approve/pending clears reason
+
+[~0:45 - 1:30] Job Posting Model
+- Implemented createJobPosting, findJobPostingById, findJobPostingsByCompany,
+  updateJobPosting, updateJobPostingApprovalStatus, getPendingJobPostings
+- Added career association helpers attachJobPostingCareers and detachJobPostingCareers
+- Added public filtered listing with modality, contract type, experience,
+  career and search support
+
+[~1:30 - 2:00] Application Model
+- Implemented createApplication, findApplicationsByUser,
+  findApplicationsByJobPosting, findApplicationByUserAndJobPosting
+- Added Roll Me / CV send logging and duplicate application prevention
+
+----------------------------------------------------------------
+DATE: May 17th, 2026
+AUTHOR: MiguelAGDev & AzucenaRF
+SESSION TIME: ~3 hours
+ACTIONS: Company/job posting/application controllers and routes
+----------------------------------------------------------------
+[~0:00 - 1:30] Company features
+- Built controller and routes for company registration, company profile retrieval,
+  company update and admin approval actions
+- Added strong request validation for company fields and approval status
+- Added endpoints: POST /api/company, GET /api/company/me, PUT /api/company/me,
+  GET /api/company/pending, PATCH /api/company/:userId/approval
+
+[~1:30 - 2:30] Job posting features
+- Built job posting controller and routes for posting creation, listing,
+  detail retrieval, company-owned postings, updates and admin approval
+- Added request validation for posting metadata and publication/expiration dates
+- Added acceptance of careerIds to attach posting-career relationships
+
+[~2:30 - 3:00] Application features
+- Built application controller and routes for applying to jobs,
+  fetching my applications, and listing applications by job posting
+- Added validation for job_posting_id and company applicant queries
+
+----------------------------------------------------------------
+DATE: May 18th, 2026
+AUTHOR: MiguelAGDev & AzucenaRF
+SESSION TIME: ~1 hour
+ACTIONS: Request validation and route stabilization
+----------------------------------------------------------------
+[~0:00 - 1:00] Validation middleware
+- Implemented backend/src/middlewares/validateRequest.js
+- Centralized express-validator error formatting and 422 response payloads
+- Polished route validation chains in company, jobPosting, applications and user routes
+
+----------------------------------------------------------------
+DATE: June 8th, 2026
+AUTHOR: MiguelAGDev & AzucenaRF
+SESSION TIME: ~1.5 hours
+ACTIONS: CV upload support and user file handling
+----------------------------------------------------------------
+[~0:00 - 1:30] CV upload middleware and user CV endpoint
+- Implemented backend/src/middlewares/uploadMiddlewares.js with multer
+- Enforced PDF-only CV uploads, 5MB limit, and uploads/cvs directory creation
+- Added PUT /api/users/cv endpoint to save CV path in user profile
+- Updated userModel.updateCvUrl and userController.updateMyCv
+
+----------------------------------------------------------------
+DATE: June 25th, 2026
+AUTHOR: MiguelAGDev & AzucenaRF
+SESSION TIME: ~2 hours
+ACTIONS: User profile, Roll Me flow and email integration
+----------------------------------------------------------------
+[~0:00 - 1:00] User profile endpoints
+- Implemented GET /api/users/me and PUT /api/users/me
+- Added profile update with optional phone and careerId fields
+- Added fresh user lookup, unchanged-profile response and success payloads
+
+[~1:00 - 2:00] Roll Me email flow
+- Implemented POST /api/users/roll-me to send CV to company contact email
+- Added duplicate application prevention and approved posting check
+- Integrated sendRollMeEmail service and application logging
+
+----------------------------------------------------------------
+DATE: June 28th, 2026
+AUTHOR: MiguelAGDev & AzucenaRF
+SESSION TIME: ~1 hour
+ACTIONS: Role-based access control
+----------------------------------------------------------------
+[~0:00 - 1:00] Role middleware
+- Implemented backend/src/middlewares/roleMiddleware.js
+- Added single-role and multi-role checks with 401/403 handling
+- Prepared protected route patterns for admin/company workflows
+
+----------------------------------------------------------------
+DATE: June 29th, 2026
+AUTHOR: MiguelAGDev
+SESSION TIME: ~1 hour
+ACTIONS: Test scripts and final review
+----------------------------------------------------------------
+[~0:00 - 1:00] Test coverage and review
+- Added backend/src/tests/testCompanyModel.js and testJobPostingModel.js
+- Reviewed model query behaviors, approval validation, and route contracts
+- Adjusted log to include all completed backend work through June
+
 ================================================================
-TOTAL TIME INVESTED: ~19.5 hours
+TOTAL TIME INVESTED: ~31.5 hours
 ================================================================
