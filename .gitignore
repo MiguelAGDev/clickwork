@@ -146,7 +146,11 @@ vite.config.ts.timestamp-*
 *.sql
 
 # Uploads
-backend/Uploads
+backend/uploads/
 
 # Datasets seeds
 backend/seed/
+
+# Development tests
+backend/tests/
+backend/src/tests/
