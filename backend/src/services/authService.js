@@ -216,8 +216,9 @@ async function register(body) {
     _assertValidRole(role);
     _assertRolePayload(role, body);
 
-    // 2.1 Toggle colum active user
-    const active = ( role === 'company' )? 0 : 1; 
+    // // 2.1 Toggle colum active user
+    // const active = ( role === 'company' )? 0 : 1; -> I dont know if is necesary to active or only status of the company
+    const active = 1;
 
     // 3. Verify if the user exists
     const existing = await findByEmail(email);
