@@ -245,6 +245,10 @@ async function updateJobPostingApprovalStatus( id, status, reason = null ) {
 
     if ( status !== 'rejected' ) {
         reason = null;
+    } else if ( !reason ) {
+        const err = new Error( 'Rejection reason required' );
+        err.statusCode = 400;
+        throw err;
     }
 
     const sql = `
