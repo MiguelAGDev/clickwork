@@ -20,7 +20,6 @@ import {
     updateJobPosting as updateJobPostingModel,
     attachJobPostingCareers,
     detachJobPostingCareers,
-    getPendingJobPostings as getPendingJobPostingsModel,
     updateJobPostingApprovalStatus
 
     } from '../models/jobPostingModel.js';
@@ -72,11 +71,29 @@ async function createJobPosting(req, res, next) {
             return next(err);
         }
 
+        // Map validated request body (jb_pst_* field names, per the
+        // route validators) to the unprefixed shape the model expects.
+        // See backend audit C1: these two shapes previously did not match,
+        // so job posting creation silently received undefined values.
+        const jobPostingData = {
+            job_title:        req.body.jb_pst_job_title,
+            requirements:      req.body.jb_pst_requirements,
+            benefits:          req.body.jb_pst_benefits,
+            modality:          req.body.jb_pst_modality,
+            schedule:          req.body.jb_pst_schedule,
+            contract_type:     req.body.jb_pst_contract_type,
+            experience_level:  req.body.jb_pst_experience_level,
+            publication_date:  req.body.jb_pst_publication_date ?? new Date(),
+            expiration_date:   req.body.jb_pst_expiration_date,
+            salary:            req.body.jb_pst_salary,
+            image_url:         req.body.jb_pst_image_url,
+        };
+
         // Create job posting in database
         const insertId =
             await createJobPostingModel(
                 company.cmp_id_user,
-                req.body
+                jobPostingData
             );
 
         // Get related careers from request body
@@ -329,12 +346,36 @@ async function updateJobPosting(req, res, next) {
             return next(err);
         }
 
+        // Map validated request body (jb_pst_* field names) to the
+        // unprefixed shape jobPostingModel.updateJobPosting expects.
+        // See backend audit C1.
+        const jobPostingData = {
+            job_title:        req.body.jb_pst_job_title,
+            requirements:      req.body.jb_pst_requirements,
+            benefits:          req.body.jb_pst_benefits,
+            modality:          req.body.jb_pst_modality,
+            schedule:          req.body.jb_pst_schedule,
+            contract_type:     req.body.jb_pst_contract_type,
+            experience_level:  req.body.jb_pst_experience_level,
+            expiration_date:   req.body.jb_pst_expiration_date,
+            salary:            req.body.jb_pst_salary,
+            image_url:         req.body.jb_pst_image_url,
+        };
+
         // Update job posting
         const affectedRows =
             await updateJobPostingModel(
                 postingId,
-                req.body
+                jobPostingData
             );
+
+        // Any content edit sends the posting back to pending review,
+        // so a company can't silently change details after approval
+        // without an admin re-checking them.
+        await updateJobPostingApprovalStatus(
+            postingId,
+            'pending'
+        );
 
         // Get careers from request body
         const { careerIds } = req.body;
@@ -385,134 +426,10 @@ async function updateJobPosting(req, res, next) {
 
 
 
-// ==========================================
-// GET /api/admin/announcements/pending
-// Returns all pending job postings
-// awaiting admin approval
-// ==========================================
-async function getPendingJobPostings(
-    req,
-    res,
-    next
-) {
-
-    try {
-
-        // Fetch pending postings
-        const postings =
-            await getPendingJobPostingsModel();
-
-        // Send successful response
-        res.status(200).json({
-
-            success: true,
-
-            data: postings
-
-        });
-
-    } catch (err) {
-
-        // Forward error to centralized error handler
-        next(err);
-
-    }
-
-}
-
-
-
-
-// ==========================================
-// PUT /api/admin/announcements/:id/approve
-// Updates approval status for
-// a specific job posting
-// ==========================================
-async function updateJobPostingApproval(
-    req,
-    res,
-    next
-) {
-
-    try {
-
-        // Get job posting ID from params
-        const { id } = req.params;
-
-        // Get approval data from request body
-        const { status, reason } = req.body;
-
-        // Define valid approval statuses
-        const validStatuses = [
-
-            'approved',
-            'rejected',
-            'pending'
-
-        ];
-
-        // Validate provided status
-        if (!validStatuses.includes(status)) {
-
-            const err = new Error(
-                `Invalid status. Must be one of: ${validStatuses.join(', ')}`
-            );
-
-            err.statusCode = 400;
-
-            return next(err);
-        }
-
-        // Validate rejection reason
-        if (status === 'rejected' && !reason) {
-
-            const err = new Error(
-                'A rejection reason is required'
-            );
-
-            err.statusCode = 400;
-
-            return next(err);
-        }
-
-        // Update approval status in database
-        const affectedRows =
-            await updateJobPostingApprovalStatus(
-                id,
-                status,
-                reason
-            );
-
-        // Validate posting existence
-        if (affectedRows === 0) {
-
-            const err = new Error(
-                'Job posting not found'
-            );
-
-            err.statusCode = 404;
-
-            return next(err);
-        }
-
-        // Send successful response
-        res.status(200).json({
-
-            success: true,
-
-            message:
-                `Job posting status updated to '${status}'`
-
-        });
-
-    } catch (err) {
-
-        // Forward error to centralized error handler
-        next(err);
-
-    }
-
-}
+// NOTE: pending-listing and approval-status-update for job postings live
+// exclusively in adminController.js, routed under /api/admin/job-postings
+// and gated by roleMiddleware('admin'). See backend audit C2 — this file
+// used to duplicate that logic behind authMiddleware only.
 
 
 
@@ -526,8 +443,6 @@ export {
     getAllJobPostings,
     getJobPostingById,
     getMyCompanyJobPostings,
-    updateJobPosting,
-    getPendingJobPostings,
-    updateJobPostingApproval
+    updateJobPosting
 
 };

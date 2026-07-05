@@ -28,6 +28,27 @@ import { findJobPostingById }   from '../models/jobPostingModel.js';
 import { findCompanyByUserId }  from '../models/companyModel.js';
 import { sendRollMeEmail }      from '../services/emailService.js';
 import { execute } from '../config/db.js';
+import fs from 'fs';
+
+// Verifies the uploaded file actually starts with the PDF magic number
+// (%PDF-). multer's fileFilter only checks the client-supplied MIME type,
+// which is trivially spoofed, so this catches a renamed/disguised file
+// before it is trusted and, later, emailed to a real external company
+// inbox via sendRollMeEmail. See backend audit C5.
+function _isRealPdf( filePath ) {
+
+    const fd = fs.openSync( filePath, 'r' );
+    const buffer = Buffer.alloc( 5 );
+
+    try {
+        fs.readSync( fd, buffer, 0, 5, 0 );
+    } finally {
+        fs.closeSync( fd );
+    }
+
+    return buffer.toString( 'ascii' ) === '%PDF-';
+
+}
 
 
 // GET  /api/users/me
@@ -99,6 +120,18 @@ async function updateMyCv( req, res, next ){
             const err      = new Error( 'CV file is required' );
             err.statusCode = 400;
             return next( err ); 
+        }
+
+        // Verify actual file content, not just the client-supplied MIME
+        // type accepted by the multer fileFilter. See backend audit C5.
+        if( !_isRealPdf( cvUrl ) ){
+
+            fs.unlinkSync( cvUrl );
+
+            const err      = new Error( 'The uploaded file is not a valid PDF.' );
+            err.statusCode = 400;
+            return next( err );
+
         }
 
         await updateCvUrl( userId, cvUrl );
