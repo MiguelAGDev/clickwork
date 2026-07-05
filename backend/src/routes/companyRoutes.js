@@ -30,8 +30,6 @@ import {
     createCompany,
     getMyCompany,
     updateMyCompany,
-    getPendingCompanies,
-    updateCompanyApproval,
 } from '../controllers/companyController.js';
 
 // Create router instance
@@ -94,28 +92,6 @@ const companyBodyValidation = [
 
 /*
 |--------------------------------------------------------------------------
-| Approval Body Validation Rules
-|--------------------------------------------------------------------------
-| Validates approval status updates for companies.
-|
-| Fields validated:
-|   - status
-|   - reason
-*/
-const approvalBodyValidation = [
-    body('status')
-        .isIn(['approved', 'rejected', 'pending'])
-        .withMessage('Status must be approved, rejected or pending'),
-
-    body('reason')
-        .if(body('status').equals('rejected'))
-        .notEmpty()
-        .withMessage('A rejection reason is required when status is rejected')
-        .trim(),
-];
-
-/*
-|--------------------------------------------------------------------------
 | POST /
 |--------------------------------------------------------------------------
 | Creates a new company profile.
@@ -163,47 +139,9 @@ router.put(
     updateMyCompany
 );
 
-/*
-|--------------------------------------------------------------------------
-| GET /pending
-|--------------------------------------------------------------------------
-| Returns all companies with pending approval status.
-|
-| Endpoint:
-|   GET /api/company/pending
-*/
-router.get(
-    '/pending',
-    authMiddleware,
-    getPendingCompanies
-);
-
-/*
-|--------------------------------------------------------------------------
-| PATCH /:userId/approval
-|--------------------------------------------------------------------------
-| Updates approval status for a company.
-|
-| Endpoint:
-|   PATCH /api/company/:userId/approval
-|
-| Body Example:
-|   {
-|      "status": "approved"
-|   }
-|
-|   {
-|      "status": "rejected",
-|      "reason": "Incomplete documentation"
-|   }
-*/
-router.patch(
-    '/:userId/approval',
-    authMiddleware,
-    approvalBodyValidation,
-    validate,
-    updateCompanyApproval
-);
+// NOTE: company approval listing/updates moved exclusively to /api/admin/companies/*
+// (adminRoutes.js), which correctly gates them behind roleMiddleware('admin').
+// Do not re-add /pending or /:userId/approval here — see backend audit C2.
 
 // Export router module
 export default router;

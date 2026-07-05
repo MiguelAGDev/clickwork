@@ -53,7 +53,7 @@ const fileFilter = (_req, file, cb) => {
     if( file.mimetype != 'application/pdf' ){
         const err = new Error('Only PDF files are allowed');
         err.statusCode = 400; // HTTP 400 Bad request
-        cb( err, false ); // Reject file
+        return cb( err, false ); // Reject file
     }
 
     cb( null, true ); // Accept File

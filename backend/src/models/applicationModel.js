@@ -54,12 +54,23 @@ async function findApplicationsByUser( userId ) {
 }
 
 
-// Returns all applicants for a specific posting, joined with user data.
-// Used by companyController so companies can see who sent their CV.
+// Returns all applicants for a specific posting, joined with safe user data only.
+// Used by applicationsController so a company can see who sent their CV.
+// IMPORTANT: this must never SELECT * against app_user — that table holds
+// ap_usr_password (bcrypt hash) and ap_usr_token / ap_usr_token_expiration
+// (live verification/reset tokens). See backend audit C3.
 async function findApplicationsByJobPosting( jobPostingId ) {
 
     const sql = `
-        SELECT *
+        SELECT
+            a.app_id                AS id,
+            a.app_date               AS date,
+            a.app_status             AS status,
+            a.app_id_user            AS applicant_id,
+            a.app_id_job_posting     AS job_posting_id,
+            au.ap_usr_email          AS applicant_email,
+            au.ap_usr_phone          AS applicant_phone,
+            au.ap_usr_cv_url         AS applicant_cv_url
         FROM application a
         JOIN app_user au
             ON a.app_id_user = au.ap_usr_id
