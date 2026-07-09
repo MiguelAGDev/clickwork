@@ -19,9 +19,16 @@ import {
     updateCvUrl
     } from '../models/userModel.js';
 
+import {
+    updateStudent,
+    updateIntern,
+    updateGraduate,
+} from '../models/studentModel.js';
+
 import { 
     createApplication,
     findApplicationByUserAndJobPosting
+    , deleteApplication
     } from '../models/applicationModel.js';
 
 import { findJobPostingById }   from '../models/jobPostingModel.js';
@@ -90,6 +97,31 @@ async function updateMyProfile( req, res, next ){
                 message: 'User profile unchanged.',
                 data:    currentUser,
             });
+        }
+
+        // Role-specific updates: student, intern, graduate
+        try {
+            const role = req.user?.role;
+
+            if( role === 'student' ){
+                if( req.body.semester !== undefined ){
+                    await updateStudent( userId, { semester: req.body.semester } );
+                }
+            } else if( role === 'intern' ){
+                // Pass through whatever fields are present; model will handle nulls
+                await updateIntern( userId, {
+                    hostCompany: req.body.hostCompany,
+                    project:     req.body.project,
+                    endDate:     req.body.endDate,
+                } );
+            } else if( role === 'graduate' ){
+                if( req.body.currentJob !== undefined ){
+                    await updateGraduate( userId, { currentJob: req.body.currentJob } );
+                }
+            }
+        } catch( roleErr ){
+            // Forward role-specific update errors to the centralized error handler
+            return next( roleErr );
         }
 
         const updatedUser = await findById( userId );
@@ -208,13 +240,24 @@ async function rollMeToCompany( req, res, next ) {
         // Log the application first, then send the email
         const applicationId = await createApplication( userId, jobPostingId );
 
-        await sendRollMeEmail({
-            to:                company.cmp_contact_email,
-            companyName:       company.cmp_name,
-            studentName:       user.email,
-            announcementTitle: posting.jb_pst_job_title ?? 'Job posting #${ jobPostingId }', 
-            cvPath:            user.cv_url, 
-        });
+        try {
+            await sendRollMeEmail({
+                to:                company.cmp_contact_email,
+                companyName:       company.cmp_name,
+                studentName:       user.email,
+                announcementTitle: posting.jb_pst_job_title ?? 'Job posting #${ jobPostingId }', 
+                cvPath:            user.cv_url, 
+            });
+        } catch( sendErr ){
+
+            // Rollback the application record since the email failed to send
+            await deleteApplication( applicationId );
+
+            const err = new Error('Your CV could not be sent to the company. Please try again.');
+            err.statusCode = 502;
+            return next( err );
+
+        }
 
         res.status( 201 ).json({
             success: true,

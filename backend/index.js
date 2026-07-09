@@ -18,6 +18,7 @@ import announcementRoutes   from './src/routes/jobPostingRoutes.js';  // Use imp
 import applicationsRoutes   from './src/routes/applicationsRoutes.js';  // Import application routes (Applications submitted by students)
 import adminRoutes          from './src/routes/adminRoutes.js';         // Import admin routes (approve announcements, manage users and so on).
 import companyRoutes        from './src/routes/companyRoutes.js';       // Import company routes (company registration, company profile management and so on).
+import careerRoutes         from './src/routes/careerRoutes.js';       // Import career routes (list and detail of careers)
 
 import {errorHandler} from './src/middlewares/errorHandler.js'; // Import custom error handler (centralized error handler for the API).
 
@@ -36,6 +37,7 @@ app.use( '/api/users',         userRoutes );
 app.use( '/api/announcements', announcementRoutes );
 app.use( '/api/applications',  applicationsRoutes );
 app.use( '/api/company',       companyRoutes );
+app.use( '/api/careers',       careerRoutes );
 app.use( '/api/admin',         adminRoutes );
 
 
