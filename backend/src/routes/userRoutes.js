@@ -37,6 +37,33 @@ const userProfileBodyValidation = [
         .isInt({ min: 1 })
         .withMessage('careerId must be a valid integer.')
         .toInt(),
+
+    // Role-specific fields: student, intern, graduate
+    body('semester')
+        .if((value, { req }) => req.user?.role === 'student')
+        .optional({ nullable: true, checkFalsy: true })
+        .isInt({ min: 1, max: 12 }).withMessage('Semester must be a valid integer (1-12).')
+        .toInt(),
+
+    body('hostCompany')
+        .if((value, { req }) => req.user?.role === 'intern')
+        .optional({ nullable: true, checkFalsy: true })
+        .isString().trim(),
+
+    body('project')
+        .if((value, { req }) => req.user?.role === 'intern')
+        .optional({ nullable: true, checkFalsy: true })
+        .isString().trim(),
+
+    body('endDate')
+        .if((value, { req }) => req.user?.role === 'intern')
+        .optional({ nullable: true, checkFalsy: true })
+        .isISO8601().withMessage('End Date must be a valid date (YYYY-MM-DD).'),
+
+    body('currentJob')
+        .if((value, { req }) => req.user?.role === 'graduate')
+        .optional({ nullable: true, checkFalsy: true })
+        .isString().trim(),
 ];
 
 // Validación para POST /roll-me

@@ -115,7 +115,7 @@ async function updateJobPostingApprovalStatus( req, res, next ) {
         const { id }             = req.params;
         const { status, reason } = req.body;
 
-        const affectedRows = updateJobPostingApprovalStatusModel( id, status, reason ?? null );
+        const affectedRows = await updateJobPostingApprovalStatusModel( id, status, reason ?? null );
 
         if ( !affectedRows ){
 

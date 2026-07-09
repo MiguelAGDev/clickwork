@@ -100,9 +100,25 @@ async function findApplicationByUserAndJobPosting( userId, jobPostingId ){
     return rows[ 0 ] ?? null;
 }
 
+
+// Deletes a single application by id. Returns number of affected rows.
+async function deleteApplication( applicationId ){
+
+    const sql = `
+        DELETE FROM application
+        WHERE app_id = ?
+    `;
+
+    const [ result ] = await execute( sql, [ applicationId ] );
+
+    return result.affectedRows;
+
+}
+
 export {
     createApplication,
     findApplicationsByUser,
     findApplicationsByJobPosting,
     findApplicationByUserAndJobPosting,
+    deleteApplication,
 };
