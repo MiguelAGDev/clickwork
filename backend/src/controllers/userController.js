@@ -108,20 +108,26 @@ async function updateMyProfile( req, res, next ){
                     await updateStudent( userId, { semester: req.body.semester } );
                 }
             } else if( role === 'intern' ){
-                // Pass through whatever fields are present; model will handle nulls
-                await updateIntern( userId, {
-                    hostCompany: req.body.hostCompany,
-                    project:     req.body.project,
-                    endDate:     req.body.endDate,
-                } );
+                const hasInternField =
+                    req.body.hostCompany !== undefined ||
+                    req.body.project     !== undefined ||
+                    req.body.endDate     !== undefined;
+
+                if( hasInternField ){
+                    await updateIntern( userId, {
+                        hostCompany: req.body.hostCompany,
+                        project:     req.body.project,
+                        endDate:     req.body.endDate,
+                    } );
+                }
             } else if( role === 'graduate' ){
                 if( req.body.currentJob !== undefined ){
                     await updateGraduate( userId, { currentJob: req.body.currentJob } );
                 }
             }
-        } catch( roleErr ){
+        } catch( err ){
             // Forward role-specific update errors to the centralized error handler
-            return next( roleErr );
+            return next( err );
         }
 
         const updatedUser = await findById( userId );
