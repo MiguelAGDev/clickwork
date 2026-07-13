@@ -10,6 +10,11 @@
 // By:
 
 
+// NOTE: This permission system is NOT currently active in the application.
+//       The system currently uses roleMiddleware for access control.
+//       The bitmask infrastructure here is ready for future implementation
+//       of fine-grained permission checking if needed.
+
 const PERMISSIONS = {
 
     // PUBLIC: not auth required
