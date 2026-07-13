@@ -12,9 +12,7 @@
 import {
     createCompany as createCompanyModel,
     findCompanyByUserId,
-    updateCompany,
-    getPendingCompanies as getPendingCompaniesModel,
-    updateCompanyApprovalStatus
+    updateCompany
 } from '../models/companyModel.js';
 
 // POST /api/companies
@@ -23,7 +21,21 @@ async function createCompany(req, res, next) {
     try {
 
         const userId = req.user.id;
-        const insertId = await createCompanyModel(userId, req.body);
+
+        // Map validated request body (cmp_* field names, per the route
+        // validators) to the unprefixed shape companyModel.createCompany
+        // actually expects. See backend audit C1.
+        const companyData = {
+            name:          req.body.cmp_name,
+            size:          req.body.cmp_size,
+            industry:      req.body.cmp_industry,
+            city:          req.body.cmp_city,
+            state:         req.body.cmp_state,
+            address:       req.body.cmp_address,
+            contact_email: req.body.cmp_contact_email,
+        };
+
+        const insertId = await createCompanyModel(userId, companyData);
 
         res.status(201).json({
             success: true,
@@ -62,7 +74,19 @@ async function getMyCompany(req, res, next) {
 async function updateMyCompany(req, res, next) {
     try {
         const userId = req.user.id;
-        const affectedRows = await updateCompany(userId, req.body);
+
+        // See backend audit C1 — same field-name mapping as createCompany.
+        const companyData = {
+            name:          req.body.cmp_name,
+            size:          req.body.cmp_size,
+            industry:      req.body.cmp_industry,
+            city:          req.body.cmp_city,
+            state:         req.body.cmp_state,
+            address:       req.body.cmp_address,
+            contact_email: req.body.cmp_contact_email,
+        };
+
+        const affectedRows = await updateCompany(userId, companyData);
 
         if (affectedRows === 0) {
             const err = new Error('Company not found or nothing changed');
@@ -79,50 +103,8 @@ async function updateMyCompany(req, res, next) {
     }
 }
 
-// GET /api/companies/pending    (admin only)
-// Returns all companies with approval status 'pending'
-async function getPendingCompanies(req, res, next) {
-    try {
-        const companies = await getPendingCompaniesModel();
+// NOTE: pending-listing and approval-status-update for companies live
+// exclusively in adminController.js, routed under /api/admin/companies
+// and gated by roleMiddleware('admin'). See backend audit C2.
 
-        res.status(200).json({
-            success: true,
-            data: companies
-        });
-    } catch (err) {
-        next(err);
-    }
-}
-
-// PATCH /api/companies/:userId/approval    (admin only)
-// Approves or rejects a company by user ID
-// Body: { status: 'approved' | 'rejected', reason?: string }
-async function updateCompanyApproval(req, res, next) {
-    try {
-        const { userId } = req.params;
-        const { status, reason } = req.body;
-
-        const validStatuses = ['approved', 'rejected', 'pending'];
-        if (!validStatuses.includes(status)) {
-            const err = new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
-            err.statusCode = 400;
-            return next(err);
-        }
-
-        const affectedRows = await updateCompanyApprovalStatus(userId, status, reason);
-
-        if (affectedRows === 0) {
-            const err = new Error('Company not found');
-            err.statusCode = 404;
-            return next(err);
-        }
-
-        res.status(200).json({
-            success: true,
-            message: `Company status updated to '${status}'`
-        });
-    } catch (err) {
-        next(err);
-    }
-}
-export{updateCompanyApproval,getPendingCompanies,updateMyCompany,getMyCompany,createCompany}
+export { updateMyCompany, getMyCompany, createCompany };
