@@ -115,10 +115,51 @@ async function deleteApplication( applicationId ){
 
 }
 
+
+// Returns a single application by its primary key.
+// Used by applicationsController to look up which job posting an application
+// belongs to, so ownership can be verified before allowing a status change.
+async function findApplicationById( applicationId ) {
+
+    const sql = `
+        SELECT *
+        FROM application
+        WHERE app_id = ?
+    `;
+
+    const [ rows ] = await execute( sql, [ applicationId ] );
+
+    return rows[ 0 ] ?? null;
+
+}
+
+
+// Updates the status of a single application.
+// Callers are responsible for validating status against the app_status
+// ENUM ('pending', 'under_review', 'interview', 'accepted', 'rejected')
+// before calling this — no validation happens at the model layer.
+// This is separate from job_posting/company approval status, which is
+// admin-only and untouched by this function.
+async function updateApplicationStatus( applicationId, status ) {
+
+    const sql = `
+        UPDATE application
+        SET app_status = ?
+        WHERE app_id = ?
+    `;
+
+    const [ result ] = await execute( sql, [ status, applicationId ] );
+
+    return result.affectedRows;
+
+}
+
 export {
     createApplication,
     findApplicationsByUser,
     findApplicationsByJobPosting,
     findApplicationByUserAndJobPosting,
     deleteApplication,
+    findApplicationById,
+    updateApplicationStatus,
 };
