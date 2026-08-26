@@ -28,6 +28,7 @@ import {
     applyToJob,
     getMyApplications,
     getApplicationsByJobPosting,
+    updateApplicationStatus,
 } from '../controllers/applicationsController.js';
 
 // Create Express router instance
@@ -52,6 +53,17 @@ const jobPostingParamValidation = [
         .isInt({ min: 1 })
         .withMessage('jobPostingId must be a valid integer')
         .toInt(),
+];
+
+const applicationStatusUpdateValidation = [
+    param('id')
+        .isInt({ min: 1 })
+        .withMessage('id must be a valid integer')
+        .toInt(),
+
+    body('status')
+        .isIn(['pending', 'under_review', 'interview', 'accepted', 'rejected'])
+        .withMessage('status must be one of: pending, under_review, interview, accepted, rejected'),
 ];
 
 /*
@@ -130,6 +142,30 @@ router.get(
     jobPostingParamValidation,
     validate,
     getApplicationsByJobPosting
+);
+
+/*
+|--------------------------------------------------------------------------
+| PATCH /:id/status
+|--------------------------------------------------------------------------
+| Updates the status of a single application. Restricted to the company
+| that owns the job posting the application was submitted to. Separate
+| from job posting / company approval status, which remains admin-only.
+|
+| Endpoint:
+|   PATCH /api/applications/:id/status
+|
+| Body:
+|   {
+|      "status": "pending" | "under_review" | "interview" | "accepted" | "rejected"
+|   }
+*/
+router.patch(
+    '/:id/status',
+    authMiddleware,
+    applicationStatusUpdateValidation,
+    validate,
+    updateApplicationStatus
 );
 
 // Export router module

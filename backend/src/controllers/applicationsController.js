@@ -17,7 +17,9 @@ import {
     createApplication, 
     findApplicationsByUser, 
     findApplicationsByJobPosting,
-    findApplicationByUserAndJobPosting
+    findApplicationByUserAndJobPosting,
+    findApplicationById,
+    updateApplicationStatus as updateApplicationStatusModel
     
     } from '../models/applicationModel.js';
 import { findJobPostingById } from '../models/jobPostingModel.js';
@@ -162,4 +164,102 @@ async function getApplicationsByJobPosting(req,res,next) {
     
 }
 
-export{getApplicationsByJobPosting,getMyApplications,applyToJob};
+// PATCH /api/applications/:id/status
+// Updates the status of a single application (pending, under_review,
+// interview, accepted, rejected). Restricted to the company that owns
+// the job posting the application belongs to.
+//
+// This is separate from job posting / company approval status, which
+// remains admin-only. Any of the five application statuses may be set
+// at any time — moving an already-accepted or already-rejected
+// application to another status (e.g. reconsidering a decision) is
+// intentionally allowed. There is no dedicated "reopened" status in
+// the schema; a company reconsidering a prior decision should send
+// 'under_review' rather than 'pending', since 'pending' implies the
+// application has not yet been looked at.
+const VALID_APPLICATION_STATUSES = ['pending', 'under_review', 'interview', 'accepted', 'rejected'];
+
+async function updateApplicationStatus(req, res, next) {
+
+    try {
+
+        const userId = req.user.id;
+        const { id } = req.params;
+        const { status } = req.body;
+
+        // Validate status against the app_status ENUM — no other value is allowed
+        if (!VALID_APPLICATION_STATUSES.includes(status)) {
+
+            const err = new Error(`Invalid status. Must be one of: ${VALID_APPLICATION_STATUSES.join(', ')}`);
+            err.statusCode = 400;
+            return next(err);
+
+        }
+
+        // Verify the application exists
+        const application = await findApplicationById(id);
+
+        if (!application) {
+
+            const err = new Error('Application not found');
+            err.statusCode = 404;
+            return next(err);
+
+        }
+
+        // Verify the job posting this application belongs to exists
+        const posting = await findJobPostingById(application.app_id_job_posting);
+
+        if (!posting) {
+
+            const err = new Error('Job posting not found');
+            err.statusCode = 404;
+            return next(err);
+
+        }
+
+        // Verify the authenticated user's company owns this posting.
+        // Same ownership pattern used in getApplicationsByJobPosting above —
+        // without this check, any company could change the status of an
+        // application submitted to a competitor's job posting.
+        const company = await findCompanyByUserId(userId);
+
+        if (!company || posting.jb_pst_id_company !== company.cmp_id_user) {
+
+            const err = new Error('You are not authorized to update this application.');
+            err.statusCode = 403;
+            return next(err);
+
+        }
+
+        const affectedRows = await updateApplicationStatusModel(id, status);
+
+        if (!affectedRows) {
+
+            const err = new Error('Application not found');
+            err.statusCode = 404;
+            return next(err);
+
+        }
+
+        res.status(200).json({
+            success: true,
+            message: `Application status updated to '${status}'.`
+        });
+
+    } catch (err) {
+
+        next(err);
+
+    }
+
+}
+
+export{
+
+    getApplicationsByJobPosting,
+    getMyApplications,
+    applyToJob,
+    updateApplicationStatus
+    
+};
