@@ -32,10 +32,6 @@
 > `notclaude/bitacora/`. Permisos, reportes y notificaciones están en
 > stand-by, no listados aquí.
 
-* [ ] 🔴 BLOQUEANTE — `jobPostingRoutes.js` importa `getPendingJobPostings` y
-  `updateJobPostingApproval`, que ya no existen en `jobPostingController.js`.
-  El servidor no arranca en este estado. Ver
-  `notclaude/bitacora/2026-08-25-bug-critico-jobposting-routes.md`.
 * [ ] Recuperar contraseña (forgot/reset). El correo ya existe
   (`emailService.sendPasswordResetEmail`), falta token + controller + rutas.
 * [ ] Reenviar correo de verificación de email.

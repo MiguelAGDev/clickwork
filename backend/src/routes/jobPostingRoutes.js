@@ -10,8 +10,7 @@ import {
     getJobPostingById,
     getMyCompanyJobPostings,
     updateJobPosting,
-    getPendingJobPostings,
-    updateJobPostingApproval,
+
 } from '../controllers/jobPostingController.js';
 
 const router = Router();
@@ -85,18 +84,6 @@ const jobPostingBodyValidation = [
         .toInt(),
 ];
 
-const approvalBodyValidation = [
-    body('status')
-        .isIn(['approved', 'rejected', 'pending'])
-        .withMessage('Status must be approved, rejected or pending'),
-
-    body('reason')
-        .if(body('status').equals('rejected'))
-        .notEmpty()
-        .withMessage('A rejection reason is required when status is rejected.')
-        .trim(),
-];
-
 // Public route: list all job postings
 router.get(
     '/',
@@ -118,20 +105,6 @@ router.get(
     getMyCompanyJobPostings
 );
 
-router.get(
-    '/pending',
-    authMiddleware,
-    getPendingJobPostings
-);
-
-router.patch(
-    '/:id/approval',
-    authMiddleware,
-    approvalBodyValidation,
-    validate,
-    updateJobPostingApproval
-);
-
 router.put(
     '/:id',
     authMiddleware,
@@ -140,7 +113,7 @@ router.put(
     updateJobPosting
 );
 
-// Public route: must be declared after /pending so "pending" is not treated as an id.
+// Public route: declared last so it doesn't shadow the specific routes above.
 router.get(
     '/:id',
     getJobPostingById
