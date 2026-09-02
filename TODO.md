@@ -32,9 +32,6 @@
 > `notclaude/bitacora/`. Permisos, reportes y notificaciones están en
 > stand-by, no listados aquí.
 
-* [ ] Recuperar contraseña (forgot/reset). El correo ya existe
-  (`emailService.sendPasswordResetEmail`), falta token + controller + rutas.
-* [ ] Reenviar correo de verificación de email.
 * [ ] Cambiar contraseña estando logueado.
 * [ ] `GET /api/users/me` debe regresar los datos propios por rol (semestre,
   host company, trabajo actual, etc.) — hoy solo permite actualizarlos, no

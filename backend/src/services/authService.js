@@ -7,12 +7,9 @@
 //              Login: reads role/permissions from app_user -> signs JWT.
 // Date: May 6th 2026
 
-// Latest Update:
-// Date: June 8th 2026
-// By: Azucena Rodriguez Flores 
-// Changes: Refactored permissions to match database changes.
-//          Removed role-specific permission updates from student, intern, graduate and company tables.
-//          app_user.ap_usr_role and app_user.ap_usr_permissions are now the source of truth for authMiddleware.
+// Latest Update: Add forgotPassword, resetPassword and resendVerificationEmail
+// Date: September 2nd 2026
+// By: Miguel Angel Avila Garcia
 
 import bcryptjs from 'bcryptjs';     // Library 'bcryptjs' for hashing passwords securely
 import jwt      from 'jsonwebtoken'; // Library 'jsonwebtoken' for creating and verifying JWT tokens
@@ -47,7 +44,6 @@ import {
 
 // Import permission bitmasks
 import { ROLE_MASK } from '../config/permissions.js';
-import bcrypt from 'bcryptjs';
 
 // How many bcrypt rounds to use when hashing passwords
 const SALT_ROUND = 12;
@@ -77,6 +73,7 @@ function _assertValidRole(role) {
     }
 }
 
+// Function: throws a validation error with a specific message.
 function _throwValidationError(message) {
     const err = new Error(message);
     err.statusCode = 422;
@@ -367,6 +364,34 @@ async function verifyEmail(token) {
     await markEmailVerified(user.id);
 }
 
+async function resendVerificationEmail( email ) {
+
+    // 1. Find user by email
+    const user = await findByEmail( email );
+
+    if( !user ){
+        return; // If user doesn't exist, end function
+    }
+
+    // 2. Check if email is already verified
+    if( user.email_verified ){
+        return; // If email is already verified, end function
+    }
+
+    // 3. Regenerate a token for email verification and set expiration
+    const verifyToken = crypto.randomBytes( 32 ).toString( 'hex' );
+    const expiration = new Date( Date.now() + 24 * 60 * 60 * 1000 ); // +24 hours
+
+    await updateToken( user.id, verifyToken, expiration );
+
+    // 4. Send verification email
+    await sendVerificationEmail( {
+        to: user.email,
+        token: verifyToken
+    } );
+    
+}
+
 // Function: Forgot password to send a reset password email with a token link to the user.
 async function forgotPassword( email ){
 
@@ -423,7 +448,8 @@ async function resetPassword( token, newPassword ){
 export { 
     register, 
     login, 
-    verifyEmail, 
+    verifyEmail,
+    resendVerificationEmail,
     forgotPassword, 
     resetPassword 
 };

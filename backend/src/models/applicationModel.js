@@ -6,9 +6,9 @@
 //              by user and by job posting.
 // Date: May 5th 2026
 
-// Latest Update:
-// Date:
-// By:
+// Latest Update: Add findApplicationById and updateApplicationStatus
+// Date: August 26th 2026
+// By: Miguel Angel Avila Garcia
 
 import { execute } from '../config/db.js';
 

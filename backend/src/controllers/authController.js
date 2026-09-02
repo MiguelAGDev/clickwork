@@ -6,14 +6,15 @@
 //              No business logic lives here.
 // Date: May 8th 2026
  
-// Latest Update:
-// Date:
-// By:
+// Latest Update: Add forgotPasswordHandler, resetPasswordHandler and resendVerificationEmailHandler
+// Date: September 2nd 2026
+// By: Miguel Angel Avila Garcia
 
 import { 
     register, 
     login, 
     verifyEmail,
+    resendVerificationEmail,
     forgotPassword,
     resetPassword 
 } from '../services/authService.js';
@@ -69,6 +70,24 @@ async function verifyEmailHandler( req, res, next ) {
     
 }
 
+// POST /api/auth/resend-verification
+async function resendVerificationEmailHandler( req, res, next ){
+
+    try{
+
+        await resendVerificationEmail( req.body.email );
+
+        // Same generic response to avoid leaking which emails are registered
+        res.status(200).json({
+            success: true,
+            message: 'A verification email has been sent. Please check your inbox.',
+        });
+
+    }catch( err ){ next( err ); }
+
+}
+
+
 // POST api/auth/forgot-password
 async function forgotPasswordHandler( req, res, next ){
 
@@ -109,5 +128,7 @@ export {
     loginHandler, 
     verifyEmailHandler,
     forgotPasswordHandler,
+    resendVerificationEmailHandler,
     resetPasswordHandler
 };
+
