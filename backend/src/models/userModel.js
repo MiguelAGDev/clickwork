@@ -4,8 +4,8 @@
 // Description: User model — queries for the app_user table
 // Date: May 5nd 2026
  
-// Latest Update: Add admin functions getAllUsers and toggleActiveUser 
-// Date: June 28th 2026 
+// Latest Update: Add updatePassword for the password reset flow
+// Date: September 2nd 2026
 // By: Miguel Angel Avila Garcia
  
 

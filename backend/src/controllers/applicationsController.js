@@ -8,9 +8,9 @@
 //              No database logic lives here.
 // Date: May 17th 2026
  
-// Latest Update:
-// Date:
-// By: Azucena Rodriguez Flores 
+// Latest Update: Add PATCH /:id/status endpoint (updateApplicationStatus)
+// Date: August 26th 2026
+// By: Miguel Angel Avila Garcia
 
 import { 
 

@@ -6,8 +6,8 @@
 //              before the request reaches the controller.
 // Date: April 28th 2026
  
-// Latest Update: Implemented all three routes with validation.
-// Date: May 8th 2026
+// Latest Update: Add forgot-password, reset-password/:token and resend-verification routes
+// Date: September 2nd 2026
 // By: Miguel Angel Avila Garcia
 
 
@@ -20,6 +20,9 @@ import {
     registerHandler,
     loginHandler,
     verifyEmailHandler,
+    resendVerificationEmailHandler,
+    forgotPasswordHandler,
+    resetPasswordHandler
 
 } from '../controllers/authController.js';
 
@@ -144,6 +147,32 @@ router.post(
     resetPasswordHandler,
 );
 
+// POST /api/auth/forgot-password
+router.post(
+    '/forgot-password',
+    [
+        body('email')
+            .isEmail()
+            .withMessage('A valid email address is required.')
+            .normalizeEmail(),
+    ],
+    validate,
+    forgotPasswordHandler,
+);
+
+// POST /api/auth/resend-verification 
+router.post(
+
+    '/resend-verification',
+    [
+        body('email').
+            isEmail()
+            .withMessage('A valid email address is required.')
+            .normalizeEmail(),
+    ],
+    validate,
+    resendVerificationEmailHandler,
+);
 
 // GET  /api/auth/verify/:token
 router.get( '/verify/:token', verifyEmailHandler );
