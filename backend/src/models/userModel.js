@@ -141,6 +141,25 @@ async function verifyEmail( id ) {
 
 };
 
+// Updates the user's password hash. Called by authService.resetPassword
+// after validating the reset token - the caller is responsible for hashing 
+// the new password before calling this
+async function updatePassword( id, passwordHashed ) {
+
+    const sql = `
+        UPDATE app_user
+        SET ap_usr_password = ?
+        WHERE ap_usr_id = ?
+    `;
+
+    const [ result ] = await execute( sql, [ passwordHashed, id ] );
+
+    return result.affectedRows;
+
+}
+
+
+
 // Finds a user by their verification or reset token.
 // Used to validate the link the user clicked in their email.
 // Always check token expiration in authService after calling this.
@@ -249,6 +268,7 @@ export {
     update,
     updateCvUrl,
     updateToken,
+    updatePassword,
     verifyEmail,
     findByToken,
     getAllUsers,

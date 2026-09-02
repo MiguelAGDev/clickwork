@@ -10,7 +10,13 @@
 // Date:
 // By:
 
-import { register, login, verifyEmail } from '../services/authService.js';
+import { 
+    register, 
+    login, 
+    verifyEmail,
+    forgotPassword,
+    resetPassword 
+} from '../services/authService.js';
 
 // POST /api/auth/register
 async function registerHandler( req, res, next ) {
@@ -63,5 +69,45 @@ async function verifyEmailHandler( req, res, next ) {
     
 }
 
+// POST api/auth/forgot-password
+async function forgotPasswordHandler( req, res, next ){
 
-export { registerHandler, loginHandler, verifyEmailHandler };
+    try {
+
+        await forgotPassword( req.body.email );
+
+        // Always return the same response ( exist or not)
+        // avoids leaking wich email are registered 
+        res.status( 200 ).json({
+            success: true,
+            message: 'A password reset link has been sent.'
+        });
+
+
+    } catch ( err ) { next( err ); }
+
+}
+
+// POST api/auth/reset-password/:token
+async function resetPasswordHandler( req, res, next ){
+
+    try {
+
+        await resetPassword( req.params.token, req.body.password );
+
+        res.status( 200 ).json({
+            success: true,
+            message: 'Password has been reset succesfully. You can now log in'
+        });
+        
+    } catch ( err ) { next( err ); }
+
+}
+
+export { 
+    registerHandler, 
+    loginHandler, 
+    verifyEmailHandler,
+    forgotPasswordHandler,
+    resetPasswordHandler
+};

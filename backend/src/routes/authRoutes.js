@@ -128,6 +128,23 @@ router.post(
     loginHandler,
 );
 
+// POST /api/auth/reset-password/:token
+router.post(
+    '/reset-password/:token',
+    [
+        body('password')
+            .isLength({ min: 8 })
+            .withMessage('Password must be at least 8 characters.')
+            .matches(/[A-Z]/)
+            .withMessage('Password must contain at least one uppercase letter.')
+            .matches(/[0-9]/)
+            .withMessage('Password must contain at least one number.'),
+    ],
+    validate,
+    resetPasswordHandler,
+);
+
+
 // GET  /api/auth/verify/:token
 router.get( '/verify/:token', verifyEmailHandler );
 
