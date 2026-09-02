@@ -19,7 +19,10 @@ import jwt      from 'jsonwebtoken'; // Library 'jsonwebtoken' for creating and 
 import crypto   from 'crypto';       // Node.js built-in module for random values (tokens)
 
 import { getConnection } from '../config/db.js';            // DB manual connection
-import { sendVerificationEmail } from './emailService.js';  // Service to send confirmation email
+import { 
+    sendVerificationEmail,
+    sendPasswordResetEmail 
+} from './emailService.js';  // Service to send confirmation email and reset password email
 
 // Import functions from user queries
 import {
@@ -27,6 +30,7 @@ import {
     findByEmail,
     findByToken,
     updateToken,
+    updatePassword,
     verifyEmail as markEmailVerified,
 } from '../models/userModel.js';
 
@@ -43,6 +47,7 @@ import {
 
 // Import permission bitmasks
 import { ROLE_MASK } from '../config/permissions.js';
+import bcrypt from 'bcryptjs';
 
 // How many bcrypt rounds to use when hashing passwords
 const SALT_ROUND = 12;
@@ -362,4 +367,63 @@ async function verifyEmail(token) {
     await markEmailVerified(user.id);
 }
 
-export { register, login, verifyEmail };
+// Function: Forgot password to send a reset password email with a token link to the user.
+async function forgotPassword( email ){
+
+    // 1. Find user by email
+    const user = await findByEmail( email );
+
+    if( !user ){
+        return; // If user doesn't exist, end function
+    }
+
+    // 2. Regenerate a token for reset password and set expiration
+    const resetToken = crypto.randomBytes( 32 ).toString( 'hex' ); 
+    const expiration = new Date( Date.now() + 60 * 60 * 1000 ); // +1 hour
+
+    await updateToken( user.id, resetToken, expiration );
+
+    // 3. Send reset email
+    await sendPasswordResetEmail( {
+        to: user.email,
+        name: user.email,
+        token: resetToken
+    } );
+}
+
+// Function: Reset password using the token sent to the user's email.
+async function resetPassword( token, newPassword ){
+
+    // 1. Find user by token
+    const user = await findByToken( token );
+
+    if( !user ){
+        const err = new Error( 'Reset link is invalid.' );
+        err.statusCode = 400;
+        throw err;
+    }
+
+    // 2. Check token hast not expired
+    if( new Date() > new Date( user.tokenExpiration ) ){
+        const err = new Error( 'Reset link has expired. Please request a new one.' );
+        err.statusCode = 410;
+        throw err;
+    }
+
+    // 3. Hash and save the new password
+    const hashedPassword = await bcryptjs.hash( newPassword, SALT_ROUND );
+    await updatePassword( user.id, hashedPassword );
+
+    // 4. Invalidate the token so it can't be reused
+    await updateToken( user.id, null, null );
+
+}
+
+
+export { 
+    register, 
+    login, 
+    verifyEmail, 
+    forgotPassword, 
+    resetPassword 
+};
