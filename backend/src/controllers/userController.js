@@ -8,8 +8,8 @@
 //              No business logic lives here.
 // Date: June 25th 2026
 
-// Lastest Update:
-// Date:
+// Lastest Update: Add changeMyPassword (PUT /password)
+// Date: September 2nd 2026
 // By: Miguel Angel Avila Garcia
 
 
@@ -31,6 +31,7 @@ import {
     , deleteApplication
     } from '../models/applicationModel.js';
 
+import { changePassword } from '../services/authService.js';
 import { findJobPostingById }   from '../models/jobPostingModel.js';
 import { findCompanyByUserId }  from '../models/companyModel.js';
 import { sendRollMeEmail }      from '../services/emailService.js';
@@ -278,9 +279,29 @@ async function rollMeToCompany( req, res, next ) {
     
 }
 
+// PUT /api/users/password
+async function changeMyPassword( req, res, next ){
+
+    try {
+
+        const { currentPassword, newPassword } = req.body;
+
+        await changePassword( req.user.email, currentPassword, newPassword );
+
+        res.status( 200 ).json({
+            success: true,
+            message: 'Password changed successfully.',
+        });
+        
+    } catch ( err ) { next( err ); }
+
+
+}
+
 export { 
     getMyProfile,
     updateMyProfile,
     updateMyCv,
     rollMeToCompany,
+    changeMyPassword
  };

@@ -7,7 +7,7 @@
 //              Login: reads role/permissions from app_user -> signs JWT.
 // Date: May 6th 2026
 
-// Latest Update: Add forgotPassword, resetPassword and resendVerificationEmail
+// Latest Update: Add changePassword (logged-in user password change)
 // Date: September 2nd 2026
 // By: Miguel Angel Avila Garcia
 
@@ -444,6 +444,43 @@ async function resetPassword( token, newPassword ){
 
 }
 
+// Function: Change authenticated user's password. Verified the 
+// current password before saving the new one. Different than resetPassword,
+// which trust an emailed token instead of a known password.
+async function changePassword( email, currentPassword, newPassword ){
+
+    // 1. Find user by email
+    const user = await findByEmail( email ); 
+
+    // This function send an error beacause the user
+    // is already authenticated.
+    if( !user ){
+        const err = new Error( 'User not found.' );
+        err.statusCode = 404;
+        throw err;
+    }
+
+    // 2. Verified the current password
+    const match = await bcryptjs.compare( currentPassword, user.password );
+
+    if( !match ){
+        const err = new Error( 'Current password is incorrect.' ); 
+        err.statusCode = 401;
+        throw err;
+    }
+
+    // 3. Reject a 'new' password identical to the current one
+    if( currentPassword === newPassword ){
+        const err = new Error( 'New password must be different from the current password.' );
+        err.statusCode = 400;
+        throw err;
+    }
+
+    // 4. Hash and save the new password
+    const hashedPassword = await bcryptjs.hash( newPassword, SALT_ROUND );
+    await updatePassword( user.id, hashedPassword );
+    
+}
 
 export { 
     register, 
@@ -451,5 +488,6 @@ export {
     verifyEmail,
     resendVerificationEmail,
     forgotPassword, 
-    resetPassword 
+    resetPassword,
+    changePassword
 };

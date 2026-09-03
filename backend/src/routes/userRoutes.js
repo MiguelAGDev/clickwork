@@ -4,9 +4,9 @@
 // Description: 
 // Date: June 25th 2026
 
-// Lastest Update:
-// Date:
-// By: 
+// Lastest Update: Add PUT /password route
+// Date: September 2nd 2026
+// By: Miguel Angel Avila Garcia
 
 import { Router } from 'express';
 import { body }   from 'express-validator';
@@ -19,7 +19,8 @@ import {
     getMyProfile,
     updateMyProfile,
     updateMyCv,
-    rollMeToCompany
+    rollMeToCompany,
+    changeMyPassword
 } from '../controllers/userController.js';
 
 const router = Router();
@@ -76,6 +77,25 @@ const rollMeBodyValidation = [
         .toInt(),
 ];
 
+// Validation for PUT /password
+const changePasswordBodyValidation = [
+    body('currentPassword')
+        .notEmpty()
+        .withMessage('Current password is required.'),
+
+    body('newPassword')
+        .notEmpty()
+        .withMessage('New password is required.')
+        .isLength({ min: 8 })
+        .withMessage('New password must be at least 8 characters long.')
+        .matches(/[A-Z]/)
+        .withMessage('New password must contain at least one uppercase letter.')
+        .matches(/[0-9]/)
+        .withMessage('New password must contain at least one number.'),
+        
+
+]
+
 // GET /me
 router.get('/me', authMiddleware, getMyProfile);
 
@@ -86,6 +106,15 @@ router.put(
     userProfileBodyValidation,
     validate,
     updateMyProfile
+);
+
+// PUT /password
+router.put(
+    '/password',
+    authMiddleware,
+    changePasswordBodyValidation,
+    validate,
+    changeMyPassword
 );
 
 // POST /cv

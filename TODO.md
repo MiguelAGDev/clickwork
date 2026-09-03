@@ -32,7 +32,6 @@
 > `notclaude/bitacora/`. Permisos, reportes y notificaciones están en
 > stand-by, no listados aquí.
 
-* [ ] Cambiar contraseña estando logueado.
 * [ ] `GET /api/users/me` debe regresar los datos propios por rol (semestre,
   host company, trabajo actual, etc.) — hoy solo permite actualizarlos, no
   leerlos de vuelta.
