@@ -5,15 +5,16 @@
 //              Handles creation, retrieval, update, and approval of companies.
 
 // Date: May 17th 2026
-// Lastest Update:
-// Date:
-// By: Azucena Rodirguez Flores 
+// Lastest Update: Add toggleMyCompanyActive (self-service PATCH /toggle-active)
+// Date: September 2nd 2026
+// By: Claude (Sonnet 5), at Miguel's explicit request
 
 import {
     createCompany as createCompanyModel,
     findCompanyByUserId,
     updateCompany
 } from '../models/companyModel.js';
+import { toggleUserActive } from '../models/userModel.js';
 
 // POST /api/companies
 // Creates a new company linked to the authenticated user
@@ -103,8 +104,38 @@ async function updateMyCompany(req, res, next) {
     }
 }
 
+// PATCH /api/company/toggle-active
+// Self-service: lets the authenticated company toggle its own active
+// status. One-way in practice — once active = 0, authMiddleware blocks
+// every further request (including this one), so re-activating requires
+// an admin via PATCH /api/admin/users/:id/toggle-active.
+async function toggleMyCompanyActive(req, res, next) {
+    try {
+        if (req.user.role !== 'company') {
+            const err = new Error('Only company accounts can use this endpoint.');
+            err.statusCode = 403;
+            return next(err);
+        }
+
+        const affectedRows = await toggleUserActive(req.user.id);
+
+        if (!affectedRows) {
+            const err = new Error('Company not found.');
+            err.statusCode = 404;
+            return next(err);
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Company active status toggled successfully.',
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 // NOTE: pending-listing and approval-status-update for companies live
 // exclusively in adminController.js, routed under /api/admin/companies
 // and gated by roleMiddleware('admin'). See backend audit C2.
 
-export { updateMyCompany, getMyCompany, createCompany };
+export { updateMyCompany, getMyCompany, createCompany, toggleMyCompanyActive };
