@@ -30,6 +30,7 @@ import {
     createCompany,
     getMyCompany,
     updateMyCompany,
+    toggleMyCompanyActive,
 } from '../controllers/companyController.js';
 
 // Create router instance
@@ -137,6 +138,21 @@ router.put(
     companyBodyValidation,
     validate,
     updateMyCompany
+);
+
+/*
+|--------------------------------------------------------------------------
+| PATCH /toggle-active
+|--------------------------------------------------------------------------
+| Self-service: the authenticated company toggles its own active status.
+|
+| Endpoint:
+|   PATCH /api/company/toggle-active
+*/
+router.patch(
+    '/toggle-active',
+    authMiddleware,
+    toggleMyCompanyActive
 );
 
 // NOTE: company approval listing/updates moved exclusively to /api/admin/companies/*

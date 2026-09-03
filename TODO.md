@@ -32,14 +32,13 @@
 > `notclaude/bitacora/`. Permisos, reportes y notificaciones están en
 > stand-by, no listados aquí.
 
-* [ ] `GET /api/users/me` debe regresar los datos propios por rol (semestre,
-  host company, trabajo actual, etc.) — hoy solo permite actualizarlos, no
-  leerlos de vuelta.
-* [ ] Borrar vacante (endpoint + función en el model — no existe hoy).
-* [ ] Borrar / dar de baja una empresa.
 * [ ] Admin: listar todas las empresas (hoy solo existe `GET /pending`).
 * [ ] ❓ Admin: borrar usuario — pendiente decidir si entra aquí o se va a
   stand-by junto con el sistema de permisos.
+* [ ] 🗣️ Borrar vacante — diseño propuesto (soft-delete, ver
+  `notclaude/bitacora/2026-09-02-borrar-vacante-pendiente-equipo.md`),
+  pendiente de platicarlo con el equipo antes de implementar (implica
+  migración de schema).
 
 <br>
 

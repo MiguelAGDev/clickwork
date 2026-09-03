@@ -8,7 +8,7 @@
 //              No business logic lives here.
 // Date: June 25th 2026
 
-// Lastest Update: Add changeMyPassword (PUT /password)
+// Lastest Update: getMyProfile returns role-specific fields (student/intern/graduate)
 // Date: September 2nd 2026
 // By: Miguel Angel Avila Garcia
 
