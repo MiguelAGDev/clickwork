@@ -23,6 +23,9 @@ import {
     updateStudent,
     updateIntern,
     updateGraduate,
+    findStudentByUserId,
+    findGraduateByUserId,
+    findInternByUserId
 } from '../models/studentModel.js';
 
 import { 
@@ -62,14 +65,62 @@ function _isRealPdf( filePath ) {
 // GET  /api/users/me
 // Returns the authenticated user's profile
 // req.user is already populated by authMiddleware
+// Refactor:  Add role-specific fields (semester, hostCompany, 
+// project, endDate, currentJob) that req.user alone does not 
+// carry those lice in student, intern, graduate tables. See backend audit C4.
 async function getMyProfile( req, res, next ) {
 
     try{
 
+        const userId = req.user.id;
+        let roleData = {};
+
+        switch( req.user.role ){
+
+            case 'student':{
+
+                const student = await findStudentByUserId( userId );
+                roleData = { semester: student?.semester ?? null };
+                break;
+            }
+
+            case 'intern':{
+
+                const intern = await findInternByUserId( userId );
+                roleData = {
+                    hostCompany: intern?.host_company ?? null,
+                    project:     intern?.project     ?? null,
+                    startDate:   intern?.start_date   ?? null,
+                    endDate:     intern?.end_date     ?? null
+                };
+                break;
+            }
+
+            case 'graduate':{
+
+                const graduate = await findGraduateByUserId( userId );
+                roleData = {
+                    graduate_year: graduate?.graduation_year ?? null,
+                    currentJob: graduate?.current_job ?? null 
+                };
+                break;
+            }
+
+            // Company /admin: no extra role-specific fields heare
+            // Compant already has its own profile at GET /api/companies/me
+
+        }
+
         res.status( 200 ).json({
             success: true,
-            data:   req.user,
+            message: 'User profile retrieved successfully.',
+            data: {
+                ...req.user,
+                ...roleData
+            }
         });
+
+
 
     }catch( err ){ next( err ); }
     
