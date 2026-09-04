@@ -6,9 +6,9 @@
 //              of job postings.
 // Date: May 17th 2026
 
-// Lastest Update:
-// Date: 9th June 2026
-// By: Miguel Angel Avila Garcia
+// Lastest Update: Update company.cmp_* refs to unprefixed names (companyModel field rename)
+// Date: September 2nd 2026
+// By: Claude (Sonnet 5), at Miguel's explicit request
 
 
 import {
@@ -60,7 +60,7 @@ async function createJobPosting(req, res, next) {
         }
 
         // Validate company approval status
-        if (company.cmp_approval_status !== 'approved') {
+        if (company.approval_status !== 'approved') {
 
             const err = new Error(
                 'Your company must be approved before posting jobs'
@@ -92,7 +92,7 @@ async function createJobPosting(req, res, next) {
         // Create job posting in database
         const insertId =
             await createJobPostingModel(
-                company.cmp_id_user,
+                company.id,
                 jobPostingData
             );
 
@@ -272,7 +272,7 @@ async function getMyCompanyJobPostings(
         // Fetch company job postings
         const postings =
             await findJobPostingsByCompany(
-                company.cmp_id_user
+                company.id
             );
 
         // Send successful response
@@ -334,7 +334,7 @@ async function updateJobPosting(req, res, next) {
         // Validate company ownership
         if (
             !company ||
-            posting.jb_pst_id_company !== company.cmp_id_user
+            posting.jb_pst_id_company !== company.id
         ) {
 
             const err = new Error(

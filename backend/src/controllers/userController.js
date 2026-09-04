@@ -8,9 +8,9 @@
 //              No business logic lives here.
 // Date: June 25th 2026
 
-// Lastest Update: getMyProfile returns role-specific fields (student/intern/graduate)
+// Lastest Update: Update company.cmp_contact_email/cmp_name refs (companyModel field rename)
 // Date: September 2nd 2026
-// By: Miguel Angel Avila Garcia
+// By: Claude (Sonnet 5), at Miguel's explicit request
 
 
 import { 
@@ -280,7 +280,7 @@ async function rollMeToCompany( req, res, next ) {
             return next( err );
         }
 
-        if( !company.cmp_contact_email ){
+        if( !company.contact_email ){
             const err      = new Error( 'Company contact email is not available.' );
             err.statusCode = 400;
             return next( err );
@@ -300,8 +300,8 @@ async function rollMeToCompany( req, res, next ) {
 
         try {
             await sendRollMeEmail({
-                to:                company.cmp_contact_email,
-                companyName:       company.cmp_name,
+                to:                company.contact_email,
+                companyName:       company.name,
                 studentName:       user.email,
                 announcementTitle: posting.jb_pst_job_title ?? 'Job posting #${ jobPostingId }', 
                 cvPath:            user.cv_url, 
