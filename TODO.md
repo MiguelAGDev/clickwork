@@ -32,7 +32,6 @@
 > `notclaude/bitacora/`. Permisos, reportes y notificaciones están en
 > stand-by, no listados aquí.
 
-* [ ] Admin: listar todas las empresas (hoy solo existe `GET /pending`).
 * [ ] ❓ Admin: borrar usuario — pendiente decidir si entra aquí o se va a
   stand-by junto con el sistema de permisos.
 * [ ] 🗣️ Borrar vacante — diseño propuesto (soft-delete, ver

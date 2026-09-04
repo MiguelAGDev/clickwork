@@ -12,6 +12,7 @@ import { roleMiddleware } from '../middlewares/roleMiddleware.js';
 import {
     getPendingCompanies,
     updateCompanyApprovalStatus,
+    getAllCompanies,
     getPendingJobPostings,
     updateJobPostingApprovalStatus,
     getAllUsers,
@@ -23,6 +24,9 @@ const router = Router();
 // Protect all admin routes
 router.use(authMiddleware);
 router.use(roleMiddleware('admin'));
+
+// GET /api/admin/companies
+router.get('/companies', getAllCompanies);
 
 // GET /api/admin/companies/pending
 router.get('/companies/pending', getPendingCompanies);

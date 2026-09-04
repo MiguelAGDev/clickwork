@@ -6,16 +6,17 @@
 //              All routes in this controller are protected by authMiddleware + roleMiddleware('admin').
 // Date: June 29th 2026
  
-// Latest Update:
-// Date:
-// By:
+// Latest Update: Add getAllCompanies (GET /api/admin/companies)
+// Date: September 2nd 2026
+// By: Claude (Sonnet 5), at Miguel's explicit request
 
 
 // Imports necesary for admin controller tasks
 import {
 
     getPendingCompanies         as getPendingCompaniesModel,
-    updateCompanyApprovalStatus as updateCompanyApprovalStatusModel
+    updateCompanyApprovalStatus as updateCompanyApprovalStatusModel,
+    getAllCompanies             as getAllCompaniesModel
 
 } from '../models/companyModel.js'
 
@@ -34,7 +35,24 @@ import {
 
 } from '../models/userModel.js';
 
-// - COMPANIES FUNCTIONS - COMPANIES FUNCTIONS - COMPANIES FUNCTIONS -  
+// - COMPANIES FUNCTIONS - COMPANIES FUNCTIONS - COMPANIES FUNCTIONS -
+
+// GET /api/admin/companies
+// Returns every company, regardless of approval status
+async function getAllCompanies( req, res, next ) {
+
+    try{
+
+        const companies = await getAllCompaniesModel();
+
+        res.status( 200 ).json({
+            success: true,
+            data:    companies,
+        });
+
+    }catch ( err ){ next( err ); }
+
+}
 
 // GET /api/admin/campanies/pending/
 // Returns all companies waiting for approval
@@ -181,9 +199,10 @@ async function toggleActiveUser( req, res, next ) {
 
 }
 
-export { 
+export {
 
     // Companies
+    getAllCompanies,
     getPendingCompanies,
     updateCompanyApprovalStatus,
 

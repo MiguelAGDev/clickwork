@@ -8,9 +8,9 @@
 //              No database logic lives here.
 // Date: May 17th 2026
  
-// Latest Update: Add PATCH /:id/status endpoint (updateApplicationStatus)
-// Date: August 26th 2026
-// By: Miguel Angel Avila Garcia
+// Latest Update: Update company.cmp_id_user refs to company.id (companyModel field rename)
+// Date: September 2nd 2026
+// By: Claude (Sonnet 5), at Miguel's explicit request
 
 import { 
 
@@ -141,7 +141,7 @@ async function getApplicationsByJobPosting(req,res,next) {
         // view any other company's applicant list.
         const company = await findCompanyByUserId(userId);
 
-        if(!company || posting.jb_pst_id_company !== company.cmp_id_user){
+        if(!company || posting.jb_pst_id_company !== company.id){
 
             const err = new Error('You are not authorized to view applicants for this job posting.');
             err.statusCode = 403;
@@ -224,7 +224,7 @@ async function updateApplicationStatus(req, res, next) {
         // application submitted to a competitor's job posting.
         const company = await findCompanyByUserId(userId);
 
-        if (!company || posting.jb_pst_id_company !== company.cmp_id_user) {
+        if (!company || posting.jb_pst_id_company !== company.id) {
 
             const err = new Error('You are not authorized to update this application.');
             err.statusCode = 403;

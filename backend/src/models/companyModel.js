@@ -6,9 +6,13 @@
 //              and pending company listings.
 // Date: May 2nd 2026
 
-// Latest Update:
-// Date:
-// By:
+// Latest Update: Add getAllCompanies; drop SELECT * and alias columns
+// (cmp_* -> unprefixed) in findCompanyByUserId, getPendingCompanies,
+// getAllCompanies. Field rename required fixing 9 call sites across
+// applicationsController/userController/jobPostingController that read
+// company.cmp_* — see notclaude/bitacora/.
+// Date: September 2nd 2026
+// By: Claude (Sonnet 5), at Miguel's explicit request
 
 import { execute } from '../config/db.js';
 
@@ -53,7 +57,22 @@ async function createCompany( userId, {
 // Used to load the company dashboard and by adminController.
 async function findCompanyByUserId( userId ) {
 
-    const sql = `SELECT * FROM company WHERE cmp_id_user = ?`;
+    const sql = `
+        SELECT
+            c.cmp_id_user           AS id,
+            c.cmp_name              AS name,
+            c.cmp_size              AS size,
+            c.cmp_industry          AS industry,
+            c.cmp_city              AS city,
+            c.cmp_state             AS state,
+            c.cmp_address           AS address,
+            c.cmp_contact_email     AS contact_email,
+            c.cmp_approval_status   AS approval_status,
+            c.cmp_rejection_reason  AS rejection_reason,
+            c.cmp_permissions       AS permissions
+        FROM company c
+        WHERE c.cmp_id_user = ?
+    `;
 
     const [ rows ] = await execute( sql, [ userId ] );
 
@@ -133,10 +152,50 @@ async function updateCompanyApprovalStatus( userId, status, reason = null ) {
 async function getPendingCompanies() {
 
     const sql = `
-        SELECT *
-        FROM company
-        WHERE cmp_approval_status = 'pending'
-        ORDER BY cmp_id_user DESC
+        SELECT
+            c.cmp_id_user           AS id,
+            c.cmp_name              AS name,
+            c.cmp_size              AS size,
+            c.cmp_industry          AS industry,
+            c.cmp_city              AS city,
+            c.cmp_state             AS state,
+            c.cmp_address           AS address,
+            c.cmp_contact_email     AS contact_email,
+            c.cmp_approval_status   AS approval_status,
+            c.cmp_rejection_reason  AS rejection_reason,
+            c.cmp_permissions       AS permissions
+        FROM company c
+        WHERE c.cmp_approval_status = 'pending'
+        ORDER BY c.cmp_id_user DESC
+    `;
+
+    const [ rows ] = await execute( sql );
+
+    return rows;
+
+}
+
+
+// Returns every company, regardless of approval status.
+// Used by adminController for a full company listing (vs. getPendingCompanies,
+// which only returns approval_status = 'pending').
+async function getAllCompanies() {
+
+    const sql = `
+        SELECT
+            c.cmp_id_user           AS id,
+            c.cmp_name              AS name,
+            c.cmp_size              AS size,
+            c.cmp_industry          AS industry,
+            c.cmp_city              AS city,
+            c.cmp_state             AS state,
+            c.cmp_address           AS address,
+            c.cmp_contact_email     AS contact_email,
+            c.cmp_approval_status   AS approval_status,
+            c.cmp_rejection_reason  AS rejection_reason,
+            c.cmp_permissions       AS permissions
+        FROM company c
+        ORDER BY c.cmp_id_user DESC
     `;
 
     const [ rows ] = await execute( sql );
@@ -152,4 +211,5 @@ export {
     updateCompany,
     updateCompanyApprovalStatus,
     getPendingCompanies,
+    getAllCompanies,
 };
