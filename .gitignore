@@ -160,3 +160,6 @@ notclaude/
 
 # Claude Code local settings cache (regenerates itself, never needed in repo)
 .claude/
+
+# PDF fixtures for tests (may contain real personal info, e.g. a real resume)
+*.pdf
