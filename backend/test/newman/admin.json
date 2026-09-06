@@ -1,0 +1,499 @@
+{
+  "info": {
+    "name": "ClickWork - Admin",
+    "_postman_id": "clickwork-newman-admin",
+    "description": "Login como admin semillado. Registra una empresa nueva (queda pending), la aprueba, y aprueba tambien la vacante que job-postings.json dejo pendiente. Al final, la empresa semillada se autodesactiva y el admin la reactiva (toggle-active es one-way sin esto -- ver companyController.js).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "POST /api/auth/login - admin semillado",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin.seed@newman.test\",\n  \"password\": \"Newman123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Logged-in user is admin', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.user.role).to.eql('admin');",
+              "    pm.environment.set('token', json.token);",
+              "    pm.environment.set('adminToken', json.token);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO setup] POST /api/auth/login - estudiante (para probar rol equivocado)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"estudiante.seed@newman.test\",\n  \"password\": \"Newman123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has a JWT token', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.token).to.be.a('string').and.not.empty;",
+              "    pm.environment.set('studentToken', json.token);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] GET /api/admin/users - rol equivocado (estudiante)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/users", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 403', function () {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PATCH /api/admin/users/2/toggle-active - rol equivocado (estudiante)",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/users/2/toggle-active", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users", "2", "toggle-active"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 403', function () {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/admin/users - listar usuarios",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/users", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Includes the seeded users', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.length).to.be.at.least(5);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/admin/companies - listar todas",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/companies", "host": ["{{baseUrl}}"], "path": ["api", "admin", "companies"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Includes the seeded, approved company', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.some(c => c.name === 'Manufactura Digital de la Laguna' && c.approval_status === 'approved')).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/auth/register - nueva empresa (queda pending)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"empresa.pendiente@newman.test\",\n  \"password\": \"Newman123\",\n  \"role\": \"company\",\n  \"name\": \"Nueva Empresa Pendiente\",\n  \"size\": \"small\",\n  \"industry\": \"Manufactura\",\n  \"contact_email\": \"contacto.pendiente@newman.test\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/admin/companies/pending - encontrar la nueva",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/companies/pending", "host": ["{{baseUrl}}"], "path": ["api", "admin", "companies", "pending"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Has exactly the company just registered', function () {",
+              "    const json = pm.response.json();",
+              "    const pending = json.data.find(c => c.name === 'Nueva Empresa Pendiente');",
+              "    pm.expect(pending).to.not.be.undefined;",
+              "    pm.environment.set('pendingCompanyId', pending.id);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PATCH /api/admin/companies/:id/approval - rechazar sin razon",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"rejected\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/admin/companies/{{pendingCompanyId}}/approval", "host": ["{{baseUrl}}"], "path": ["api", "admin", "companies", "{{pendingCompanyId}}", "approval"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test('Error says a rejection reason is required', function () {",
+              "    pm.expect(pm.response.json().message).to.include('Rejection reason required');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PATCH /api/admin/companies/:id/approval - aprobar",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"approved\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/admin/companies/{{pendingCompanyId}}/approval", "host": ["{{baseUrl}}"], "path": ["api", "admin", "companies", "{{pendingCompanyId}}", "approval"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Message confirms 'approved'\", function () {",
+              "    pm.expect(pm.response.json().message).to.include('approved');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[HALLAZGO] PATCH /api/admin/companies/:id/approval - status invalido, sin validar",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"status-que-no-existe\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/admin/companies/{{pendingCompanyId}}/approval", "host": ["{{baseUrl}}"], "path": ["api", "admin", "companies", "{{pendingCompanyId}}", "approval"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('[GAP CONOCIDO] Ruta sin express-validator -- acepta cualquier string y MySQL lo trunca a vacio en vez de rechazarlo. Ver bitacora.', function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/admin/job-postings/pending - vacante dejada por job-postings.json",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/job-postings/pending", "host": ["{{baseUrl}}"], "path": ["api", "admin", "job-postings", "pending"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Has at least the posting created in job-postings.json', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.length).to.be.at.least(1);",
+              "    pm.environment.set('pendingJobPostingId', json.data[0].jb_pst_id);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PATCH /api/admin/job-postings/:id/approval - aprobar",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"approved\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/admin/job-postings/{{pendingJobPostingId}}/approval", "host": ["{{baseUrl}}"], "path": ["api", "admin", "job-postings", "{{pendingJobPostingId}}", "approval"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Message confirms 'approved'\", function () {",
+              "    pm.expect(pm.response.json().message).to.include('approved');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PATCH /api/admin/users/:id/toggle-active - estudiante semillado",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/users/2/toggle-active", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users", "2", "toggle-active"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success: true', function () {",
+              "    pm.expect(pm.response.json().success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PATCH /api/admin/users/999999/toggle-active - usuario inexistente",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/users/999999/toggle-active", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users", "999999", "toggle-active"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 404', function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/auth/login - empresa semillada (para self toggle-active)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"empresa.seed@newman.test\",\n  \"password\": \"Newman123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has a JWT token', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.token).to.be.a('string').and.not.empty;",
+              "    pm.environment.set('token', json.token);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PATCH /api/company/toggle-active - autodesactivarse",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/company/toggle-active", "host": ["{{baseUrl}}"], "path": ["api", "company", "toggle-active"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success: true', function () {",
+              "    pm.expect(pm.response.json().success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PATCH /api/admin/users/5/toggle-active - reactivar empresa (admin)",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/users/5/toggle-active", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users", "5", "toggle-active"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200 (company reactivated by admin)', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success: true', function () {",
+              "    pm.expect(pm.response.json().success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [ { "key": "baseUrl", "value": "http://localhost:3000" } ]
+}

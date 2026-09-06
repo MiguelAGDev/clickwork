@@ -1,0 +1,296 @@
+{
+  "info": {
+    "name": "ClickWork - Job Postings",
+    "_postman_id": "clickwork-newman-job-postings",
+    "description": "Publico (list/detail) + usa {{token}} de la empresa (dejado por company.json) para crear/editar una vacante propia.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET /api/announcements - lista publica",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/announcements", "host": ["{{baseUrl}}"], "path": ["api", "announcements"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Includes the seeded job posting', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(Array.isArray(json.data)).to.be.true;",
+              "    pm.expect(json.data.some(p => p.jb_pst_id === 1)).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/announcements/1 - detalle publico",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/announcements/1", "host": ["{{baseUrl}}"], "path": ["api", "announcements", "1"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Returns the seeded posting', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.jb_pst_job_title).to.eql('Desarrollador de Software Jr.');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] GET /api/announcements/999999 - vacante inexistente",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/announcements/999999", "host": ["{{baseUrl}}"], "path": ["api", "announcements", "999999"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 404', function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO setup] POST /api/auth/login - estudiante (para probar rol equivocado)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"estudiante.seed@newman.test\",\n  \"password\": \"Newman123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has a JWT token', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.token).to.be.a('string').and.not.empty;",
+              "    pm.environment.set('studentToken', json.token);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] POST /api/announcements - rol equivocado (estudiante sin empresa)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jb_pst_job_title\": \"No deberia crearse\",\n  \"jb_pst_requirements\": \"N/A\",\n  \"jb_pst_modality\": \"remote\",\n  \"jb_pst_schedule\": \"N/A\",\n  \"jb_pst_contract_type\": \"internship\",\n  \"jb_pst_experience_level\": \"junior\",\n  \"jb_pst_expiration_date\": \"2026-12-31\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/announcements", "host": ["{{baseUrl}}"], "path": ["api", "announcements"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 403', function () {",
+              "    pm.response.to.have.status(403);",
+              "});",
+              "",
+              "pm.test('Error says a registered company is required', function () {",
+              "    pm.expect(pm.response.json().message).to.include('registered company');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] POST /api/announcements - falta jb_pst_expiration_date",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jb_pst_job_title\": \"Sin fecha de expiracion\",\n  \"jb_pst_requirements\": \"N/A\",\n  \"jb_pst_modality\": \"remote\",\n  \"jb_pst_schedule\": \"N/A\",\n  \"jb_pst_contract_type\": \"internship\",\n  \"jb_pst_experience_level\": \"junior\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/announcements", "host": ["{{baseUrl}}"], "path": ["api", "announcements"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 422 (express-validator)', function () {",
+              "    pm.response.to.have.status(422);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/announcements - crear vacante (empresa)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jb_pst_job_title\": \"Practicante de QA\",\n  \"jb_pst_requirements\": \"Conocimientos basicos de testing.\",\n  \"jb_pst_modality\": \"remote\",\n  \"jb_pst_schedule\": \"Lunes a viernes, medio tiempo\",\n  \"jb_pst_contract_type\": \"internship\",\n  \"jb_pst_experience_level\": \"junior\",\n  \"jb_pst_expiration_date\": \"2026-12-31\",\n  \"careerIds\": [1]\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/announcements", "host": ["{{baseUrl}}"], "path": ["api", "announcements"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Response has the new job posting id', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.id).to.be.a('number');",
+              "    pm.environment.set('newJobPostingId', json.data.id);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/announcements/company/me - vacantes propias",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/announcements/company/me", "host": ["{{baseUrl}}"], "path": ["api", "announcements", "company", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Includes both the seeded and the new posting', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.length).to.be.at.least(2);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT /api/announcements/:id - editar vacante creada",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jb_pst_job_title\": \"Practicante de QA (actualizado)\",\n  \"jb_pst_requirements\": \"Conocimientos basicos de testing.\",\n  \"jb_pst_modality\": \"remote\",\n  \"jb_pst_schedule\": \"Lunes a viernes, medio tiempo\",\n  \"jb_pst_contract_type\": \"internship\",\n  \"jb_pst_experience_level\": \"junior\",\n  \"jb_pst_expiration_date\": \"2026-12-31\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/announcements/{{newJobPostingId}}", "host": ["{{baseUrl}}"], "path": ["api", "announcements", "{{newJobPostingId}}"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success: true', function () {",
+              "    pm.expect(pm.response.json().success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PUT /api/announcements/999999 - vacante inexistente",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jb_pst_job_title\": \"No existe\",\n  \"jb_pst_requirements\": \"N/A\",\n  \"jb_pst_modality\": \"remote\",\n  \"jb_pst_schedule\": \"N/A\",\n  \"jb_pst_contract_type\": \"internship\",\n  \"jb_pst_experience_level\": \"junior\",\n  \"jb_pst_expiration_date\": \"2026-12-31\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/announcements/999999", "host": ["{{baseUrl}}"], "path": ["api", "announcements", "999999"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 404', function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [ { "key": "baseUrl", "value": "http://localhost:3000" } ]
+}

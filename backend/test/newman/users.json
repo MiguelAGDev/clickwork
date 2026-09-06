@@ -1,0 +1,467 @@
+{
+  "info": {
+    "name": "ClickWork - Users",
+    "_postman_id": "clickwork-newman-users",
+    "description": "Usa {{token}} dejado por auth.json (login del estudiante semillado). GET/PUT /api/users/me.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "[NEGATIVO] GET /api/users/me - sin token",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 401', function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test('Error says no token provided', function () {",
+              "    pm.expect(pm.response.json().message).to.include('No token provided');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] GET /api/users/me - token invalido",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer esto-no-es-un-jwt-valido" } ],
+        "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 401', function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test('Error says invalid or expired token', function () {",
+              "    pm.expect(pm.response.json().message).to.include('Invalid or expired token');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/users/me - perfil del estudiante",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Returns the seeded student with role-specific fields', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.email).to.eql('estudiante.seed@newman.test');",
+              "    pm.expect(json.data.role).to.eql('student');",
+              "    pm.expect(json.data.semester).to.eql(6);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT /api/users/me - actualizar telefono y semestre",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"8710009999\",\n  \"semester\": 7\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Phone was updated', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.phone).to.eql('8710009999');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PUT /api/users/me - semestre fuera de rango",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"semester\": 99\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 422 (express-validator)', function () {",
+              "    pm.response.to.have.status(422);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/users/cv - subir CV",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "cv", "type": "file", "src": "{{cvFilePath}}" }
+          ]
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/cv", "host": ["{{baseUrl}}"], "path": ["api", "users", "cv"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('cv_url was saved', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.cv_url).to.be.a('string').and.not.empty;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] POST /api/users/cv - sin archivo",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/cv", "host": ["{{baseUrl}}"], "path": ["api", "users", "cv"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test('Error says CV file is required', function () {",
+              "    pm.expect(pm.response.json().message).to.include('CV file is required');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] POST /api/users/cv - archivo no es PDF",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "cv", "type": "file", "src": "{{notCvFilePath}}" }
+          ]
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/cv", "host": ["{{baseUrl}}"], "path": ["api", "users", "cv"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test('Error says only PDF files are allowed', function () {",
+              "    pm.expect(pm.response.json().message).to.include('Only PDF files are allowed');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/users/roll-me - postularse via CV a la vacante semillada",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jobPostingId\": 1\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/roll-me", "host": ["{{baseUrl}}"], "path": ["api", "users", "roll-me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Application was logged', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.applicationId).to.be.a('number');",
+              "    pm.expect(json.data.jobPostingId).to.eql(1);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] POST /api/users/roll-me - ya te postulaste (misma vacante)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jobPostingId\": 1\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/roll-me", "host": ["{{baseUrl}}"], "path": ["api", "users", "roll-me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 409', function () {",
+              "    pm.response.to.have.status(409);",
+              "});",
+              "",
+              "pm.test('Error says already applied', function () {",
+              "    pm.expect(pm.response.json().message).to.include('already applied');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] POST /api/users/roll-me - vacante inexistente",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jobPostingId\": 999999\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/roll-me", "host": ["{{baseUrl}}"], "path": ["api", "users", "roll-me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 404', function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test('Error says job posting not found', function () {",
+              "    pm.expect(pm.response.json().message).to.include('Job posting not found');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/auth/login - graduado semillado",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"graduado.seed@newman.test\",\n  \"password\": \"Newman123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has a JWT token', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.token).to.be.a('string').and.not.empty;",
+              "    pm.environment.set('token', json.token);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PUT /api/users/password - contrasenia actual incorrecta",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currentPassword\": \"ContraseniaIncorrecta123\",\n  \"newPassword\": \"NewmanChanged123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/password", "host": ["{{baseUrl}}"], "path": ["api", "users", "password"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 401', function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "",
+              "pm.test('Error says current password is incorrect', function () {",
+              "    pm.expect(pm.response.json().message).to.include('Current password is incorrect');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PUT /api/users/password - nueva igual a la actual",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currentPassword\": \"Newman123\",\n  \"newPassword\": \"Newman123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/password", "host": ["{{baseUrl}}"], "path": ["api", "users", "password"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test('Error says new password must differ', function () {",
+              "    pm.expect(pm.response.json().message).to.include('must be different');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT /api/users/password - cambiar contrasenia (graduado)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currentPassword\": \"Newman123\",\n  \"newPassword\": \"NewmanChanged123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/password", "host": ["{{baseUrl}}"], "path": ["api", "users", "password"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success: true', function () {",
+              "    pm.expect(pm.response.json().success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [ { "key": "baseUrl", "value": "http://localhost:3000" } ]
+}
