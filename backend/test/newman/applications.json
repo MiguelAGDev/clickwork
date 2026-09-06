@@ -38,7 +38,7 @@
       ]
     },
     {
-      "name": "POST /api/applications - postularse a la vacante semillada",
+      "name": "POST /api/applications - postularse a la segunda vacante semillada",
       "request": {
         "method": "POST",
         "header": [
@@ -47,7 +47,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"job_posting_id\": 1\n}"
+          "raw": "{\n  \"job_posting_id\": 2\n}"
         },
         "url": { "raw": "{{baseUrl}}/api/applications", "host": ["{{baseUrl}}"], "path": ["api", "applications"] }
       },
@@ -130,11 +130,11 @@
       ]
     },
     {
-      "name": "GET /api/applications/job-posting/1 - ver postulantes",
+      "name": "GET /api/applications/job-posting/2 - ver postulantes",
       "request": {
         "method": "GET",
         "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
-        "url": { "raw": "{{baseUrl}}/api/applications/job-posting/1", "host": ["{{baseUrl}}"], "path": ["api", "applications", "job-posting", "1"] }
+        "url": { "raw": "{{baseUrl}}/api/applications/job-posting/2", "host": ["{{baseUrl}}"], "path": ["api", "applications", "job-posting", "2"] }
       },
       "event": [
         {

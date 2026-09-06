@@ -1,7 +1,7 @@
 // Authors:
 //      * Miguel Angel Avila Garcia
 // Description: Orchestrator for the Newman integration tests. Resets
-//              clickwork_test (sql/clean.sql + sql/seed.sql), boots the
+//              clickwork_test (resource/clean.sql + resource/seed.sql), boots the
 //              real app with NODE_ENV=test, runs each *.json collection
 //              in this folder in order (auth -> users -> company -> ...),
 //              sharing one environment across all of them so a JWT saved
@@ -42,7 +42,7 @@ const COLLECTIONS = [
 // building the seed, see bitácora).
 function runSqlFile( fileName ) {
 
-    const filePath = path.join( __dirname, 'sql', fileName );
+    const filePath = path.join( __dirname, 'resource', fileName );
 
     const args = [
         '-h', process.env.DB_HOST_TEST || 'localhost',
@@ -132,6 +132,16 @@ async function main() {
     let environment = JSON.parse(
         fs.readFileSync( path.join( __dirname, 'env.json' ), 'utf8' )
     );
+
+    // Absolute path, injected at runtime (not hardcoded in env.json) so
+    // the CV-upload test in users.json works regardless of where this
+    // repo is checked out. The actual PDF is gitignored (real personal
+    // info) -- see .gitignore, *.pdf.
+    environment.values.push( {
+        key:     'cvFilePath',
+        value:   path.join( __dirname, 'resource', 'Miguel Avila - Resume.pdf' ),
+        enabled: true,
+    } );
 
     let totalFailures = 0;
 

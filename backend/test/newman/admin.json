@@ -2,7 +2,7 @@
   "info": {
     "name": "ClickWork - Admin",
     "_postman_id": "clickwork-newman-admin",
-    "description": "Login como admin semillado. Registra una empresa nueva (queda pending), la aprueba, y aprueba tambien la vacante que job-postings.json dejo pendiente.",
+    "description": "Login como admin semillado. Registra una empresa nueva (queda pending), la aprueba, y aprueba tambien la vacante que job-postings.json dejo pendiente. Al final, la empresa semillada se autodesactiva y el admin la reactiva (toggle-active es one-way sin esto -- ver companyController.js).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -31,6 +31,7 @@
               "    const json = pm.response.json();",
               "    pm.expect(json.user.role).to.eql('admin');",
               "    pm.environment.set('token', json.token);",
+              "    pm.environment.set('adminToken', json.token);",
               "});"
             ]
           }
@@ -247,6 +248,87 @@
             "type": "text/javascript",
             "exec": [
               "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success: true', function () {",
+              "    pm.expect(pm.response.json().success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/auth/login - empresa semillada (para self toggle-active)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"empresa.seed@newman.test\",\n  \"password\": \"Newman123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has a JWT token', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.token).to.be.a('string').and.not.empty;",
+              "    pm.environment.set('token', json.token);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PATCH /api/company/toggle-active - autodesactivarse",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/company/toggle-active", "host": ["{{baseUrl}}"], "path": ["api", "company", "toggle-active"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success: true', function () {",
+              "    pm.expect(pm.response.json().success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PATCH /api/admin/users/5/toggle-active - reactivar empresa (admin)",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/users/5/toggle-active", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users", "5", "toggle-active"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200 (company reactivated by admin)', function () {",
               "    pm.response.to.have.status(200);",
               "});",
               "",
