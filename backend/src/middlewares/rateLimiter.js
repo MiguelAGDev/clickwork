@@ -10,7 +10,7 @@
 // Descripton: 
 // By: 
 
-import rateLimit from 'express-rate-limit'; // Import to create limiters for endpoints
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit'; // Import to create limiters for endpoints
 
 // Share response shape matching errorHandler's { succes: false, message: string }
 // envelop so the frontend doesn't need a special case just for 429 responses.
@@ -71,7 +71,8 @@ const changePasswordLimiter = rateLimit({
     max: 5,                                        // Limit each IP to 5 change password requests per windowMs
     standardHeaders: true,                         // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false,                          // Disable the `X-RateLimit-*` headers
-    keyGenerator: (req) => req.user?.id || req.ip, // Use user ID if available, otherwise fallback to IP
+    keyGenerator: ( req ) => req.user?.id || 
+                  ipKeyGenerator( req.ip ),        // Use user ID if available, otherwise fallback to IP
     message: limitMessage('Too many change password attempts from this IP, please try again after 24 hours'),
 });
 
