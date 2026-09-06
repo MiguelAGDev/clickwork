@@ -3,8 +3,8 @@
 //      * Miguel Angel Avila Garcia
 // Description: Controller for company-related endpoints.
 //              Handles creation, retrieval, update, and approval of companies.
-
 // Date: May 17th 2026
+
 // Lastest Update: Add toggleMyCompanyActive (self-service PATCH /toggle-active)
 // Date: September 2nd 2026
 // By: Claude (Sonnet 5), at Miguel's explicit request

@@ -6,10 +6,9 @@
 //              before the request reaches the controller.
 // Date: April 28th 2026
  
-// Latest Update: Add forgot-password, reset-password/:token and resend-verification routes
-// Date: September 2nd 2026
+// Latest Update: Add rate limiting to auth routes
+// Date: September 6th 2026
 // By: Miguel Angel Avila Garcia
-
 
 import { Router }           from 'express';
 import { body }             from 'express-validator';
@@ -26,6 +25,14 @@ import {
 
 } from '../controllers/authController.js';
 
+import {
+    loginLimiter,
+    registerLimiter,
+    forgotPasswordLimiter,
+    resendVerificationLimiter,
+    resetPasswordLimiter,
+} from '../middlewares/rateLimiter.js';
+
 const router = Router();
 
 // POST /api/auth/register
@@ -35,6 +42,7 @@ router.post(
 
 
     '/register', 
+    registerLimiter,
     [
         body('email')
             .isEmail()
@@ -115,6 +123,7 @@ router.post(
 router.post(
 
     '/login',
+    loginLimiter,
     [
         body('email')
             .isEmail()
@@ -134,6 +143,7 @@ router.post(
 // POST /api/auth/reset-password/:token
 router.post(
     '/reset-password/:token',
+    resetPasswordLimiter,
     [
         body('password')
             .isLength({ min: 8 })
@@ -150,6 +160,7 @@ router.post(
 // POST /api/auth/forgot-password
 router.post(
     '/forgot-password',
+    forgotPasswordLimiter,
     [
         body('email')
             .isEmail()
@@ -164,6 +175,7 @@ router.post(
 router.post(
 
     '/resend-verification',
+    resendVerificationLimiter,
     [
         body('email').
             isEmail()

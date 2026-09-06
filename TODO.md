@@ -38,10 +38,45 @@
   `notclaude/bitacora/2026-09-02-borrar-vacante-pendiente-equipo.md`),
   pendiente de platicarlo con el equipo antes de implementar (implica
   migración de schema).
+* [ ] 🗣️ Borrar empresa (hard-delete real) — mismo problema/diseño que
+  borrar vacante, también pendiente de platicarlo con el equipo. El
+  toggle de desactivarse a sí misma ya existe y no depende de esto.
+* [ ] 🐛 Bug menor en `rollMeToCompany` (`userController.js`) — usa
+  comillas simples en vez de backticks en
+  `'Job posting #${ jobPostingId }'`, el placeholder nunca interpola.
+  Detectado desde el análisis inicial del repo, sigue sin corregirse.
+* [ ] ⚠️ Sin rate limiting en endpoints de auth — `login`, `register`,
+  `forgot-password`, `resend-verification` no tienen límite de
+  intentos. Hoy es posible fuerza bruta de contraseñas o spam de
+  correos a cualquier email. Prioridad alta antes de producción real.
+* [ ] 🧹 Repo `.git` anidado y vacío dentro de `backend/` (branch
+  `master`, cero commits) — decidir si se borra, probablemente
+  generado por accidente al inicializar el proyecto.
+* [ ] 📄 Paginación en listados sin límite — `getAllJobPostings`,
+  `getAllCompanies`, y similares. No urge con poca data de prueba,
+  sí antes de manejar datos reales.
+* [ ] 💡 Exponer `audit_log` vía endpoint admin — los datos ya se
+  generan solos (triggers de DB ya existen: `trg_user_insert`,
+  `trg_job_posting_update`, `trg_insert_application`, etc.), falta
+  únicamente el endpoint que los lea. Parte del permiso
+  `VIEW_AUDIT_LOG`, en stand-by con el resto de permisos.
 
 <br>
 
 # <img src="https://img.shields.io/badge/frontend-0f766e" alt="frontend" height="30"/>
+
+<br>
+
+# <img src="https://img.shields.io/badge/testing-16a34a" alt="testing" height="30" />
+
+> Nada implementado aún — discutido el 2026-09-03, sin empezar hasta
+> que se decida.
+
+* [ ] 🧪 Integration tests (recomendado: `vitest`/`jest` + `supertest`
+  contra una DB de pruebas) — uno por endpoint crítico (happy path +
+  el 401/403 de ownership) para dejar de validar cada ruta a mano en
+  Postman y cachar automáticamente bugs como los de renombrar campos
+  entre capas (varios encontrados hoy).
 
 <br>
 

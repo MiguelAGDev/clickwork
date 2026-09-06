@@ -4,8 +4,8 @@
 // Description: 
 // Date: June 25th 2026
 
-// Lastest Update: Add PUT /password route
-// Date: September 2nd 2026
+// Lastest Update: Add rage limiter to change password route
+// Date: September 6th 2026
 // By: Miguel Angel Avila Garcia
 
 import { Router } from 'express';
@@ -22,6 +22,8 @@ import {
     rollMeToCompany,
     changeMyPassword
 } from '../controllers/userController.js';
+
+import { changePasswordLimiter } from '../middlewares/rateLimiter.js';
 
 const router = Router();
 
@@ -112,6 +114,7 @@ router.put(
 router.put(
     '/password',
     authMiddleware,
+    changePasswordLimiter,
     changePasswordBodyValidation,
     validate,
     changeMyPassword
