@@ -1,0 +1,72 @@
+{
+  "info": {
+    "name": "ClickWork - Users",
+    "_postman_id": "clickwork-newman-users",
+    "description": "Usa {{token}} dejado por auth.json (login del estudiante semillado). GET/PUT /api/users/me.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET /api/users/me - perfil del estudiante",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Returns the seeded student with role-specific fields', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.email).to.eql('estudiante.seed@newman.test');",
+              "    pm.expect(json.data.role).to.eql('student');",
+              "    pm.expect(json.data.semester).to.eql(6);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT /api/users/me - actualizar telefono y semestre",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"8710009999\",\n  \"semester\": 7\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Phone was updated', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.phone).to.eql('8710009999');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [ { "key": "baseUrl", "value": "http://localhost:3000" } ]
+}
