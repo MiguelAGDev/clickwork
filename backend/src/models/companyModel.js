@@ -14,6 +14,13 @@
 // Date: September 2nd 2026
 // By: Claude (Sonnet 5), at Miguel's explicit request
 
+// Latest Update: Fix findCompanyByUserId, getPendingCompanies and
+// getAllCompanies querying company.cmp_permissions, a column that no
+// longer exists — permissions are centralized on app_user.ap_usr_permissions.
+// Joined app_user to read the permission from its real location.
+// Date: September 6th 2026
+// By: Claude (Sonnet 5), at Miguel's explicit request
+
 import { execute } from '../config/db.js';
 
 
@@ -69,8 +76,9 @@ async function findCompanyByUserId( userId ) {
             c.cmp_contact_email     AS contact_email,
             c.cmp_approval_status   AS approval_status,
             c.cmp_rejection_reason  AS rejection_reason,
-            c.cmp_permissions       AS permissions
+            au.ap_usr_permissions   AS permissions
         FROM company c
+        JOIN app_user au ON au.ap_usr_id = c.cmp_id_user
         WHERE c.cmp_id_user = ?
     `;
 
@@ -163,8 +171,9 @@ async function getPendingCompanies() {
             c.cmp_contact_email     AS contact_email,
             c.cmp_approval_status   AS approval_status,
             c.cmp_rejection_reason  AS rejection_reason,
-            c.cmp_permissions       AS permissions
+            au.ap_usr_permissions   AS permissions
         FROM company c
+        JOIN app_user au ON au.ap_usr_id = c.cmp_id_user
         WHERE c.cmp_approval_status = 'pending'
         ORDER BY c.cmp_id_user DESC
     `;
@@ -193,8 +202,9 @@ async function getAllCompanies() {
             c.cmp_contact_email     AS contact_email,
             c.cmp_approval_status   AS approval_status,
             c.cmp_rejection_reason  AS rejection_reason,
-            c.cmp_permissions       AS permissions
+            au.ap_usr_permissions   AS permissions
         FROM company c
+        JOIN app_user au ON au.ap_usr_id = c.cmp_id_user
         ORDER BY c.cmp_id_user DESC
     `;
 
