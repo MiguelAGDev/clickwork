@@ -14,11 +14,7 @@ import rateLimit, { ipKeyGenerator } from 'express-rate-limit'; // Import to cre
 
 // Share response shape matching errorHandler's { succes: false, message: string }
 // envelop so the frontend doesn't need a special case just for 429 responses.
-function limitMessage( message ){
-
-    return { success: false, message };
-
-}
+function limitMessage( message ){ return { success: false, message }; }
 
 // The Newman integration suite (backend/test/newman) logs in several
 // times per run from the same IP, against clickwork_test -- disable
