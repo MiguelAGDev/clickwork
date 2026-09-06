@@ -6,9 +6,9 @@
 //              arbitrary values — see notclaude/bitacora/2026-09-06-rate-limiting.md.
 // Date: September 6th 2026
 
-// Lastest Update: September 6th 2026
-// Descripton: 
-// By: 
+// Lastest Update: Skip all limiters when NODE_ENV=test (Newman suite)
+// Date: September 6th 2026
+// By: Miguel Angel Avila Garcia
 
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit'; // Import to create limiters for endpoints
 
@@ -20,6 +20,12 @@ function limitMessage( message ){
 
 }
 
+// The Newman integration suite (backend/test/newman) logs in several
+// times per run from the same IP, against clickwork_test -- disable
+// rate limiting there. Production/dev behavior is unaffected: this only
+// skips when NODE_ENV=test, which is never set outside a local .env.
+const skipInTest = () => process.env.NODE_ENV === 'test';
+
 // POST /api/auth/login 
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -27,6 +33,7 @@ const loginLimiter = rateLimit({
     standardHeaders: true,    // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false,     // Disable the `X-RateLimit-*` headers
     message: limitMessage('Too many login attempts from this IP, please try again after 15 minutes'),
+    skip: skipInTest,
 });
 
 // POST /api/auth/register
@@ -36,6 +43,7 @@ const registerLimiter = rateLimit({
     standardHeaders: true,    // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false,     // Disable the `X-RateLimit-*` headers
     message: limitMessage('Too many accounts created from this IP, please try again after an hour'),
+    skip: skipInTest,
 });
 
 // POST /api/auth/forgot-password
@@ -45,6 +53,7 @@ const forgotPasswordLimiter = rateLimit({
     standardHeaders: true,    // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false,     // Disable the `X-RateLimit-*` headers
     message: limitMessage('Too many forgot password attempts from this IP, please try again after an hour'),
+    skip: skipInTest,
 });
 
 // POST /api/auth/resend-verification
@@ -54,6 +63,7 @@ const resendVerificationLimiter = rateLimit({
     standardHeaders: true,         // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false,          // Disable the `X-RateLimit-*` headers
     message: limitMessage('Too many resend verification attempts from this IP, please try again after 24 hours'),
+    skip: skipInTest,
 });
 
 // POST /api/auth/reset-password/:token
@@ -63,6 +73,7 @@ const resetPasswordLimiter = rateLimit({
     standardHeaders: true,    // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false,     // Disable the `X-RateLimit-*` headers
     message: limitMessage('Too many reset password attempts from this IP, please try again after an hour'),
+    skip: skipInTest,
 });
 
 // POST /api/users/password
@@ -74,6 +85,7 @@ const changePasswordLimiter = rateLimit({
     keyGenerator: ( req ) => req.user?.id || 
                   ipKeyGenerator( req.ip ),        // Use user ID if available, otherwise fallback to IP
     message: limitMessage('Too many change password attempts from this IP, please try again after 24 hours'),
+    skip: skipInTest,
 });
 
 export {

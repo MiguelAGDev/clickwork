@@ -63,6 +63,38 @@
           }
         }
       ]
+    },
+    {
+      "name": "PUT /api/company/me - editar perfil de empresa",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cmp_name\": \"Manufactura Digital de la Laguna\",\n  \"cmp_size\": \"medium\",\n  \"cmp_industry\": \"Software Development\",\n  \"cmp_city\": \"Torreón\",\n  \"cmp_state\": \"Coahuila\",\n  \"cmp_address\": \"Blvd. Independencia #900\",\n  \"cmp_contact_email\": \"contacto.seed@newman.test\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/company/me", "host": ["{{baseUrl}}"], "path": ["api", "company", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success: true', function () {",
+              "    pm.expect(pm.response.json().success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
     }
   ],
   "variable": [ { "key": "baseUrl", "value": "http://localhost:3000" } ]
