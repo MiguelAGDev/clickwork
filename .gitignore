@@ -157,3 +157,6 @@ backend/src/tests/
 
 # Claude working notes (context/decision log, not project code)
 notclaude/
+
+# Claude Code local settings cache (regenerates itself, never needed in repo)
+.claude/
