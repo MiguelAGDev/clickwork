@@ -39,6 +39,79 @@
       ]
     },
     {
+      "name": "[NEGATIVO setup] POST /api/auth/login - estudiante (para probar rol equivocado)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"estudiante.seed@newman.test\",\n  \"password\": \"Newman123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has a JWT token', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.token).to.be.a('string').and.not.empty;",
+              "    pm.environment.set('studentToken', json.token);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] GET /api/admin/users - rol equivocado (estudiante)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/users", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 403', function () {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PATCH /api/admin/users/2/toggle-active - rol equivocado (estudiante)",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/users/2/toggle-active", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users", "2", "toggle-active"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 403', function () {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "GET /api/admin/users - listar usuarios",
       "request": {
         "method": "GET",
@@ -144,6 +217,38 @@
       ]
     },
     {
+      "name": "[NEGATIVO] PATCH /api/admin/companies/:id/approval - rechazar sin razon",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"rejected\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/admin/companies/{{pendingCompanyId}}/approval", "host": ["{{baseUrl}}"], "path": ["api", "admin", "companies", "{{pendingCompanyId}}", "approval"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test('Error says a rejection reason is required', function () {",
+              "    pm.expect(pm.response.json().message).to.include('Rejection reason required');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "PATCH /api/admin/companies/:id/approval - aprobar",
       "request": {
         "method": "PATCH",
@@ -169,6 +274,34 @@
               "",
               "pm.test(\"Message confirms 'approved'\", function () {",
               "    pm.expect(pm.response.json().message).to.include('approved');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[HALLAZGO] PATCH /api/admin/companies/:id/approval - status invalido, sin validar",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"status-que-no-existe\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/admin/companies/{{pendingCompanyId}}/approval", "host": ["{{baseUrl}}"], "path": ["api", "admin", "companies", "{{pendingCompanyId}}", "approval"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('[GAP CONOCIDO] Ruta sin express-validator -- acepta cualquier string y MySQL lo trunca a vacio en vez de rechazarlo. Ver bitacora.', function () {",
+              "    pm.response.to.have.status(200);",
               "});"
             ]
           }
@@ -253,6 +386,27 @@
               "",
               "pm.test('Response has success: true', function () {",
               "    pm.expect(pm.response.json().success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PATCH /api/admin/users/999999/toggle-active - usuario inexistente",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/users/999999/toggle-active", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users", "999999", "toggle-active"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 404', function () {",
+              "    pm.response.to.have.status(404);",
               "});"
             ]
           }

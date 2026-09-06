@@ -143,6 +143,14 @@ async function main() {
         enabled: true,
     } );
 
+    // Non-PDF fixture, for the "wrong file type" negative test on
+    // POST /api/users/cv.
+    environment.values.push( {
+        key:     'notCvFilePath',
+        value:   path.join( __dirname, 'resource', 'not-a-cv.txt' ),
+        enabled: true,
+    } );
+
     let totalFailures = 0;
 
     try {

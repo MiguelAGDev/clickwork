@@ -38,6 +38,104 @@
       ]
     },
     {
+      "name": "[NEGATIVO setup] POST /api/auth/login - estudiante (para probar rol equivocado)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"estudiante.seed@newman.test\",\n  \"password\": \"Newman123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has a JWT token', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.token).to.be.a('string').and.not.empty;",
+              "    pm.environment.set('studentToken', json.token);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] GET /api/company/me - sin token",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/company/me", "host": ["{{baseUrl}}"], "path": ["api", "company", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 401', function () {",
+              "    pm.response.to.have.status(401);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] GET /api/company/me - rol equivocado (estudiante)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/company/me", "host": ["{{baseUrl}}"], "path": ["api", "company", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 404 (no company row for this user)', function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PATCH /api/company/toggle-active - rol equivocado (estudiante)",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/company/toggle-active", "host": ["{{baseUrl}}"], "path": ["api", "company", "toggle-active"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 403', function () {",
+              "    pm.response.to.have.status(403);",
+              "});",
+              "",
+              "pm.test('Error says only company accounts can use this', function () {",
+              "    pm.expect(pm.response.json().message).to.include('Only company accounts');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "GET /api/company/me - perfil de la empresa semillada",
       "request": {
         "method": "GET",
@@ -58,6 +156,34 @@
               "    const json = pm.response.json();",
               "    pm.expect(json.data.name).to.eql('Manufactura Digital de la Laguna');",
               "    pm.expect(json.data.approval_status).to.eql('approved');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PUT /api/company/me - falta cmp_contact_email",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cmp_name\": \"Manufactura Digital de la Laguna\",\n  \"cmp_size\": \"medium\",\n  \"cmp_industry\": \"Software Development\",\n  \"cmp_city\": \"Torreón\",\n  \"cmp_state\": \"Coahuila\",\n  \"cmp_address\": \"Blvd. Independencia #900\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/company/me", "host": ["{{baseUrl}}"], "path": ["api", "company", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 422 (express-validator)', function () {",
+              "    pm.response.to.have.status(422);",
               "});"
             ]
           }

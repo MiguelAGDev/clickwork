@@ -72,6 +72,87 @@
       ]
     },
     {
+      "name": "[NEGATIVO] POST /api/applications - ya te postulaste (misma vacante)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"job_posting_id\": 2\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/applications", "host": ["{{baseUrl}}"], "path": ["api", "applications"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 409', function () {",
+              "    pm.response.to.have.status(409);",
+              "});",
+              "",
+              "pm.test('Error says already applied', function () {",
+              "    pm.expect(pm.response.json().message).to.include('already applied');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] POST /api/applications - vacante inexistente",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"job_posting_id\": 999999\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/applications", "host": ["{{baseUrl}}"], "path": ["api", "applications"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 404', function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] GET /api/applications/job-posting/2 - rol equivocado (estudiante)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/applications/job-posting/2", "host": ["{{baseUrl}}"], "path": ["api", "applications", "job-posting", "2"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 403 (estudiante no es dueno de la vacante)', function () {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "GET /api/applications/me - mis postulaciones",
       "request": {
         "method": "GET",
@@ -150,6 +231,62 @@
               "    const json = pm.response.json();",
               "    const appId = parseInt(pm.environment.get('applicationId'), 10);",
               "    pm.expect(json.data.some(a => a.id === appId)).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PATCH /api/applications/:id/status - status invalido",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"status-que-no-existe\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/applications/{{applicationId}}/status", "host": ["{{baseUrl}}"], "path": ["api", "applications", "{{applicationId}}", "status"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 422 (express-validator)', function () {",
+              "    pm.response.to.have.status(422);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PATCH /api/applications/999999/status - postulacion inexistente",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"under_review\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/applications/999999/status", "host": ["{{baseUrl}}"], "path": ["api", "applications", "999999", "status"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 404', function () {",
+              "    pm.response.to.have.status(404);",
               "});"
             ]
           }
