@@ -26,7 +26,14 @@ const BASE_URL = `http://localhost:${ PORT }`;
 
 // Collections run in this order -- each may read/overwrite {{token}}
 // in the shared environment (see auth.json / company.json).
-const COLLECTIONS = [ 'auth.json', 'users.json', 'company.json' ];
+const COLLECTIONS = [
+    'auth.json',
+    'users.json',
+    'company.json',
+    'job-postings.json',
+    'applications.json',
+    'admin.json',
+];
 
 
 // Runs a .sql file against clickwork_test via the mysql CLI, piping the
