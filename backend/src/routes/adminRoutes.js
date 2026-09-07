@@ -5,6 +5,8 @@
 // Date: June 29th 2026
 
 import { Router } from 'express';
+import { body } from 'express-validator';   
+import { validate } from '../middlewares/validateRequest.js';
 
 import { authMiddleware } from '../middlewares/authMiddleware.js';
 import { roleMiddleware } from '../middlewares/roleMiddleware.js';
@@ -21,6 +23,18 @@ import {
 
 const router = Router();
 
+// Validación para PATCH .../:id/approval (companies y job-postings)
+const approvalBodyValidation = [
+    body('status')
+        .isIn(['pending', 'approved', 'rejected'])
+        .withMessage("status must be one of 'pending', 'approved', 'rejected'."),
+
+    body('reason')
+        .optional({ nullable: true, checkFalsy: true })
+        .isLength({ max: 255 })
+        .withMessage('reason must not exceed 255 characters.'),
+];
+
 // Protect all admin routes
 router.use(authMiddleware);
 router.use(roleMiddleware('admin'));
@@ -32,13 +46,13 @@ router.get('/companies', getAllCompanies);
 router.get('/companies/pending', getPendingCompanies);
 
 // PATCH /api/admin/companies/:id/approval
-router.patch('/companies/:id/approval', updateCompanyApprovalStatus);
+router.patch('/companies/:id/approval', approvalBodyValidation, validate, updateCompanyApprovalStatus);
 
 // GET /api/admin/job-postings/pending
 router.get('/job-postings/pending', getPendingJobPostings);
 
 // PATCH /api/admin/job-postings/:id/approval
-router.patch('/job-postings/:id/approval', updateJobPostingApprovalStatus);
+router.patch('/job-postings/:id/approval', approvalBodyValidation, validate, updateJobPostingApprovalStatus);
 
 // GET /api/admin/users
 router.get('/users', getAllUsers);
