@@ -281,7 +281,7 @@
       ]
     },
     {
-      "name": "[HALLAZGO] PATCH /api/admin/companies/:id/approval - status invalido, sin validar",
+      "name": "PATCH /api/admin/companies/:id/approval - status invalido, rechazado por validacion",
       "request": {
         "method": "PATCH",
         "header": [
@@ -300,8 +300,14 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('[GAP CONOCIDO] Ruta sin express-validator -- acepta cualquier string y MySQL lo trunca a vacio en vez de rechazarlo. Ver bitacora.', function () {",
-              "    pm.response.to.have.status(200);",
+              "pm.test('Status code is 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "pm.test('Validation error mentions status', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.success).to.eql(false);",
+              "    pm.expect(JSON.stringify(json.errors)).to.include('status');",
               "});"
             ]
           }

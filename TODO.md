@@ -45,10 +45,6 @@
   comillas simples en vez de backticks en
   `'Job posting #${ jobPostingId }'`, el placeholder nunca interpola.
   Detectado desde el análisis inicial del repo, sigue sin corregirse.
-* [ ] ⚠️ Sin rate limiting en endpoints de auth — `login`, `register`,
-  `forgot-password`, `resend-verification` no tienen límite de
-  intentos. Hoy es posible fuerza bruta de contraseñas o spam de
-  correos a cualquier email. Prioridad alta antes de producción real.
 * [ ] 🧹 Repo `.git` anidado y vacío dentro de `backend/` (branch
   `master`, cero commits) — decidir si se borra, probablemente
   generado por accidente al inicializar el proyecto.
