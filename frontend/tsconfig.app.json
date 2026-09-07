@@ -15,6 +15,14 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Path aliases (coincide con vite.config.ts -> resolve.alias).
+       Sin baseUrl a propósito: TS 6 lo marca deprecated (TS5101, se
+       elimina en TS 7). Con moduleResolution "bundler", "paths" ya
+       resuelve relativo a este archivo sin necesitar baseUrl. */
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
