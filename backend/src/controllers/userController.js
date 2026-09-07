@@ -138,7 +138,7 @@ async function updateMyProfile( req, res, next ){
 
         const profileData = {
             phone:      req.body.phone     ?? currentUser.phone    ?? null,
-            careerId:   req.body.career_id ?? currentUser.career_id ?? null,
+            careerId:   req.body.careerId  ?? currentUser.career_id ?? null,
         };
 
         const affectedRows = await updateUser( userId, profileData );
@@ -303,7 +303,7 @@ async function rollMeToCompany( req, res, next ) {
                 to:                company.contact_email,
                 companyName:       company.name,
                 studentName:       user.email,
-                announcementTitle: posting.jb_pst_job_title ?? 'Job posting #${ jobPostingId }', 
+                announcementTitle: posting.jb_pst_job_title ?? `Job posting #${ jobPostingId }`, 
                 cvPath:            user.cv_url, 
             });
         } catch( sendErr ){
