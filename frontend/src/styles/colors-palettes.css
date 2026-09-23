@@ -1,0 +1,40 @@
+/*
+ * Authors:
+ *      * Azucena Rodriguez Flores
+ *      * Miguel Angel Avila Garcia
+ *
+ * Description:
+ *      Color palette in use for the app — current palette only (D2,
+ *      navy  gold), not the full set explored in the design canvas.
+ *
+ * Date: September 22nd 2026
+ */
+
+/*
+ * Latest Update:
+ * Date:
+ * By:
+ *
+ */
+
+:root {
+
+    /* NAVY. Componentes: panel del login, sidebar y header/footer de las vistas internas */
+  --palette-panel:            oklch(0.32 0.07 260);
+
+    /* HUESO. Componentes: fondo general de las vistas (login, dashboard, sidebar) */
+  --palette-bg:               oklch(0.98 0.01 90);
+
+    /* DORADO. Componentes: botón principal, link activo, badges tipo "Nuevo" */
+  --palette-accent-default:   #D4A02A;
+
+    /* DORADO OSCURO. Componentes: hover del botón/link principal */
+  --palette-accent-2:         #B8860B;
+
+    /* DORADO CLARO. Componentes: background de elementos interactivos */
+  --palette-accent-3:         #E8B84B;
+
+    /* DORADO CLARO. Componentes: variante de acento, alternativa al default */
+  --palette-accent-4:         #C9A227;
+
+}
