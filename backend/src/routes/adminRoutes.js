@@ -23,7 +23,7 @@ import {
 
 const router = Router();
 
-// Validación para PATCH .../:id/approval (companies y job-postings)
+// Validation for PATCH .../:id/approval (companies and job-postings)
 const approvalBodyValidation = [
     body('status')
         .isIn(['pending', 'approved', 'rejected'])
