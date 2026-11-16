@@ -29,6 +29,18 @@ const router = Router();
 
 // Validation for PUT /me
 const userProfileBodyValidation = [
+        body('firstName')
+            .optional({ nullable: false })
+            .isString().withMessage('First name must be text.')
+            .trim()
+            .notEmpty().withMessage('First name is required.')
+            .isLength({ max: 150 }).withMessage('First name must not exceed 150 characters.'),
+        body('lastName')
+            .optional({ nullable: false })
+            .isString().withMessage('Last name must be text.')
+            .trim()
+            .notEmpty().withMessage('Last name is required.')
+            .isLength({ max: 150 }).withMessage('Last name must not exceed 150 characters.'),
     body('phone')
         .optional({ nullable: true, checkFalsy: true })
         .isLength({ max: 20 })

@@ -44,6 +44,16 @@ router.post(
     '/register', 
     registerLimiter,
     [
+        body('firstName')
+            .isString().withMessage('First name must be text.')
+            .trim()
+            .notEmpty().withMessage('First name is required.')
+            .isLength({ max: 150 }).withMessage('First name must not exceed 150 characters.'),
+        body('lastName')
+            .isString().withMessage('Last name must be text.')
+            .trim()
+            .notEmpty().withMessage('Last name is required.')
+            .isLength({ max: 150 }).withMessage('Last name must not exceed 150 characters.'),
         body('email')
             .isEmail()
             .withMessage('A valid email addres is required')

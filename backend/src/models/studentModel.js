@@ -51,6 +51,8 @@ async function findStudentByUserId( userId ){
     SELECT
         au.ap_usr_id            AS id,
         au.ap_usr_email         AS email,
+        au.ap_usr_first_name        AS first_name,
+        au.ap_usr_last_name         AS last_name,
         au.ap_usr_phone         AS phone,
         au.ap_usr_cv_url        AS cv_url,
         au.ap_usr_active        AS active,
@@ -109,6 +111,8 @@ async function findInternByUserId ( userId ){
         SELECT
             au.ap_usr_id            AS id,
             au.ap_usr_email         AS email,
+            au.ap_usr_first_name        AS first_name,
+            au.ap_usr_last_name         AS last_name,
             au.ap_usr_phone         AS phone,
             au.ap_usr_cv_url        AS cv_url,
             au.ap_usr_active        AS active,
@@ -173,6 +177,8 @@ async function findGraduateByUserId( userId ) {
         SELECT
             au.ap_usr_id                AS id,
             au.ap_usr_email             AS email,
+            au.ap_usr_first_name        AS first_name,
+            au.ap_usr_last_name         AS last_name,
             au.ap_usr_phone             AS phone,
             au.ap_usr_cv_url            AS cv_url,
             au.ap_usr_active            AS active,

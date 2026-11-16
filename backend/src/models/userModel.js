@@ -20,6 +20,8 @@ async function findById( id ) {
         SELECT
             au.ap_usr_id                AS id,
             au.ap_usr_email             AS email,
+            au.ap_usr_first_name        AS first_name,
+            au.ap_usr_last_name         AS last_name,
             au.ap_usr_phone             AS phone,
             au.ap_usr_active            AS active,
             au.ap_usr_email_verified    AS email_verified,
@@ -44,6 +46,8 @@ async function findByEmail( email ){
         SELECT
             au.ap_usr_id                AS id,
             au.ap_usr_email             AS email,
+            au.ap_usr_first_name        AS first_name,
+            au.ap_usr_last_name         AS last_name,
             au.ap_usr_password          AS password,
             au.ap_usr_active            AS active,
             au.ap_usr_email_verified    AS email_verified,
@@ -60,34 +64,36 @@ async function findByEmail( email ){
 // Inserts a new app_user row.
 // email_verified defaults to 0, active is explicitly set based on role (1 for most, 0 for company pending approval).
 // Returns the new user's insertId so authService can create the role row next.
-async function create( { email, phone = null, password, careerId = null, active } ) {
+async function create( { firstName, lastName, email, phone = null, password, careerId = null, active } ) {
 
     const sql = `
         INSERT INTO app_user
-            (ap_usr_email, ap_usr_phone, ap_usr_password, ap_usr_id_career, ap_usr_active)
-        VALUES (?, ?, ?, ?, ?)
+            (ap_usr_first_name, ap_usr_last_name, ap_usr_email, ap_usr_phone, ap_usr_password, ap_usr_id_career, ap_usr_active)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const [ result ] = await execute( sql, [ email, phone, password, careerId, active ] );
+    const [ result ] = await execute( sql, [ firstName, lastName, email, phone, password, careerId, active ] );
 
     return result.insertId;
 };
 
 // Updates editable profile fields: phone and careerId.
 // Password, token, and email are intentionally excluded — they have dedicated functions.
-async function update( id, { phone = null, careerId } ) {
+async function update( id, { firstName, lastName, phone = null, careerId } ) {
 
 
     const sql = `
         UPDATE app_user
         SET
+            ap_usr_first_name  = ?,
+            ap_usr_last_name   = ?,
             ap_usr_phone       = ?,
             ap_usr_id_career   = ?
         WHERE ap_usr_id = ?
     `;
 
 
-    const [ result ] = await execute( sql, [ phone, careerId, id ] );
+    const [ result ] = await execute( sql, [ firstName, lastName, phone, careerId, id ] );
 
     return result.affectedRows;
 };
@@ -169,6 +175,8 @@ async function findByToken( token ) {
         SELECT
             au.ap_usr_id                AS id,
             au.ap_usr_email             AS email,
+            au.ap_usr_first_name        AS first_name,
+            au.ap_usr_last_name         AS last_name,
             au.ap_usr_active            AS active,
             au.ap_usr_email_verified    AS email_verified,
             au.ap_usr_token             AS token,
@@ -197,6 +205,8 @@ async function getAllUsers () {
         SELECT
             au.ap_usr_id                AS id,
             au.ap_usr_email             AS email,
+            au.ap_usr_first_name        AS first_name,
+            au.ap_usr_last_name         AS last_name,
             au.ap_usr_phone             AS phone,
             au.ap_usr_active            AS active,
             au.ap_usr_email_verified    AS email_verified,

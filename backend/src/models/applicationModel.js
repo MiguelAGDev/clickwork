@@ -68,6 +68,8 @@ async function findApplicationsByJobPosting( jobPostingId ) {
             a.app_status             AS status,
             a.app_id_user            AS applicant_id,
             a.app_id_job_posting     AS job_posting_id,
+            au.ap_usr_first_name     AS applicant_first_name,
+            au.ap_usr_last_name      AS applicant_last_name,
             au.ap_usr_email          AS applicant_email,
             au.ap_usr_phone          AS applicant_phone,
             au.ap_usr_cv_url         AS applicant_cv_url

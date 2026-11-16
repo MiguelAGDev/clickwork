@@ -236,6 +236,8 @@ async function register(body) {
 
     // 5. Create base app_user row
     const userId = await create({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
         email,
         phone: phone ?? null,
         password: hashedPassword,
@@ -339,7 +341,7 @@ async function login(email, password) {
 
     return {
         token,
-        user: { id: user.id, email: user.email, role, permissions },
+        user: { id: user.id, email: user.email, first_name: user.first_name, last_name: user.last_name, role, permissions },
     };
 }
 
@@ -411,7 +413,7 @@ async function forgotPassword( email ){
     // 3. Send reset email
     await sendPasswordResetEmail( {
         to: user.email,
-        name: user.email,
+        name: `${ user.first_name } ${ user.last_name }`.trim(),
         token: resetToken
     } );
 }

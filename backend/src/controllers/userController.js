@@ -137,6 +137,8 @@ async function updateMyProfile( req, res, next ){
         const currentUser = await findById( userId );
 
         const profileData = {
+            firstName:  req.body.firstName ?? currentUser.first_name,
+            lastName:   req.body.lastName  ?? currentUser.last_name,
             phone:      req.body.phone     ?? currentUser.phone    ?? null,
             careerId:   req.body.careerId  ?? currentUser.career_id ?? null,
         };
@@ -302,7 +304,7 @@ async function rollMeToCompany( req, res, next ) {
             await sendRollMeEmail({
                 to:                company.contact_email,
                 companyName:       company.name,
-                studentName:       user.email,
+                studentName:       `${ user.first_name } ${ user.last_name }`.trim() || user.email,
                 announcementTitle: posting.jb_pst_job_title ?? `Job posting #${ jobPostingId }`, 
                 cvPath:            user.cv_url, 
             });
