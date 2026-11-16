@@ -15,10 +15,11 @@
 
 import { ChevronDown, LogOut, Menu, UserRound, X } from "lucide-react"
 import { DropdownMenu } from "radix-ui"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { Link, NavLink, Outlet } from "react-router-dom"
 
 import { Logo } from "@/components/layout/Logo.tsx"
+import { LoadingState } from "@/components/ui/States.tsx"
 import { useAuth } from "@/hooks/useAuth.ts"
 import { getDisplayName, getInitials } from "@/lib/displayName.ts"
 import { getAccountPath, getNavItems } from "@/lib/navigation.ts"
@@ -182,7 +183,12 @@ function AppShell() {
             <main id="main" className="flex-1 px-4 pt-9 pb-14 sm:px-8">
                 {/* Design: content column of 1100px with 28px between blocks. */}
                 <div className="mx-auto flex max-w-[1100px] flex-col gap-7">
-                    <Outlet />
+                    {/* The screens of each role are loaded on demand
+                        (pages/lazyPages.ts). While the file of a screen
+                        downloads, the frame stays and this shows inside. */}
+                    <Suspense fallback={ <LoadingState /> }>
+                        <Outlet />
+                    </Suspense>
                 </div>
             </main>
 

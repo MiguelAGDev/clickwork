@@ -15,15 +15,14 @@
 
 import { useAuth } from "@/hooks/useAuth.ts"
 import { isCandidate } from "@/lib/roles.ts"
-import { AdminHomePage } from "@/pages/admin/AdminHomePage.tsx"
-import { CandidateHomePage } from "@/pages/candidate/CandidateHomePage.tsx"
-import { CompanyHomePage } from "@/pages/company/CompanyHomePage.tsx"
+import { AdminHomePage, CandidateHomePage, CompanyHomePage } from "@/pages/lazyPages.ts"
 
 function DashboardPage() {
     const { user } = useAuth()
 
     if( !user ) return null     // Never happens inside ProtectedRoute.
 
+    // Each home is loaded on demand, so a user only downloads its own.
     if( isCandidate( user.role ) ) return <CandidateHomePage user={ user } />
 
     if( user.role === "company" ) return <CompanyHomePage user={ user } />

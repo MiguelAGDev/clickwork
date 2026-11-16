@@ -20,25 +20,30 @@ import { AppShell } from "@/components/layout/AppShell.tsx"
 import { AuthLayout } from "@/components/layout/AuthLayout.tsx"
 import { ProtectedRoute, PublicOnlyRoute } from "@/components/routing/ProtectedRoute.tsx"
 import { CANDIDATE_ROLES } from "@/lib/roles.ts"
-import { AccountPage } from "@/pages/AccountPage.tsx"
-import { AdminCompaniesPage } from "@/pages/admin/AdminCompaniesPage.tsx"
-import { AdminJobsPage } from "@/pages/admin/AdminJobsPage.tsx"
-import { AdminUsersPage } from "@/pages/admin/AdminUsersPage.tsx"
 import { ForgotPasswordPage, ResendVerificationPage } from "@/pages/auth/EmailRequestPage.tsx"
 import { LoginPage } from "@/pages/auth/LoginPage.tsx"
 import { RegisterPage } from "@/pages/auth/RegisterPage.tsx"
 import { ResetPasswordPage } from "@/pages/auth/ResetPasswordPage.tsx"
 import { VerifyEmailPage } from "@/pages/auth/VerifyEmailPage.tsx"
-import { ApplicationsPage } from "@/pages/candidate/ApplicationsPage.tsx"
-import { JobDetailPage } from "@/pages/candidate/JobDetailPage.tsx"
-import { JobsPage } from "@/pages/candidate/JobsPage.tsx"
-import { ProfilePage } from "@/pages/candidate/ProfilePage.tsx"
-import { ApplicantsPage } from "@/pages/company/ApplicantsPage.tsx"
-import { CompanyJobsPage } from "@/pages/company/CompanyJobsPage.tsx"
-import { CompanyProfilePage } from "@/pages/company/CompanyProfilePage.tsx"
-import { JobFormPage } from "@/pages/company/JobFormPage.tsx"
 import { DashboardPage } from "@/pages/DashboardPage.tsx"
 import { InfoPage } from "@/pages/InfoPage.tsx"
+// The screens of each role load on demand (see lazyPages.ts). The public
+// screens above are imported normally: they are the first thing a visitor
+// sees, so they travel in the first download.
+import {
+    AccountPage,
+    AdminCompaniesPage,
+    AdminJobsPage,
+    AdminUsersPage,
+    ApplicantsPage,
+    ApplicationsPage,
+    CompanyJobsPage,
+    CompanyProfilePage,
+    JobDetailPage,
+    JobFormPage,
+    JobsPage,
+    ProfilePage,
+} from "@/pages/lazyPages.ts"
 import { NotFoundPage } from "@/pages/NotFoundPage.tsx"
 
 // Component: a TS function that returns JSX (a description of what should
