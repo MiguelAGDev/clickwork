@@ -13,10 +13,9 @@
 // Date:
 // By:
 
-import { PageHeader } from "@/components/layout/PageHeader.tsx"
 import { useAuth } from "@/hooks/useAuth.ts"
-import { getDisplayName } from "@/lib/displayName.ts"
 import { isCandidate } from "@/lib/roles.ts"
+import { AdminHomePage } from "@/pages/admin/AdminHomePage.tsx"
 import { CandidateHomePage } from "@/pages/candidate/CandidateHomePage.tsx"
 import { CompanyHomePage } from "@/pages/company/CompanyHomePage.tsx"
 
@@ -29,13 +28,7 @@ function DashboardPage() {
 
     if( user.role === "company" ) return <CompanyHomePage user={ user } />
 
-    // The home of the admin replaces this greeting in its own step.
-    return (
-        <PageHeader
-            title={ `Hola, ${ getDisplayName( user.email ) }` }
-            subtitle="Aquí tienes un resumen de tu actividad"
-        />
-    )
+    return <AdminHomePage />
 }
 
 export { DashboardPage }

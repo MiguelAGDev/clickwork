@@ -20,6 +20,10 @@ import { AppShell } from "@/components/layout/AppShell.tsx"
 import { AuthLayout } from "@/components/layout/AuthLayout.tsx"
 import { ProtectedRoute, PublicOnlyRoute } from "@/components/routing/ProtectedRoute.tsx"
 import { CANDIDATE_ROLES } from "@/lib/roles.ts"
+import { AccountPage } from "@/pages/AccountPage.tsx"
+import { AdminCompaniesPage } from "@/pages/admin/AdminCompaniesPage.tsx"
+import { AdminJobsPage } from "@/pages/admin/AdminJobsPage.tsx"
+import { AdminUsersPage } from "@/pages/admin/AdminUsersPage.tsx"
 import { ForgotPasswordPage, ResendVerificationPage } from "@/pages/auth/EmailRequestPage.tsx"
 import { LoginPage } from "@/pages/auth/LoginPage.tsx"
 import { RegisterPage } from "@/pages/auth/RegisterPage.tsx"
@@ -36,7 +40,6 @@ import { JobFormPage } from "@/pages/company/JobFormPage.tsx"
 import { DashboardPage } from "@/pages/DashboardPage.tsx"
 import { InfoPage } from "@/pages/InfoPage.tsx"
 import { NotFoundPage } from "@/pages/NotFoundPage.tsx"
-import { PendingSectionPage } from "@/pages/PendingSectionPage.tsx"
 
 // Component: a TS function that returns JSX (a description of what should
 // show on screen). React calls it every time it needs to know what to paint.
@@ -92,10 +95,10 @@ function App() {
                     </Route>
 
                     <Route element={ <ProtectedRoute roles={ [ "admin" ] } /> }>
-                        <Route path="/admin/companies" element={ <PendingSectionPage title="Empresas" /> } />
-                        <Route path="/admin/jobs" element={ <PendingSectionPage title="Vacantes" /> } />
-                        <Route path="/admin/users" element={ <PendingSectionPage title="Usuarios" /> } />
-                        <Route path="/account" element={ <PendingSectionPage title="Mi cuenta" /> } />
+                        <Route path="/admin/companies" element={ <AdminCompaniesPage /> } />
+                        <Route path="/admin/jobs" element={ <AdminJobsPage /> } />
+                        <Route path="/admin/users" element={ <AdminUsersPage /> } />
+                        <Route path="/account" element={ <AccountPage /> } />
                     </Route>
                 </Route>
             </Route>
