@@ -2,7 +2,7 @@
   "info": {
     "name": "ClickWork - Admin",
     "_postman_id": "clickwork-newman-admin",
-    "description": "Login como admin semillado. Registra una empresa nueva (queda pending), la aprueba, y aprueba tambien la vacante que job-postings.json dejo pendiente. Al final, la empresa semillada se autodesactiva y el admin la reactiva (toggle-active es one-way sin esto -- ver companyController.js).",
+    "description": "Login como admin semillado. Registra una empresa nueva (queda pending), la aprueba, y aprueba tambien la vacante que job-postings.json dejo pendiente. Al final, la empresa semillada se pausa a si misma, comprueba que sigue entrando y que sus vacantes no se listan, y se reanuda sola.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -457,7 +457,7 @@
       ]
     },
     {
-      "name": "PATCH /api/company/toggle-active - autodesactivarse",
+      "name": "PATCH /api/company/toggle-active - pausar la empresa",
       "request": {
         "method": "PATCH",
         "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
@@ -475,6 +475,10 @@
               "",
               "pm.test('Response has success: true', function () {",
               "    pm.expect(pm.response.json().success).to.eql(true);",
+              "});",
+              "",
+              "pm.test('The company is now paused', function () {",
+              "    pm.expect(pm.response.json().data.active).to.eql(false);",
               "});"
             ]
           }
@@ -482,11 +486,11 @@
       ]
     },
     {
-      "name": "PATCH /api/admin/users/5/toggle-active - reactivar empresa (admin)",
+      "name": "GET /api/company/me - la empresa pausada sigue entrando",
       "request": {
-        "method": "PATCH",
-        "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
-        "url": { "raw": "{{baseUrl}}/api/admin/users/5/toggle-active", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users", "5", "toggle-active"] }
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/company/me", "host": ["{{baseUrl}}"], "path": ["api", "company", "me"] }
       },
       "event": [
         {
@@ -494,12 +498,62 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Status code is 200 (company reactivated by admin)', function () {",
+              "pm.test('Status code is 200', function () {",
               "    pm.response.to.have.status(200);",
               "});",
               "",
-              "pm.test('Response has success: true', function () {",
-              "    pm.expect(pm.response.json().success).to.eql(true);",
+              "pm.test('Profile reports the company as paused', function () {",
+              "    pm.expect(pm.response.json().data.active).to.eql(0);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/announcements - las vacantes de la empresa pausada no se listan",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/announcements", "host": ["{{baseUrl}}"], "path": ["api", "announcements"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('No posting of company 5 is public while paused', function () {",
+              "    pm.expect(pm.response.json().data.some(p => p.jb_pst_id_company === 5)).to.be.false;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PATCH /api/company/toggle-active - reanudar la empresa",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/company/toggle-active", "host": ["{{baseUrl}}"], "path": ["api", "company", "toggle-active"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('The company is active again', function () {",
+              "    pm.expect(pm.response.json().data.active).to.eql(true);",
               "});"
             ]
           }

@@ -156,6 +156,10 @@
               "    const json = pm.response.json();",
               "    pm.expect(json.data.name).to.eql('Manufactura Digital de la Laguna');",
               "    pm.expect(json.data.approval_status).to.eql('approved');",
+              "});",
+              "",
+              "pm.test('Profile carries the active flag', function () {",
+              "    pm.expect(pm.response.json().data.active).to.eql(1);",
               "});"
             ]
           }

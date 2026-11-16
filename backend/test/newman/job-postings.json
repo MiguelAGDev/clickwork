@@ -27,6 +27,93 @@
               "    const json = pm.response.json();",
               "    pm.expect(Array.isArray(json.data)).to.be.true;",
               "    pm.expect(json.data.some(p => p.jb_pst_id === 1)).to.be.true;",
+              "});",
+              "",
+              "pm.test('Each posting carries its company name', function () {",
+              "    pm.response.json().data.forEach(p => pm.expect(p.company_name).to.be.a('string').and.not.empty);",
+              "});",
+              "",
+              "pm.test('No posting is repeated', function () {",
+              "    const ids = pm.response.json().data.map(p => p.jb_pst_id);",
+              "    pm.expect(new Set(ids).size).to.eql(ids.length);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/announcements?contractType=internship - filtro por contrato",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/announcements?contractType=internship", "host": ["{{baseUrl}}"], "path": ["api", "announcements"], "query": [ { "key": "contractType", "value": "internship" } ] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Only internship postings come back', function () {",
+              "    const data = pm.response.json().data;",
+              "    pm.expect(data.length).to.be.above(0);",
+              "    data.forEach(p => pm.expect(p.jb_pst_contract_type).to.eql('internship'));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/announcements?experienceLevel=senior - filtro por nivel",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/announcements?experienceLevel=senior", "host": ["{{baseUrl}}"], "path": ["api", "announcements"], "query": [ { "key": "experienceLevel", "value": "senior" } ] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Seed has no senior posting, so the list is empty', function () {",
+              "    pm.expect(pm.response.json().data).to.eql([]);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/announcements?careerId=8 - filtro por carrera",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/announcements?careerId=8", "host": ["{{baseUrl}}"], "path": ["api", "announcements"], "query": [ { "key": "careerId", "value": "8" } ] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Only the posting linked to career 8 comes back', function () {",
+              "    const ids = pm.response.json().data.map(p => p.jb_pst_id);",
+              "    pm.expect(ids).to.eql([2]);",
               "});"
             ]
           }
