@@ -51,9 +51,17 @@ function ProtectedRoute( { roles }: ProtectedRouteProps ) {
 
 function PublicOnlyRoute() {
     const { status } = useAuth()
+    const location = useLocation()
 
     if( status === "loading" ) return <FullPageSpinner />
-    if( status === "authenticated" ) return <Navigate to="/dashboard" replace />
+
+    if( status === "authenticated" ) {
+        // This is also what moves the user on right after a login: the
+        // session appears, this guard re-renders and redirects. "from" is
+        // the page ProtectedRoute interrupted, if there was one.
+        const from = ( location.state as { from?: string } | null )?.from
+        return <Navigate to={ from ?? "/dashboard" } replace />
+    }
 
     return <Outlet />
 }
