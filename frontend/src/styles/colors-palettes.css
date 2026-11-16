@@ -11,9 +11,11 @@
  */
 
 /*
- * Latest Update:
- * Date:
- * By:
+ * Latest Update: Add the tones the interior shell (Option A, top
+ *      header) and the D2 login actually use: ink, secondary text,
+ *      borders, text on navy, info box and status colors.
+ * Date: November 16th 2026
+ * By: Miguel Angel Avila Garcia
  *
  */
 
@@ -22,8 +24,29 @@
     /* NAVY. Componentes: panel del login, sidebar y header/footer de las vistas internas */
   --palette-panel:            oklch(0.32 0.07 260);
 
+    /* HUESO SOBRE NAVY. Componentes: logo y link activo del header, titular del panel del login */
+  --palette-panel-foreground: oklch(0.98 0.01 90);
+
+    /* AZUL GRISACEO CLARO. Componentes: links inactivos e iconos del header, parrafo del panel del login */
+  --palette-panel-muted:      oklch(0.82 0.02 260);
+
     /* HUESO. Componentes: fondo general de las vistas (login, dashboard, sidebar) */
   --palette-bg:               oklch(0.98 0.01 90);
+
+    /* BLANCO. Componentes: tarjetas, filas de vacante, footer, inputs */
+  --palette-surface:          oklch(1 0 0);
+
+    /* TINTA. Componentes: titulos, numeros de las stat cards, texto principal */
+  --palette-ink:              oklch(0.22 0.05 260);
+
+    /* GRIS AZULADO. Componentes: subtitulos, metadatos, texto del footer */
+  --palette-text-secondary:   oklch(0.5 0.02 260);
+
+    /* BORDE. Componentes: tarjetas, filas de vacante, borde superior del footer */
+  --palette-border:           oklch(0.93 0.01 260);
+
+    /* BORDE DE INPUT. Componentes: campos de formulario (un poco mas marcado que el de tarjeta) */
+  --palette-input-border:     oklch(0.9 0.01 260);
 
     /* DORADO. Componentes: botón principal, link activo, badges tipo "Nuevo" */
   --palette-accent-default:   #D4A02A;
@@ -36,5 +59,20 @@
 
     /* DORADO CLARO. Componentes: variante de acento, alternativa al default */
   --palette-accent-4:         #C9A227;
+
+    /* DORADO PARA TEXTO. Componentes: links sobre fondo claro. El dorado default
+       no alcanza contraste AA (2.3:1) como texto sobre blanco/hueso; este si (5:1) */
+  --palette-accent-text:      #8A6A0A;
+
+    /* AZUL TENUE. Componentes: caja informativa (avisos del login, banners neutros) */
+  --palette-info-bg:          oklch(0.94 0.05 260);
+  --palette-info-text:        oklch(0.3 0.05 260);
+
+    /* ESTADOS. Componentes: badges de status (aceptada/aprobada, pendiente, rechazada) y alertas */
+  --palette-success:          oklch(0.45 0.11 150);
+  --palette-success-bg:       oklch(0.95 0.04 150);
+  --palette-warning-bg:       oklch(0.95 0.06 90);
+  --palette-danger:           oklch(0.5 0.19 27);
+  --palette-danger-bg:        oklch(0.95 0.03 27);
 
 }
