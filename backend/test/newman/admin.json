@@ -131,6 +131,12 @@
               "pm.test('Includes the seeded users', function () {",
               "    const json = pm.response.json();",
               "    pm.expect(json.data.length).to.be.at.least(5);",
+              "});",
+              "",
+              "pm.test('Every user carries first and last name', function () {",
+              "    const users = pm.response.json().data;",
+              "    users.forEach(u => { pm.expect(u).to.have.property('first_name'); pm.expect(u).to.have.property('last_name'); });",
+              "    pm.expect(users.find(u => u.email === 'admin.seed@newman.test').first_name).to.eql('Ana');",
               "});"
             ]
           }
@@ -170,7 +176,7 @@
         "header": [ { "key": "Content-Type", "value": "application/json" } ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"email\": \"empresa.pendiente@newman.test\",\n  \"password\": \"Newman123\",\n  \"role\": \"company\",\n  \"name\": \"Nueva Empresa Pendiente\",\n  \"size\": \"small\",\n  \"industry\": \"Manufactura\",\n  \"contact_email\": \"contacto.pendiente@newman.test\"\n}"
+          "raw": "{\n  \"firstName\": \"Prueba\",\n  \"lastName\": \"Newman\",\n  \"email\": \"empresa.pendiente@newman.test\",\n  \"password\": \"Newman123\",\n  \"role\": \"company\",\n  \"name\": \"Nueva Empresa Pendiente\",\n  \"size\": \"small\",\n  \"industry\": \"Manufactura\",\n  \"contact_email\": \"contacto.pendiente@newman.test\"\n}"
         },
         "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
       },

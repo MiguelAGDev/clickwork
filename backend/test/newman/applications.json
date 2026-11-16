@@ -231,6 +231,12 @@
               "    const json = pm.response.json();",
               "    const appId = parseInt(pm.environment.get('applicationId'), 10);",
               "    pm.expect(json.data.some(a => a.id === appId)).to.be.true;",
+              "});",
+              "",
+              "pm.test('Applicants carry first and last name', function () {",
+              "    const a = pm.response.json().data[0];",
+              "    pm.expect(a.applicant_first_name).to.be.a('string').and.not.empty;",
+              "    pm.expect(a).to.have.property('applicant_last_name');",
               "});"
             ]
           }

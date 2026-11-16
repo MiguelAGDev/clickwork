@@ -78,6 +78,12 @@
               "    pm.expect(json.data.email).to.eql('estudiante.seed@newman.test');",
               "    pm.expect(json.data.role).to.eql('student');",
               "    pm.expect(json.data.semester).to.eql(6);",
+              "});",
+              "",
+              "pm.test('Profile carries first and last name', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.first_name).to.eql('Laura');",
+              "    pm.expect(json.data.last_name).to.eql('Estudiante');",
               "});"
             ]
           }
@@ -85,7 +91,7 @@
       ]
     },
     {
-      "name": "PUT /api/users/me - actualizar telefono y semestre",
+      "name": "PUT /api/users/me - actualizar nombre, telefono y semestre",
       "request": {
         "method": "PUT",
         "header": [
@@ -94,7 +100,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"phone\": \"8710009999\",\n  \"semester\": 7\n}"
+          "raw": "{\n  \"firstName\": \"Laura Elena\",\n  \"lastName\": \"Estudiante Prueba\",\n  \"phone\": \"8710009999\",\n  \"semester\": 7\n}"
         },
         "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] }
       },
@@ -111,6 +117,12 @@
               "pm.test('Phone was updated', function () {",
               "    const json = pm.response.json();",
               "    pm.expect(json.data.phone).to.eql('8710009999');",
+              "});",
+              "",
+              "pm.test('Names were updated', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.first_name).to.eql('Laura Elena');",
+              "    pm.expect(json.data.last_name).to.eql('Estudiante Prueba');",
               "});"
             ]
           }
@@ -139,6 +151,106 @@
             "exec": [
               "pm.test('Status code is 422 (express-validator)', function () {",
               "    pm.response.to.have.status(422);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PUT /api/users/me - nombre vacio",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"   \"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "pm.test('Empty first name is rejected', function () {",
+              "    const err = pm.response.json().errors.find(e => e.path === 'firstName');",
+              "    pm.expect(err.msg).to.include('required');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[NEGATIVO] PUT /api/users/me - apellido demasiado largo",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"lastName\": \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "pm.test('Last name length is rejected', function () {",
+              "    const err = pm.response.json().errors.find(e => e.path === 'lastName');",
+              "    pm.expect(err.msg).to.include('150');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT /api/users/me - sin mandar nombres los conserva",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"8710001111\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Names are kept when the body omits them', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.first_name).to.eql('Laura Elena');",
+              "    pm.expect(json.data.last_name).to.eql('Estudiante Prueba');",
               "});"
             ]
           }
