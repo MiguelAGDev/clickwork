@@ -27,7 +27,7 @@ import { changePasswordLimiter } from '../middlewares/rateLimiter.js';
 
 const router = Router();
 
-// Validación para PUT /me
+// Validation for PUT /me
 const userProfileBodyValidation = [
     body('phone')
         .optional({ nullable: true, checkFalsy: true })
@@ -69,7 +69,7 @@ const userProfileBodyValidation = [
         .isString().trim(),
 ];
 
-// Validación para POST /roll-me
+// Validation for POST /roll-me
 const rollMeBodyValidation = [
     body('jobPostingId')
         .notEmpty()
