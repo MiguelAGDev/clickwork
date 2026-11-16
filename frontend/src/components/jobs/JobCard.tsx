@@ -46,7 +46,9 @@ function JobCard( { job, to, summary, trailing, saved, onToggleSaved }: JobCardP
             </div>
 
             <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
-                <h3 className="truncate text-[14.5px] font-bold text-foreground">
+                {/* On a phone a long title wraps to two lines instead of
+                    being cut; from sm up there is room for one line. */}
+                <h3 className="line-clamp-2 text-[14.5px] font-bold text-foreground sm:line-clamp-1">
                     <Link to={ to } className="after:absolute after:inset-0 after:rounded-xl">
                         { job.title }
                     </Link>

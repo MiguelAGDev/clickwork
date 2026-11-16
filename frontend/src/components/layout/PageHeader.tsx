@@ -28,6 +28,10 @@ interface PageHeaderProps {
 function PageHeader( { title, subtitle, back, actions }: PageHeaderProps ) {
     return (
         <div className="flex flex-col gap-3">
+            {/* React moves a <title> rendered anywhere to the document head,
+                so the browser tab names the current screen. */}
+            <title>{ `${ title } · ClickWork` }</title>
+
             { back && (
                 <Link to={ back.to } className="flex w-fit items-center gap-1.5 text-[13px] font-semibold text-link underline-offset-4 hover:underline">
                     <ArrowLeft aria-hidden className="size-3.5" />

@@ -17,6 +17,9 @@ import type { ReactNode } from "react"
 function AuthHeading( { title, subtitle }: { title: string, subtitle?: ReactNode } ) {
     return (
         <div>
+            {/* React moves this <title> to the document head: the browser
+                tab names the current screen. */}
+            <title>{ `${ title } · ClickWork` }</title>
             <h1 className="text-[26px] leading-tight font-bold tracking-[-0.01em] text-foreground">{ title }</h1>
             { subtitle && <p className="mt-1.5 text-sm text-muted-foreground">{ subtitle }</p> }
         </div>
