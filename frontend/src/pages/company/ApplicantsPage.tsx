@@ -24,6 +24,7 @@ import { linkClasses } from "@/components/ui/linkClasses.ts"
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States.tsx"
 import { useAsyncData } from "@/hooks/useAsyncData.ts"
 import { formatDate } from "@/lib/dates.ts"
+import { getFullName } from "@/lib/displayName.ts"
 import { APPLICATION_STATUS_LABELS } from "@/lib/labels.ts"
 import { toApiError } from "@/services/api.ts"
 import { getApplicants, updateApplicationStatus } from "@/services/applicationService.ts"
@@ -59,13 +60,14 @@ function ApplicantRow( { applicant, onStatusChange }: ApplicantRowProps ) {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                     <div className="flex flex-wrap items-center gap-2">
-                        <a href={ `mailto:${ applicant.email }` } className={ `${ linkClasses } flex items-center gap-1.5 text-[14.5px] break-all` }>
-                            <Mail aria-hidden className="size-3.5 shrink-0" />
-                            { applicant.email }
-                        </a>
+                        <h2 className="text-[14.5px] font-bold text-foreground">{ getFullName( applicant ) }</h2>
                         <ApplicationStatusBadge status={ applicant.status } />
                     </div>
                     <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-muted-foreground">
+                        <a href={ `mailto:${ applicant.email }` } className={ `${ linkClasses } flex items-center gap-1 break-all` }>
+                            <Mail aria-hidden className="size-3 shrink-0" />
+                            { applicant.email }
+                        </a>
                         { applicant.phone && (
                             <span className="flex items-center gap-1"><Phone aria-hidden className="size-3" />{ applicant.phone }</span>
                         ) }
@@ -80,7 +82,7 @@ function ApplicantRow( { applicant, onStatusChange }: ApplicantRowProps ) {
                 <label className="flex shrink-0 items-center gap-2 text-[13px] font-semibold text-foreground">
                     Estado
                     <select
-                        aria-label={ `Estado de la postulación de ${ applicant.email }` }
+                        aria-label={ `Estado de la postulación de ${ getFullName( applicant ) }` }
                         className="h-9 rounded-[10px] border-2 border-input bg-card px-2.5 text-sm font-normal disabled:opacity-60"
                         value={ applicant.status }
                         disabled={ saving }

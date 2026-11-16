@@ -49,7 +49,7 @@ describe( "CandidateHomePage", () => {
 
         renderApp( <App />, "/dashboard" )
 
-        expect( await screen.findByRole( "heading", { name: "Hola, Estudiante" } ) ).toBeInTheDocument()
+        expect( await screen.findByRole( "heading", { name: "Hola, Laura" } ) ).toBeInTheDocument()
 
         // 1 application in review = 1 active.
         const active = await screen.findByRole( "link", { name: /Aplicaciones activas/ } )
@@ -294,13 +294,17 @@ describe( "ProfilePage", () => {
             http.get( `${ API }/users/me`, () => ok( saved ) ),
             http.put( `${ API }/users/me`, async ( { request } ) => {
                 body = await request.json()
-                saved = { ...studentRow, phone: "8719990000", semester: 7 }
+                saved = { ...studentRow, last_name: "Estudiante Pérez", phone: "8719990000", semester: 7 }
                 return ok( { id: 2 } )
             } )
         )
         renderApp( <App />, "/profile" )
 
-        const phone = await screen.findByLabelText( "Teléfono" )
+        const lastName = await screen.findByLabelText( "Apellido" )
+        expect( lastName ).toHaveValue( "Estudiante" )
+        await user.clear( lastName )
+        await user.type( lastName, "Estudiante Pérez" )
+        const phone = screen.getByLabelText( "Teléfono" )
         await user.clear( phone )
         await user.type( phone, "8719990000" )
         const semester = screen.getByLabelText( "Semestre" )
@@ -309,8 +313,9 @@ describe( "ProfilePage", () => {
         await user.click( screen.getByRole( "button", { name: "Guardar cambios" } ) )
 
         expect( await screen.findByText( "Guardamos tus cambios." ) ).toBeInTheDocument()
-        expect( body ).toEqual( { phone: "8719990000", careerId: 1, semester: 7 } )
+        expect( body ).toEqual( { firstName: "Laura", lastName: "Estudiante Pérez", phone: "8719990000", careerId: 1, semester: 7 } )
         expect( screen.getByLabelText( "Semestre" ) ).toHaveValue( 7 )
+        expect( screen.getByLabelText( "Apellido" ) ).toHaveValue( "Estudiante Pérez" )
     } )
 
     test( "an intern always sends its three residency fields together", async () => {
@@ -332,12 +337,29 @@ describe( "ProfilePage", () => {
 
         await screen.findByText( "Guardamos tus cambios." )
         expect( body ).toEqual( {
+            firstName: "Pablo",
+            lastName: "Residente",
             phone: "8717654321",
             careerId: 6,
             hostCompany: "Manufactura Digital de la Laguna",
             project: null,              // cleared: null, never an empty string
             endDate: "2026-07-15",
         } )
+    } )
+
+    test( "does not save a blank name", async () => {
+        const user = userEvent.setup()
+        mockSession( studentRow )
+        server.use( http.get( `${ API }/careers`, () => ok( careerRows ) ) )
+        renderApp( <App />, "/profile" )
+
+        const firstName = await screen.findByLabelText( "Nombre", { exact: true } )
+        await user.clear( firstName )
+        await user.type( firstName, "  " )
+        await user.click( screen.getByRole( "button", { name: "Guardar cambios" } ) )
+
+        // No handler for PUT /users/me: calling it would fail the test.
+        expect( await screen.findByText( "Escribe tu nombre." ) ).toBeInTheDocument()
     } )
 
     test( "rejects a CV that is not a PDF before uploading it", async () => {

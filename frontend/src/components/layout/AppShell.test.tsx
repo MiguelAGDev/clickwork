@@ -61,7 +61,8 @@ describe( "AppShell", () => {
         renderApp( <App />, "/dashboard" )
 
         await user.click( await screen.findByRole( "button", { name: "Menú de usuario" } ) )
-        expect( await screen.findByText( "estudiante.seed@newman.test" ) ).toBeInTheDocument()
+        expect( await screen.findByText( "Laura Estudiante" ) ).toBeInTheDocument()
+        expect( screen.getByText( "estudiante.seed@newman.test" ) ).toBeInTheDocument()
         await user.click( screen.getByRole( "menuitem", { name: "Cerrar sesión" } ) )
 
         expect( await screen.findByRole( "heading", { name: "Inicia sesión" } ) ).toBeInTheDocument()

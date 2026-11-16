@@ -95,8 +95,9 @@
 * [ ] 💡 Empresa rechazada sin forma de pedir nueva revisión — editar el
   perfil no regresa `cmp_approval_status` a `pending`; depende de que un
   admin la vuelva a abrir.
-* [ ] 💡 Sin nombre de persona en `app_user` — el saludo ("Hola, Miguel")
-  y las iniciales del avatar salen de la parte del correo antes de la @.
+* [x] 💡 Sin nombre de persona en `app_user` — resuelto el 16-nov-2026 en
+  `feat/miguel-user-names`: columnas `ap_usr_first_name` y
+  `ap_usr_last_name` (migración en `backend/migrations/`).
 * [ ] 💡 Faltan endpoints que el diseño sugiere — vacantes guardadas (hoy
   en `localStorage` del navegador) y notificaciones (la campana del
   diseño no se muestra).

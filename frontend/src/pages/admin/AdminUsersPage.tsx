@@ -23,6 +23,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog.tsx"
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States.tsx"
 import { useAsyncData } from "@/hooks/useAsyncData.ts"
 import { useAuth } from "@/hooks/useAuth.ts"
+import { getFullName } from "@/lib/displayName.ts"
 import { ROLE_LABELS } from "@/lib/roles.ts"
 import { getUsers, toggleUserActive } from "@/services/adminService.ts"
 import { toApiError } from "@/services/api.ts"
@@ -50,13 +51,13 @@ function UserRow( { user, isSelf, onToggle }: UserRowProps ) {
         <Card className="flex flex-col gap-3 px-[18px] py-3.5 sm:flex-row sm:items-center sm:gap-4">
             <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-[14.5px] font-bold break-all text-foreground">{ user.email }</h2>
+                    <h2 className="text-[14.5px] font-bold text-foreground">{ getFullName( user ) }</h2>
                     <Badge tone="info">{ ROLE_LABELS[ user.role ] }</Badge>
                     <Badge tone={ user.active ? "success" : "danger" }>{ user.active ? "Activa" : "Inactiva" }</Badge>
                     { !user.emailVerified && <Badge tone="warning">Correo sin verificar</Badge> }
                 </div>
-                <p className="text-[12.5px] text-muted-foreground">
-                    { describeUser( user ) }{ user.phone && ` · ${ user.phone }` }
+                <p className="text-[12.5px] break-all text-muted-foreground">
+                    { user.email } · { describeUser( user ) }{ user.phone && ` · ${ user.phone }` }
                 </p>
             </div>
 
@@ -70,7 +71,7 @@ function UserRow( { user, isSelf, onToggle }: UserRowProps ) {
                     variant="secondary"
                     className="shrink-0"
                     onClick={ () => onToggle( user ) }
-                    aria-label={ `${ user.active ? "Desactivar" : "Reactivar" } ${ user.email }` }
+                    aria-label={ `${ user.active ? "Desactivar" : "Reactivar" } ${ getFullName( user ) }` }
                 >
                     { user.active ? "Desactivar" : "Reactivar" }
                 </Button>
@@ -129,7 +130,7 @@ function AdminUsersPage() {
     const users = ( data ?? [] )
         .filter( ( user ) => !role || user.role === role )
         .filter( ( user ) => !state || ( state === "active" ) === user.active )
-        .filter( ( user ) => !query || user.email.toLowerCase().includes( query ) || ( user.companyName ?? "" ).toLowerCase().includes( query ) )
+        .filter( ( user ) => !query || [ user.email, getFullName( user ), user.companyName ?? "" ].some( ( v ) => v.toLowerCase().includes( query ) ) )
 
     const hasFilters = Boolean( search || role || state )
 
@@ -140,8 +141,8 @@ function AdminUsersPage() {
             <section aria-label="Filtros" className="flex flex-wrap items-center gap-2.5 rounded-xl border border-border bg-card p-4">
                 <input
                     type="search"
-                    aria-label="Buscar por correo o empresa"
-                    placeholder="Busca por correo o empresa"
+                    aria-label="Buscar por nombre, correo o empresa"
+                    placeholder="Busca por nombre, correo o empresa"
                     value={ search }
                     onChange={ ( event ) => setParam( "q", event.target.value ) }
                     className="h-10 min-w-0 flex-1 basis-56 rounded-[10px] border-2 border-input bg-card px-3 text-sm text-foreground placeholder:text-muted-foreground/70"
@@ -189,8 +190,8 @@ function AdminUsersPage() {
                 title={ target?.active ? "¿Desactivar esta cuenta?" : "¿Reactivar esta cuenta?" }
                 description={
                     target?.active
-                        ? <><strong>{ target.email }</strong> no podrá iniciar sesión ni usar ClickWork hasta que la reactives.</>
-                        : <><strong>{ target?.email }</strong> podrá volver a iniciar sesión.</>
+                        ? <><strong>{ getFullName( target ) }</strong> ({ target.email }) no podrá iniciar sesión ni usar ClickWork hasta que la reactives.</>
+                        : <><strong>{ target && getFullName( target ) }</strong> podrá volver a iniciar sesión.</>
                 }
                 confirmLabel={ target?.active ? "Desactivar" : "Reactivar" }
                 tone={ target?.active ? "danger" : "primary" }

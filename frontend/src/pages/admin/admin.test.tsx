@@ -214,13 +214,26 @@ describe( "AdminUsersPage", () => {
         renderApp( <App />, "/admin/users" )
 
         expect( await screen.findByText( "3 cuentas" ) ).toBeInTheDocument()
-        expect( within( rowOf( "empresa.seed@newman.test" ) ).getByText( /^Manufactura Digital de la Laguna/ ) ).toBeInTheDocument()
+        expect( within( rowOf( "Marcela Empresa" ) ).getByText( /empresa\.seed@newman\.test · Manufactura Digital de la Laguna/ ) ).toBeInTheDocument()
 
         await user.selectOptions( screen.getByLabelText( "Tipo de cuenta" ), "student" )
 
         expect( await screen.findByText( "1 cuenta de 3" ) ).toBeInTheDocument()
-        expect( screen.getByRole( "heading", { name: "estudiante.seed@newman.test" } ) ).toBeInTheDocument()
-        expect( screen.queryByRole( "heading", { name: "empresa.seed@newman.test" } ) ).not.toBeInTheDocument()
+        expect( screen.getByRole( "heading", { name: "Laura Estudiante" } ) ).toBeInTheDocument()
+        expect( screen.queryByRole( "heading", { name: "Marcela Empresa" } ) ).not.toBeInTheDocument()
+    } )
+
+    test( "searches by name", async () => {
+        const user = userEvent.setup()
+        mockSession( adminRow )
+        server.use( http.get( `${ API }/admin/users`, () => ok( adminUserRows ) ) )
+        renderApp( <App />, "/admin/users" )
+        await screen.findByText( "3 cuentas" )
+
+        await user.type( screen.getByLabelText( "Buscar por nombre, correo o empresa" ), "ana admin" )
+
+        expect( await screen.findByText( "1 cuenta de 3" ) ).toBeInTheDocument()
+        expect( screen.getByRole( "heading", { name: "Ana Administradora" } ) ).toBeInTheDocument()
     } )
 
     test( "deactivates an account after confirming", async () => {
@@ -238,15 +251,15 @@ describe( "AdminUsersPage", () => {
         )
         renderApp( <App />, "/admin/users" )
 
-        await user.click( await screen.findByRole( "button", { name: "Desactivar estudiante.seed@newman.test" } ) )
+        await user.click( await screen.findByRole( "button", { name: "Desactivar Laura Estudiante" } ) )
         const dialog = await screen.findByRole( "alertdialog" )
-        expect( dialog ).toHaveTextContent( "no podrá iniciar sesión" )
+        expect( dialog ).toHaveTextContent( "Laura Estudiante (estudiante.seed@newman.test) no podrá iniciar sesión" )
         expect( toggled ).toBe( false )
 
         await user.click( within( dialog ).getByRole( "button", { name: "Desactivar" } ) )
 
-        expect( await screen.findByRole( "button", { name: "Reactivar estudiante.seed@newman.test" } ) ).toBeInTheDocument()
-        expect( within( rowOf( "estudiante.seed@newman.test" ) ).getByText( "Inactiva" ) ).toBeInTheDocument()
+        expect( await screen.findByRole( "button", { name: "Reactivar Laura Estudiante" } ) ).toBeInTheDocument()
+        expect( within( rowOf( "Laura Estudiante" ) ).getByText( "Inactiva" ) ).toBeInTheDocument()
         expect( toggled ).toBe( true )
     } )
 
@@ -256,7 +269,7 @@ describe( "AdminUsersPage", () => {
 
         renderApp( <App />, "/admin/users" )
 
-        const own = within( await screen.findByRole( "heading", { name: "admin.seed@newman.test" } ).then( () => rowOf( "admin.seed@newman.test" ) ) )
+        const own = within( await screen.findByRole( "heading", { name: "Ana Administradora" } ).then( () => rowOf( "Ana Administradora" ) ) )
         expect( own.getByText( "Tu cuenta" ) ).toBeInTheDocument()
         expect( own.queryByRole( "button" ) ).not.toBeInTheDocument()
     } )

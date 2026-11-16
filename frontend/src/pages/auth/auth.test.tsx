@@ -48,7 +48,7 @@ describe( "LoginPage", () => {
         await user.type( screen.getByLabelText( "Contraseña" ), "Secret123" )
         await user.click( screen.getByRole( "button", { name: "Iniciar sesión" } ) )
 
-        expect( await screen.findByRole( "heading", { name: "Hola, Estudiante" } ) ).toBeInTheDocument()
+        expect( await screen.findByRole( "heading", { name: "Hola, Laura" } ) ).toBeInTheDocument()
         expect( body ).toEqual( { email: "estudiante.seed@newman.test", password: "Secret123" } )
     } )
 
@@ -113,6 +113,8 @@ describe( "RegisterPage", () => {
         )
         renderApp( <App />, "/register" )
 
+        await user.type( screen.getByLabelText( "Nombre", { exact: true } ), " Nueva " )
+        await user.type( screen.getByLabelText( "Apellido" ), "Cuenta" )
         await user.type( screen.getByLabelText( "Correo electrónico" ), "nueva@correo.com" )
         await user.type( screen.getByLabelText( "Contraseña" ), "Secret123" )
         await user.selectOptions( await screen.findByLabelText( /Carrera/ ), await screen.findByRole( "option", { name: "Ingeniería Industrial" } ) )
@@ -123,6 +125,8 @@ describe( "RegisterPage", () => {
         expect( screen.getByText( "nueva@correo.com" ) ).toBeInTheDocument()
         expect( body ).toEqual( {
             role: "student",
+            firstName: "Nueva",      // trimmed before sending
+            lastName: "Cuenta",
             email: "nueva@correo.com",
             password: "Secret123",
             careerId: 4,
@@ -148,6 +152,8 @@ describe( "RegisterPage", () => {
         expect( screen.queryByLabelText( "Semestre" ) ).not.toBeInTheDocument()
         expect( screen.queryByLabelText( /Carrera/ ) ).not.toBeInTheDocument()
 
+        await user.type( screen.getByLabelText( "Nombre del contacto" ), "Rosa" )
+        await user.type( screen.getByLabelText( "Apellido" ), "Nexo" )
         await user.type( screen.getByLabelText( "Correo electrónico" ), "rh@gruponexo.com" )
         await user.type( screen.getByLabelText( "Contraseña" ), "Secret123" )
         await user.type( screen.getByLabelText( "Nombre de la empresa" ), "Grupo Nexo" )
@@ -160,6 +166,8 @@ describe( "RegisterPage", () => {
         expect( screen.getByRole( "status" ) ).toHaveTextContent( /un administrador revisará tu empresa/i )
         expect( body ).toEqual( {
             role: "company",
+            firstName: "Rosa",
+            lastName: "Nexo",
             email: "rh@gruponexo.com",
             password: "Secret123",
             name: "Grupo Nexo",
@@ -167,6 +175,22 @@ describe( "RegisterPage", () => {
             industry: "Manufactura",
             contact_email: "vacantes@gruponexo.com",
         } )
+    } )
+
+    test( "requires a non-blank first and last name", async () => {
+        const user = userEvent.setup()
+        server.use( http.get( `${ API }/careers`, () => HttpResponse.json( { success: true, data: careerRows } ) ) )
+        renderApp( <App />, "/register" )
+
+        await user.type( screen.getByLabelText( "Nombre", { exact: true } ), "   " )
+        await user.type( screen.getByLabelText( "Correo electrónico" ), "nueva@correo.com" )
+        await user.type( screen.getByLabelText( "Contraseña" ), "Secret123" )
+        await user.type( screen.getByLabelText( "Semestre" ), "6" )
+        await user.click( screen.getByRole( "button", { name: "Crear cuenta" } ) )
+
+        // No handler for /auth/register: reaching it would fail the test.
+        expect( await screen.findByText( "Escribe tu nombre." ) ).toBeInTheDocument()
+        expect( screen.getByText( "Escribe tu apellido." ) ).toBeInTheDocument()
     } )
 
     test( "requires the fields of the role before sending", async () => {
@@ -192,6 +216,8 @@ describe( "RegisterPage", () => {
         )
         renderApp( <App />, "/register" )
 
+        await user.type( screen.getByLabelText( "Nombre", { exact: true } ), "Nueva" )
+        await user.type( screen.getByLabelText( "Apellido" ), "Cuenta" )
         await user.type( screen.getByLabelText( "Correo electrónico" ), "nueva@correo.com" )
         await user.type( screen.getByLabelText( "Contraseña" ), "Secret123" )
         await user.type( screen.getByLabelText( /Teléfono/ ), "1234567890" )
@@ -210,6 +236,8 @@ describe( "RegisterPage", () => {
         )
         renderApp( <App />, "/register" )
 
+        await user.type( screen.getByLabelText( "Nombre", { exact: true } ), "Laura" )
+        await user.type( screen.getByLabelText( "Apellido" ), "Estudiante" )
         await user.type( screen.getByLabelText( "Correo electrónico" ), "estudiante.seed@newman.test" )
         await user.type( screen.getByLabelText( "Contraseña" ), "Secret123" )
         await user.type( screen.getByLabelText( "Semestre" ), "6" )

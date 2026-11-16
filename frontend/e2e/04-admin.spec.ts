@@ -63,9 +63,9 @@ test( "an admin deactivates an account, which can no longer log in, and reactiva
     await loginAs( page, "admin" )
     await page.getByRole( "navigation", { name: "Principal" } ).getByRole( "link", { name: "Usuarios" } ).click()
 
-    await page.getByRole( "button", { name: `Desactivar ${ SEED_USERS.intern }` } ).click()
+    await page.getByRole( "button", { name: "Desactivar Pablo Residente" } ).click()
     await page.getByRole( "alertdialog" ).getByRole( "button", { name: "Desactivar" } ).click()
-    await expect( page.getByRole( "button", { name: `Reactivar ${ SEED_USERS.intern }` } ) ).toBeVisible()
+    await expect( page.getByRole( "button", { name: "Reactivar Pablo Residente" } ) ).toBeVisible()
 
     await logout( page )
 
@@ -77,7 +77,7 @@ test( "an admin deactivates an account, which can no longer log in, and reactiva
     // Put it back.
     await loginAs( page, "admin" )
     await page.goto( "/admin/users" )
-    await page.getByRole( "button", { name: `Reactivar ${ SEED_USERS.intern }` } ).click()
+    await page.getByRole( "button", { name: "Reactivar Pablo Residente" } ).click()
     await page.getByRole( "alertdialog" ).getByRole( "button", { name: "Reactivar" } ).click()
-    await expect( page.getByRole( "button", { name: `Desactivar ${ SEED_USERS.intern }` } ) ).toBeVisible()
+    await expect( page.getByRole( "button", { name: "Desactivar Pablo Residente" } ) ).toBeVisible()
 } )

@@ -27,7 +27,7 @@ import { useAsyncData } from "@/hooks/useAsyncData.ts"
 import { COMPANY_SIZE_LABELS } from "@/lib/labels.ts"
 import { ROLE_LABELS } from "@/lib/roles.ts"
 import { cn } from "@/lib/utils.ts"
-import { applyFieldErrors, emailRules, newPasswordRules, PASSWORD_HINT, REQUIRED } from "@/lib/validation.ts"
+import { applyFieldErrors, emailRules, firstNameRules, lastNameRules, newPasswordRules, PASSWORD_HINT, REQUIRED } from "@/lib/validation.ts"
 import { register as registerAccount } from "@/services/authService.ts"
 import type { RegisterInput } from "@/services/authService.ts"
 import { getCareers } from "@/services/careerService.ts"
@@ -41,6 +41,8 @@ type RegisterRole = RegisterInput[ "role" ]
 // placed on its input directly.
 interface RegisterForm {
     role: RegisterRole
+    firstName: string
+    lastName: string
     email: string
     password: string
     phone: string
@@ -62,7 +64,7 @@ interface RegisterForm {
 }
 
 const FIELD_NAMES = [
-    "role", "email", "password", "phone", "careerId", "semester", "hostCompany", "project", "startDate",
+    "role", "firstName", "lastName", "email", "password", "phone", "careerId", "semester", "hostCompany", "project", "startDate",
     "endDate", "graduationYear", "currentJob", "name", "size", "industry", "contact_email", "city", "state", "address",
 ] as const satisfies readonly ( keyof RegisterForm )[]
 
@@ -79,7 +81,13 @@ const CURRENT_YEAR = new Date().getFullYear()
 // the backend treats a missing field and an empty one differently in a
 // few validators.
 function toRegisterInput( form: RegisterForm ): RegisterInput {
-    const input: RegisterInput = { role: form.role, email: form.email.trim(), password: form.password }
+    const input: RegisterInput = {
+        role: form.role,
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim(),
+        password: form.password,
+    }
     const optional = ( value: string ) => value.trim() || undefined
 
     input.phone = optional( form.phone )
@@ -201,6 +209,20 @@ function RegisterPage() {
                 </fieldset>
 
                 <div className="flex flex-col gap-4">
+                    <div className="grid grid-cols-2 gap-3">
+                        <TextField
+                            label={ isCompany ? "Nombre del contacto" : "Nombre" }
+                            autoComplete="given-name"
+                            error={ errors.firstName?.message }
+                            { ...register( "firstName", firstNameRules ) }
+                        />
+                        <TextField
+                            label="Apellido"
+                            autoComplete="family-name"
+                            error={ errors.lastName?.message }
+                            { ...register( "lastName", lastNameRules ) }
+                        />
+                    </div>
                     <TextField
                         label="Correo electrónico"
                         type="email"

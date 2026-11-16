@@ -60,7 +60,7 @@ function CompanyHomePage( { user }: { user: User } ) {
         <>
             <PageHeader
                 // The company name once it loads; the email-based name meanwhile.
-                title={ `Hola, ${ data?.company.name ?? getDisplayName( user.email ) }` }
+                title={ `Hola, ${ data?.company.name ?? getDisplayName( user ) }` }
                 subtitle="Aquí tienes un resumen de tus vacantes"
                 actions={ canPublish && <Link to="/company/jobs/new" className={ buttonClasses() }>Nueva vacante</Link> }
             />

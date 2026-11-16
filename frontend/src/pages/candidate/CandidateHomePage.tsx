@@ -50,7 +50,7 @@ function CandidateHomePage( { user }: { user: User } ) {
     return (
         <>
             <PageHeader
-                title={ `Hola, ${ getDisplayName( user.email ) }` }
+                title={ `Hola, ${ getDisplayName( user ) }` }
                 subtitle="Aquí tienes un resumen de tu actividad"
             />
 

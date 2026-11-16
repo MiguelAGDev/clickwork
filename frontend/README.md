@@ -29,6 +29,10 @@ React 19 + TypeScript + Vite 8 + Tailwind 4.
    solo acepta peticiones de ese origen (CORS) y arma con él los enlaces de
    sus correos.
 
+4. Aplica a tu base de desarrollo las migraciones de `backend/migrations/`
+   que aún no tenga (cada archivo dice cómo correrlo). La base de pruebas
+   `clickwork_test` también las necesita.
+
 ## Scripts
 
 | Comando              | Qué hace                                            |

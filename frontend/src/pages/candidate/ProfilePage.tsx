@@ -28,7 +28,7 @@ import { useAuth } from "@/hooks/useAuth.ts"
 import { formatDate } from "@/lib/dates.ts"
 import { getProfileCompletion } from "@/lib/jobs.ts"
 import { ROLE_LABELS } from "@/lib/roles.ts"
-import { applyFieldErrors } from "@/lib/validation.ts"
+import { applyFieldErrors, firstNameRules, lastNameRules } from "@/lib/validation.ts"
 import { toApiError } from "@/services/api.ts"
 import { getCareers } from "@/services/careerService.ts"
 import { CV_MAX_BYTES, updateMe, uploadCv } from "@/services/userService.ts"
@@ -38,6 +38,8 @@ import type { User } from "@/types/models.ts"
 // Inputs hold strings; they are converted when building the request.
 // Names match the fields PUT /users/me validates.
 interface ProfileFormValues {
+    firstName: string
+    lastName: string
     phone: string
     careerId: string
     semester: string
@@ -47,10 +49,12 @@ interface ProfileFormValues {
     currentJob: string
 }
 
-const FIELD_NAMES = [ "phone", "careerId", "semester", "hostCompany", "project", "endDate", "currentJob" ] as const
+const FIELD_NAMES = [ "firstName", "lastName", "phone", "careerId", "semester", "hostCompany", "project", "endDate", "currentJob" ] as const
 
 function toFormValues( user: User ): ProfileFormValues {
     return {
+        firstName: user.firstName,
+        lastName: user.lastName,
         phone: user.phone ?? "",
         careerId: user.careerId?.toString() ?? "",
         semester: user.semester?.toString() ?? "",
@@ -63,6 +67,8 @@ function toFormValues( user: User ): ProfileFormValues {
 
 function toProfileInput( form: ProfileFormValues, user: User ): ProfileInput {
     const input: ProfileInput = {
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
         phone: form.phone.trim(),
         careerId: form.careerId ? Number( form.careerId ) : null,
     }
@@ -121,6 +127,19 @@ function ProfileForm( { user }: { user: User } ) {
 
             <form onSubmit={ handleSubmit( onSubmit ) } noValidate className="flex flex-col gap-4">
                 <div className="grid gap-4 sm:grid-cols-2">
+                    <TextField
+                        label="Nombre"
+                        autoComplete="given-name"
+                        error={ errors.firstName?.message }
+                        { ...register( "firstName", firstNameRules ) }
+                    />
+                    <TextField
+                        label="Apellido"
+                        autoComplete="family-name"
+                        error={ errors.lastName?.message }
+                        { ...register( "lastName", lastNameRules ) }
+                    />
+
                     {/* Email and account type cannot be changed: the backend has no route for it. */}
                     <TextField label="Correo electrónico" value={ user.email } disabled readOnly />
                     <TextField label="Tipo de cuenta" value={ ROLE_LABELS[ user.role ] } disabled readOnly />

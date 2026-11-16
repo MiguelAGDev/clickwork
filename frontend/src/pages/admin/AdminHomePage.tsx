@@ -21,6 +21,8 @@ import { Card } from "@/components/ui/Card.tsx"
 import { linkClasses } from "@/components/ui/linkClasses.ts"
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States.tsx"
 import { useAsyncData } from "@/hooks/useAsyncData.ts"
+import { useAuth } from "@/hooks/useAuth.ts"
+import { getDisplayName } from "@/lib/displayName.ts"
 import { getJobSummary } from "@/lib/jobs.ts"
 import { COMPANY_SIZE_LABELS } from "@/lib/labels.ts"
 import { getPendingCompanies, getPendingJobPostings, getUsers } from "@/services/adminService.ts"
@@ -29,6 +31,8 @@ import { getPendingCompanies, getPendingJobPostings, getUsers } from "@/services
 const PREVIEW = 3
 
 function AdminHomePage() {
+    const { user } = useAuth()
+
     // The backend has no summary endpoint: the numbers are the lengths of
     // the three lists, requested at the same time.
     const { data, error, isLoading, reload } = useAsyncData( "admin-home", async () => {
@@ -41,7 +45,7 @@ function AdminHomePage() {
 
     return (
         <>
-            <PageHeader title="Hola, Admin" subtitle="Esto es lo que espera tu revisión" />
+            <PageHeader title={ `Hola, ${ user ? getDisplayName( user ) : "Admin" }` } subtitle="Esto es lo que espera tu revisión" />
 
             <StatGrid>
                 <StatCard icon={ Building2 } value={ data?.companies.length ?? "—" } label="Empresas por revisar" to="/admin/companies" />

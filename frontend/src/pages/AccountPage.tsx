@@ -30,6 +30,8 @@ function AccountPage() {
 
             <SectionCard title="Datos de la cuenta">
                 <div className="grid gap-4 sm:grid-cols-2">
+                    <TextField label="Nombre" value={ user.firstName } disabled readOnly />
+                    <TextField label="Apellido" value={ user.lastName } disabled readOnly />
                     <TextField label="Correo electrónico" value={ user.email } disabled readOnly />
                     <TextField label="Tipo de cuenta" value={ ROLE_LABELS[ user.role ] } disabled readOnly />
                 </div>

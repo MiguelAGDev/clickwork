@@ -21,7 +21,7 @@ import { Link, NavLink, Outlet } from "react-router-dom"
 import { Logo } from "@/components/layout/Logo.tsx"
 import { LoadingState } from "@/components/ui/States.tsx"
 import { useAuth } from "@/hooks/useAuth.ts"
-import { getDisplayName, getInitials } from "@/lib/displayName.ts"
+import { getFullName, getInitials } from "@/lib/displayName.ts"
 import { getAccountPath, getNavItems } from "@/lib/navigation.ts"
 import type { NavItem } from "@/lib/navigation.ts"
 import { ROLE_LABELS } from "@/lib/roles.ts"
@@ -71,7 +71,6 @@ function MobileNav( { items, onNavigate }: { items: NavItem[], onNavigate: () =>
 // Gold avatar with the user initials; opens the account menu.
 function UserMenu( { user }: { user: User } ) {
     const { logout } = useAuth()
-    const name = getDisplayName( user.email )
 
     const itemClasses = "flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-foreground outline-none data-[highlighted]:bg-muted"
 
@@ -84,7 +83,7 @@ function UserMenu( { user }: { user: User } ) {
                 className="flex cursor-pointer items-center gap-2 rounded-full p-0.5 text-panel-muted"
             >
                 <span aria-hidden className="flex size-8 items-center justify-center rounded-full bg-primary text-[13px] font-bold text-primary-foreground">
-                    { getInitials( name ) }
+                    { getInitials( user ) }
                 </span>
                 <ChevronDown aria-hidden className="size-3.5" />
             </DropdownMenu.Trigger>
@@ -96,7 +95,8 @@ function UserMenu( { user }: { user: User } ) {
                     className="z-50 min-w-56 rounded-xl border border-border bg-popover p-1.5 shadow-lg"
                 >
                     <div className="px-2.5 py-2">
-                        <p className="truncate text-sm font-bold text-foreground">{ user.email }</p>
+                        <p className="truncate text-sm font-bold text-foreground">{ getFullName( user ) }</p>
+                        <p className="truncate text-[12.5px] text-muted-foreground">{ user.email }</p>
                         <p className="text-[12.5px] text-muted-foreground">{ ROLE_LABELS[ user.role ] }</p>
                     </div>
                     <DropdownMenu.Separator className="my-1 h-px bg-border" />

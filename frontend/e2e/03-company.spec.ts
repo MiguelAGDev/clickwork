@@ -30,8 +30,9 @@ test( "a company reviews an applicant and changes the status", async ( { page } 
     await row.getByRole( "link", { name: "Aplicantes" } ).click()
 
     // The student applied in the candidate tests.
+    await expect( page.getByRole( "heading", { name: "Laura Estudiante" } ) ).toBeVisible()
     await expect( page.getByRole( "link", { name: SEED_USERS.student } ) ).toBeVisible()
-    const status = page.getByLabel( `Estado de la postulación de ${ SEED_USERS.student }` )
+    const status = page.getByLabel( "Estado de la postulación de Laura Estudiante" )
     await expect( status ).toHaveValue( "pending" )
 
     await status.selectOption( "interview" )
@@ -39,7 +40,7 @@ test( "a company reviews an applicant and changes the status", async ( { page } 
 
     // Reload: the status really was saved in the database.
     await page.reload()
-    await expect( page.getByLabel( `Estado de la postulación de ${ SEED_USERS.student }` ) ).toHaveValue( "interview" )
+    await expect( page.getByLabel( "Estado de la postulación de Laura Estudiante" ) ).toHaveValue( "interview" )
 } )
 
 test( "a company publishes a posting, which waits for review", async ( { page } ) => {

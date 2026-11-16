@@ -232,10 +232,11 @@ describe( "ApplicantsPage", () => {
         )
         renderApp( <App />, "/company/jobs/1/applicants" )
 
-        expect( await screen.findByRole( "link", { name: "estudiante.seed@newman.test" } ) ).toHaveAttribute( "href", "mailto:estudiante.seed@newman.test" )
+        expect( await screen.findByRole( "heading", { name: "Laura Estudiante" } ) ).toBeInTheDocument()
+        expect( screen.getByRole( "link", { name: "estudiante.seed@newman.test" } ) ).toHaveAttribute( "href", "mailto:estudiante.seed@newman.test" )
         expect( screen.getByText( "Desarrollador de Software Jr. · 1 postulación" ) ).toBeInTheDocument()
 
-        const select = screen.getByLabelText( "Estado de la postulación de estudiante.seed@newman.test" )
+        const select = screen.getByLabelText( "Estado de la postulación de Laura Estudiante" )
         expect( select ).toHaveValue( "pending" )
         await user.selectOptions( select, "interview" )
 
@@ -254,7 +255,7 @@ describe( "ApplicantsPage", () => {
         )
         renderApp( <App />, "/company/jobs/1/applicants" )
 
-        const select = await screen.findByLabelText( "Estado de la postulación de estudiante.seed@newman.test" )
+        const select = await screen.findByLabelText( "Estado de la postulación de Laura Estudiante" )
         await user.selectOptions( select, "accepted" )
 
         expect( await screen.findByRole( "alert" ) ).toHaveTextContent( "No encontramos esta postulación." )
