@@ -102,7 +102,7 @@ function toJobPosting( row: Row ): JobPosting {
 // Body of POST/PUT /announcements. Empty optional fields go as null: the
 // validators skip null, but "" in a numeric field would fail.
 function toJobPostingBody( input: JobPostingInput ): Row {
-    return {
+    const body: Row = {
         jb_pst_job_title: input.title,
         jb_pst_requirements: input.requirements,
         jb_pst_benefits: input.benefits || null,
@@ -112,8 +112,13 @@ function toJobPostingBody( input: JobPostingInput ): Row {
         jb_pst_experience_level: input.experienceLevel,
         jb_pst_expiration_date: input.expirationDate,
         jb_pst_salary: input.salary,
-        careerIds: input.careerIds,
     }
+
+    // The backend only rewrites the careers when the list is present, so
+    // leaving it out is how an edit keeps the current ones.
+    if( input.careerIds !== undefined ) body.careerIds = input.careerIds
+
+    return body
 }
 
 // GET /applications/me -> application JOIN job_posting (SELECT *), so each

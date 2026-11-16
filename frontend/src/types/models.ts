@@ -85,7 +85,8 @@ interface JobPostingInput {
     experienceLevel: ExperienceLevel
     expirationDate: string
     salary: number | null
-    careerIds: number[]
+    // undefined = do not touch the careers the posting already has.
+    careerIds: number[] | undefined
 }
 
 // An application as the candidate sees it: its own status plus the posting.
