@@ -1,73 +1,45 @@
-# React + TypeScript + Vite
+# ClickWork — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interfaz web de ClickWork (bolsa de trabajo y residencias profesionales).
+React 19 + TypeScript + Vite 8 + Tailwind 4.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 20 o superior.
+- El backend de este repo corriendo (ver `../backend`).
 
-## React Compiler
+## Configuración
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Instala dependencias:
 
-## Expanding the ESLint configuration
+   ```bash
+   npm install
+   ```
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+2. Copia `.env.example` a `.env` y ajusta el puerto si tu backend usa otro:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+   ```bash
+   VITE_API_URL=http://localhost:3000
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+   `VITE_API_URL` es el origen del backend **sin** `/api`. Debe coincidir con
+   `PORT` en `backend/.env` (si `PORT` no está definido, el backend usa 5000).
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+3. En `backend/.env` deja `FRONTEND_URL=http://localhost:5173`. El backend
+   solo acepta peticiones de ese origen (CORS) y arma con él los enlaces de
+   sus correos.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Comando              | Qué hace                                            |
+| -------------------- | --------------------------------------------------- |
+| `npm run dev`        | Servidor de desarrollo en `http://localhost:5173`.  |
+| `npm run build`      | Revisa tipos (`tsc -b`) y genera `dist/`.           |
+| `npm run lint`       | ESLint sobre todo el proyecto.                      |
+| `npm test`           | Pruebas con Vitest + Testing Library + MSW.         |
+| `npm run test:watch` | Pruebas en modo observador.                         |
+| `npm run preview`    | Sirve el build de `dist/` para revisarlo.           |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+El servidor de desarrollo usa el puerto 5173 de forma estricta: si está
+ocupado, Vite falla en lugar de moverse a otro puerto, porque el backend
+rechazaría las peticiones por CORS.
