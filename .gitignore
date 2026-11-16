@@ -167,3 +167,6 @@ notclaude/
 # Playwright output (end-to-end tests of the frontend)
 frontend/test-results/
 frontend/playwright-report/
+
+# Schema migrations are source code, unlike the dumps above
+!backend/migrations/*.sql
