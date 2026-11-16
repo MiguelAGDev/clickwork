@@ -6,7 +6,13 @@
 //              and pending company listings.
 // Date: May 2nd 2026
 
-// Latest Update: Add getAllCompanies; drop SELECT * and alias columns
+// Latest Update: Add cmp_active (alias "active") to every select and
+//      toggleCompanyActive, so a company can pause itself without
+//      losing its account.
+// Date: November 16th 2026
+// By: Miguel Angel Avila Garcia
+//
+// Previous Update: Add getAllCompanies; drop SELECT * and alias columns
 // (cmp_* -> unprefixed) in findCompanyByUserId, getPendingCompanies,
 // getAllCompanies. Field rename required fixing 9 call sites across
 // applicationsController/userController/jobPostingController that read
@@ -76,6 +82,7 @@ async function findCompanyByUserId( userId ) {
             c.cmp_contact_email     AS contact_email,
             c.cmp_approval_status   AS approval_status,
             c.cmp_rejection_reason  AS rejection_reason,
+            c.cmp_active            AS active,
             au.ap_usr_permissions   AS permissions
         FROM company c
         JOIN app_user au ON au.ap_usr_id = c.cmp_id_user
@@ -171,6 +178,7 @@ async function getPendingCompanies() {
             c.cmp_contact_email     AS contact_email,
             c.cmp_approval_status   AS approval_status,
             c.cmp_rejection_reason  AS rejection_reason,
+            c.cmp_active            AS active,
             au.ap_usr_permissions   AS permissions
         FROM company c
         JOIN app_user au ON au.ap_usr_id = c.cmp_id_user
@@ -202,6 +210,7 @@ async function getAllCompanies() {
             c.cmp_contact_email     AS contact_email,
             c.cmp_approval_status   AS approval_status,
             c.cmp_rejection_reason  AS rejection_reason,
+            c.cmp_active            AS active,
             au.ap_usr_permissions   AS permissions
         FROM company c
         JOIN app_user au ON au.ap_usr_id = c.cmp_id_user
@@ -215,10 +224,33 @@ async function getAllCompanies() {
 }
 
 
+// Flips cmp_active: a paused company keeps its account (it can log in and
+// edit its data) but its postings leave the public listing. Returns the
+// new value, or null when there is no company for that user.
+async function toggleCompanyActive( userId ) {
+
+    const sql = `
+        UPDATE company
+        SET cmp_active = IF( cmp_active = 1, 0, 1 )
+        WHERE cmp_id_user = ?
+    `;
+
+    const [ result ] = await execute( sql, [ userId ] );
+
+    if ( !result.affectedRows ) return null;
+
+    const [ rows ] = await execute( `SELECT cmp_active AS active FROM company WHERE cmp_id_user = ?`, [ userId ] );
+
+    return Boolean( rows[0]?.active );
+
+}
+
+
 export {
     createCompany,
     findCompanyByUserId,
     updateCompany,
+    toggleCompanyActive,
     updateCompanyApprovalStatus,
     getPendingCompanies,
     getAllCompanies,

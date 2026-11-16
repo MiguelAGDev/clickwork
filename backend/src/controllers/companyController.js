@@ -5,16 +5,17 @@
 //              Handles creation, retrieval, update, and approval of companies.
 // Date: May 17th 2026
 
-// Lastest Update: Add toggleMyCompanyActive (self-service PATCH /toggle-active)
-// Date: September 2nd 2026
-// By: Claude (Sonnet 5), at Miguel's explicit request
+// Lastest Update: toggleMyCompanyActive now pauses the company
+//      (cmp_active) instead of deactivating the whole account.
+// Date: November 16th 2026
+// By: Miguel Angel Avila Garcia
 
 import {
     createCompany as createCompanyModel,
     findCompanyByUserId,
+    toggleCompanyActive,
     updateCompany
 } from '../models/companyModel.js';
-import { toggleUserActive } from '../models/userModel.js';
 
 // POST /api/companies
 // Creates a new company linked to the authenticated user
@@ -105,10 +106,10 @@ async function updateMyCompany(req, res, next) {
 }
 
 // PATCH /api/company/toggle-active
-// Self-service: lets the authenticated company toggle its own active
-// status. One-way in practice — once active = 0, authMiddleware blocks
-// every further request (including this one), so re-activating requires
-// an admin via PATCH /api/admin/users/:id/toggle-active.
+// Self-service: pauses or resumes the authenticated company. It flips
+// company.cmp_active, not the account flag: a paused company still logs
+// in and can call this again to resume. While paused, its postings are
+// left out of the public listing. Answers the new value as data.active.
 async function toggleMyCompanyActive(req, res, next) {
     try {
         if (req.user.role !== 'company') {
@@ -117,9 +118,9 @@ async function toggleMyCompanyActive(req, res, next) {
             return next(err);
         }
 
-        const affectedRows = await toggleUserActive(req.user.id);
+        const active = await toggleCompanyActive(req.user.id);
 
-        if (!affectedRows) {
+        if (active === null) {
             const err = new Error('Company not found.');
             err.statusCode = 404;
             return next(err);
@@ -127,7 +128,8 @@ async function toggleMyCompanyActive(req, res, next) {
 
         res.status(200).json({
             success: true,
-            message: 'Company active status toggled successfully.',
+            message: active ? 'Company resumed successfully.' : 'Company paused successfully.',
+            data: { active },
         });
     } catch (err) {
         next(err);
