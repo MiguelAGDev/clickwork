@@ -29,6 +29,10 @@ import { ApplicationsPage } from "@/pages/candidate/ApplicationsPage.tsx"
 import { JobDetailPage } from "@/pages/candidate/JobDetailPage.tsx"
 import { JobsPage } from "@/pages/candidate/JobsPage.tsx"
 import { ProfilePage } from "@/pages/candidate/ProfilePage.tsx"
+import { ApplicantsPage } from "@/pages/company/ApplicantsPage.tsx"
+import { CompanyJobsPage } from "@/pages/company/CompanyJobsPage.tsx"
+import { CompanyProfilePage } from "@/pages/company/CompanyProfilePage.tsx"
+import { JobFormPage } from "@/pages/company/JobFormPage.tsx"
 import { DashboardPage } from "@/pages/DashboardPage.tsx"
 import { InfoPage } from "@/pages/InfoPage.tsx"
 import { NotFoundPage } from "@/pages/NotFoundPage.tsx"
@@ -80,8 +84,11 @@ function App() {
                     </Route>
 
                     <Route element={ <ProtectedRoute roles={ [ "company" ] } /> }>
-                        <Route path="/company/jobs" element={ <PendingSectionPage title="Mis vacantes" /> } />
-                        <Route path="/company/profile" element={ <PendingSectionPage title="Perfil" /> } />
+                        <Route path="/company/jobs" element={ <CompanyJobsPage /> } />
+                        <Route path="/company/jobs/new" element={ <JobFormPage /> } />
+                        <Route path="/company/jobs/:id/edit" element={ <JobFormPage /> } />
+                        <Route path="/company/jobs/:id/applicants" element={ <ApplicantsPage /> } />
+                        <Route path="/company/profile" element={ <CompanyProfilePage /> } />
                     </Route>
 
                     <Route element={ <ProtectedRoute roles={ [ "admin" ] } /> }>
