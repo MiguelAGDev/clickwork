@@ -82,9 +82,9 @@ describe( "userService", () => {
             http.get( `${ API }/users/me`, () => ok( { ...studentRow, semester: 7 } ) )
         )
 
-        const user = await updateMe( { phone: "8711234567", careerId: 1, semester: 7 } )
+        const user = await updateMe( { firstName: "Laura", lastName: "Estudiante", phone: "8711234567", careerId: 1, semester: 7 } )
 
-        expect( body ).toEqual( { phone: "8711234567", careerId: 1, semester: 7 } )
+        expect( body ).toEqual( { firstName: "Laura", lastName: "Estudiante", phone: "8711234567", careerId: 1, semester: 7 } )
         expect( user.semester ).toBe( 7 )
         expect( user.role ).toBe( "student" )
     } )
@@ -179,6 +179,8 @@ describe( "applicationService", () => {
             status: "pending",
             applicantId: 2,
             jobPostingId: 1,
+            firstName: "Laura",
+            lastName: "Estudiante",
             email: "estudiante.seed@newman.test",
             phone: "8711234567",
             cvUrl: null,
@@ -241,6 +243,8 @@ describe( "adminService", () => {
 
         expect( users[ 0 ] ).toEqual( {
             id: 5,
+            firstName: "Marcela",
+            lastName: "Empresa",
             email: "empresa.seed@newman.test",
             phone: "8718889999",
             active: true,

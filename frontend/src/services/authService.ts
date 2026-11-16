@@ -27,6 +27,8 @@ interface LoginResult {
 // 422 error path can be matched to a form field with no translation table.
 interface RegisterInput {
     role: Exclude<Role, "admin">    // admin accounts are not self-registered
+    firstName: string
+    lastName: string
     email: string
     password: string
     phone?: string

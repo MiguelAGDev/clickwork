@@ -21,6 +21,8 @@ import type { User } from "@/types/models.ts"
 // Fields PUT /users/me accepts. Which role fields apply depends on the
 // role in the token; the backend ignores the ones of other roles.
 interface ProfileInput {
+    firstName: string
+    lastName: string
     phone: string
     careerId: number | null
     semester?: number | null        // student

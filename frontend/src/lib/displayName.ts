@@ -3,31 +3,44 @@
 //      * Miguel Angel Avila Garcia
 //
 // Description:
-//      A name to greet the user with. The backend stores no first or
-//      last name (only the email), so the name is taken from the part of
-//      the email before the @.
+//      How a user is named on screen: the full name, the first name for
+//      greetings and the initials for the avatar circle. Accounts
+//      created before names existed may have an empty last name, so
+//      every helper copes with blanks.
 //
 // Date: November 16th 2026
 
-// Latest Update:
-// Date:
-// By:
+// Latest Update: Use the first and last name the backend now stores
+//      instead of guessing a name from the email.
+// Date: November 16th 2026
+// By: Miguel Angel Avila Garcia
 
-// "miguel.avila23@correo.com" -> "Miguel". Only the first word of the
-// local part is used: what follows a dot, dash or digit is usually a last
-// name or a number, and guessing how to format it tends to look wrong.
-function getDisplayName( email: string ): string {
-    const local = email.split( "@" )[ 0 ] ?? ""
-    const first = local.split( /[._\-+0-9]/ ).find( ( part ) => part.length > 0 ) ?? local
-
-    if( !first ) return "Usuario"
-
-    return first.charAt( 0 ).toUpperCase() + first.slice( 1 ).toLowerCase()
+interface Named {
+    firstName: string
+    lastName: string
+    email: string
 }
 
-// Two letters for the avatar circle: "Miguel" -> "MI".
-function getInitials( name: string ): string {
-    return name.slice( 0, 2 ).toUpperCase()
+// "Laura Estudiante". Falls back to the email when both names are blank.
+function getFullName( user: Named ): string {
+    const full = `${ user.firstName } ${ user.lastName }`.trim()
+    return full || user.email
 }
 
-export { getDisplayName, getInitials }
+// What the greeting uses: "Hola, Laura".
+function getDisplayName( user: Named ): string {
+    return user.firstName.trim() || getFullName( user )
+}
+
+// "Laura Estudiante" -> "LE"; a single name gives its first two letters.
+function getInitials( user: Named ): string {
+    const first = user.firstName.trim()
+    const last = user.lastName.trim()
+
+    if( first && last ) return ( first[ 0 ] + last[ 0 ] ).toUpperCase()
+
+    return ( first || last || user.email ).slice( 0, 2 ).toUpperCase()
+}
+
+export { getFullName, getDisplayName, getInitials }
+export type { Named }

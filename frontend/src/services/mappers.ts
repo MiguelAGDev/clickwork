@@ -53,6 +53,8 @@ function num( value: unknown ): number | null {
 function toUser( row: Row ): User {
     return {
         id: Number( row.id ),
+        firstName: text( row.first_name ) ?? "",
+        lastName: text( row.last_name ) ?? "",
         email: String( row.email ),
         phone: text( row.phone ),
         role: row.role as Role,
@@ -140,6 +142,8 @@ function toApplicant( row: Row ): Applicant {
         status: row.status as ApplicationStatus,
         applicantId: Number( row.applicant_id ),
         jobPostingId: Number( row.job_posting_id ),
+        firstName: text( row.applicant_first_name ) ?? "",
+        lastName: text( row.applicant_last_name ) ?? "",
         email: String( row.applicant_email ),
         phone: text( row.applicant_phone ),
         cvUrl: text( row.applicant_cv_url ),
@@ -179,6 +183,8 @@ function toCompanyBody( input: CompanyInput ): Row {
 function toAdminUser( row: Row ): AdminUser {
     return {
         id: Number( row.id ),
+        firstName: text( row.first_name ) ?? "",
+        lastName: text( row.last_name ) ?? "",
         email: String( row.email ),
         phone: text( row.phone ),
         active: Boolean( row.active ),

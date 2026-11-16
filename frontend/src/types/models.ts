@@ -35,6 +35,8 @@ type CompanySize = "micro" | "small" | "medium" | "large"
 // Role fields that do not apply to the current role are always null.
 interface User {
     id: number
+    firstName: string
+    lastName: string
     email: string
     phone: string | null
     role: Role
@@ -104,6 +106,8 @@ interface Applicant {
     status: ApplicationStatus
     applicantId: number
     jobPostingId: number
+    firstName: string
+    lastName: string
     email: string
     phone: string | null
     cvUrl: string | null
@@ -135,6 +139,8 @@ interface CompanyInput {
 // Row of the admin user list: the user plus a summary of its role table.
 interface AdminUser {
     id: number
+    firstName: string
+    lastName: string
     email: string
     phone: string | null
     active: boolean

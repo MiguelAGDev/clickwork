@@ -37,6 +37,21 @@ const newPasswordRules = {
 
 const PASSWORD_HINT = "Mínimo 8 caracteres, con una mayúscula y un número."
 
+// Same limit as the backend (and the varchar(150) column).
+const NAME_MAX = 150
+
+const firstNameRules = {
+    required: "Escribe tu nombre.",
+    validate: ( value: string ) => value.trim().length > 0 || "Escribe tu nombre.",
+    maxLength: { value: NAME_MAX, message: `El nombre no puede pasar de ${ NAME_MAX } caracteres.` },
+} satisfies RegisterOptions
+
+const lastNameRules = {
+    required: "Escribe tu apellido.",
+    validate: ( value: string ) => value.trim().length > 0 || "Escribe tu apellido.",
+    maxLength: { value: NAME_MAX, message: `El apellido no puede pasar de ${ NAME_MAX } caracteres.` },
+} satisfies RegisterOptions
+
 // Marks on the form the fields the backend rejected (422). "fields" is the
 // list of names the form really has: an error for any other field cannot
 // be shown next to an input, so it is reported back as not handled.
@@ -60,4 +75,4 @@ function applyFieldErrors<Name extends string>(
     return { apiError, handled: entries.length > 0 && matched === entries.length }
 }
 
-export { REQUIRED, emailRules, newPasswordRules, PASSWORD_HINT, applyFieldErrors }
+export { REQUIRED, emailRules, newPasswordRules, firstNameRules, lastNameRules, PASSWORD_HINT, applyFieldErrors }

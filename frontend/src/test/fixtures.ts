@@ -21,6 +21,8 @@ type Row = Record<string, unknown>
 // from the token) merged with the fields of the role table.
 const studentRow: Row = {
     id: 2,
+    first_name: "Laura",
+    last_name: "Estudiante",
     email: "estudiante.seed@newman.test",
     phone: "8711234567",
     active: 1,
@@ -35,6 +37,8 @@ const studentRow: Row = {
 
 const internRow: Row = {
     id: 3,
+    first_name: "Pablo",
+    last_name: "Residente",
     email: "intern.seed@newman.test",
     phone: "8717654321",
     active: 1,
@@ -52,6 +56,8 @@ const internRow: Row = {
 
 const graduateRow: Row = {
     id: 4,
+    first_name: "Carlos",
+    last_name: "Egresado",
     email: "graduado.seed@newman.test",
     phone: null,
     active: 1,
@@ -67,6 +73,8 @@ const graduateRow: Row = {
 
 const companyUserRow: Row = {
     id: 5,
+    first_name: "Marcela",
+    last_name: "Empresa",
     email: "empresa.seed@newman.test",
     phone: "8718889999",
     active: 1,
@@ -80,6 +88,8 @@ const companyUserRow: Row = {
 
 const adminRow: Row = {
     id: 1,
+    first_name: "Ana",
+    last_name: "Administradora",
     email: "admin.seed@newman.test",
     phone: null,
     active: 1,
@@ -161,6 +171,8 @@ const applicantRow: Row = {
     status: "pending",
     applicant_id: 2,
     job_posting_id: 1,
+    applicant_first_name: "Laura",
+    applicant_last_name: "Estudiante",
     applicant_email: "estudiante.seed@newman.test",
     applicant_phone: "8711234567",
     applicant_cv_url: null,
@@ -191,17 +203,17 @@ const pendingCompanyRow: Row = {
 // --- GET /admin/users ---
 const adminUserRows: Row[] = [
     {
-        id: 5, email: "empresa.seed@newman.test", phone: "8718889999", active: 1, email_verified: 1,
+        id: 5, first_name: "Marcela", last_name: "Empresa", email: "empresa.seed@newman.test", phone: "8718889999", active: 1, email_verified: 1,
         role: "company", cv_url: null, career_id: null, career_name: null,
         company_name: "Manufactura Digital de la Laguna", company_approval_status: "approved",
     },
     {
-        id: 2, email: "estudiante.seed@newman.test", phone: "8711234567", active: 1, email_verified: 1,
+        id: 2, first_name: "Laura", last_name: "Estudiante", email: "estudiante.seed@newman.test", phone: "8711234567", active: 1, email_verified: 1,
         role: "student", cv_url: null, career_id: 1, career_name: "Ingeniería Sistemas Computacionales",
         company_name: null, company_approval_status: null,
     },
     {
-        id: 1, email: "admin.seed@newman.test", phone: null, active: 1, email_verified: 1,
+        id: 1, first_name: "Ana", last_name: "Administradora", email: "admin.seed@newman.test", phone: null, active: 1, email_verified: 1,
         role: "admin", cv_url: null, career_id: null, career_name: null,
         company_name: null, company_approval_status: null,
     },
