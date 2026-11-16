@@ -14,10 +14,12 @@
 // Date:
 // By:
 
-import { StrictMode } from "react";             // StrictMode: React dev-only mode that catches common bugs (impure side-effects, etc.) by running some parts twice — does nothing in production.
-import { createRoot } from "react-dom/client";  // createRoot: connects Reat to a real DOM element in the browser. Bridge between 'Real World' and HTML 
+// Dependencies imports
+import { StrictMode }    from "react";             // StrictMode: React dev-only mode that catches common bugs (impure side-effects, etc.) by running some parts twice — does nothing in production.
+import { createRoot }    from "react-dom/client";  // createRoot: connects Reat to a real DOM element in the browser. Bridge between 'Real World' and HTML 
+import { BrowserRouter } from "react-router-dom";  // BrowserROuter: Wraps the whole app and turns the URL changes, without a full page reloat ( Single Page Application )
 
-// IT DON EXIST YET;
+// My own imports
 import { App }            from "@/App.tsx"          // The root component for the whole app. Everything else lives inside it.
 import "@/index.css"                            // Base CSS ( Tailwind + Shadcn theme ). Imported here to use it in the WHOLE app.
 // '@/' Search on src instead './' that says in this root
@@ -30,7 +32,9 @@ import "@/index.css"                            // Base CSS ( Tailwind + Shadcn 
 createRoot ( document.getElementById( "root" )! ).render(
 
     <StrictMode>  
-        <App />
+        <BrowserRouter>
+            <App />
+        </BrowserRouter>
     </StrictMode>
 
 )

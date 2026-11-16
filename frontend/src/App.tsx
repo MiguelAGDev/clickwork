@@ -9,6 +9,8 @@
 //
 // Date: September 24th 2026
 
+import { Routes,Route } from "react-router-dom"
+
 // Latest Update:
 // Date:
 // By:
@@ -20,8 +22,16 @@ function App(){
 
     // JSX: this is HTML - looking sintax inside TS function is not real HTML
     // it compiles in JS, thats why .tsx intead .ts
-    return <h1>ClickWork</h1>
+    
+    return( 
 
+        // Placeholder
+        <Routes>
+            <Route path="/login" element={<h1> Login </h1>}/>
+            <Route path="/dashboard" element={<h1> Dashboard </h1>}/>
+        </Routes>
+
+    )
 }
 
 export { App }
