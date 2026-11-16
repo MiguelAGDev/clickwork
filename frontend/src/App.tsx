@@ -25,6 +25,10 @@ import { LoginPage } from "@/pages/auth/LoginPage.tsx"
 import { RegisterPage } from "@/pages/auth/RegisterPage.tsx"
 import { ResetPasswordPage } from "@/pages/auth/ResetPasswordPage.tsx"
 import { VerifyEmailPage } from "@/pages/auth/VerifyEmailPage.tsx"
+import { ApplicationsPage } from "@/pages/candidate/ApplicationsPage.tsx"
+import { JobDetailPage } from "@/pages/candidate/JobDetailPage.tsx"
+import { JobsPage } from "@/pages/candidate/JobsPage.tsx"
+import { ProfilePage } from "@/pages/candidate/ProfilePage.tsx"
 import { DashboardPage } from "@/pages/DashboardPage.tsx"
 import { InfoPage } from "@/pages/InfoPage.tsx"
 import { NotFoundPage } from "@/pages/NotFoundPage.tsx"
@@ -69,9 +73,10 @@ function App() {
 
                     {/* Candidates: student, intern and graduate. */}
                     <Route element={ <ProtectedRoute roles={ CANDIDATE_ROLES } /> }>
-                        <Route path="/jobs" element={ <PendingSectionPage title="Vacantes" /> } />
-                        <Route path="/applications" element={ <PendingSectionPage title="Aplicaciones" /> } />
-                        <Route path="/profile" element={ <PendingSectionPage title="Perfil" /> } />
+                        <Route path="/jobs" element={ <JobsPage /> } />
+                        <Route path="/jobs/:id" element={ <JobDetailPage /> } />
+                        <Route path="/applications" element={ <ApplicationsPage /> } />
+                        <Route path="/profile" element={ <ProfilePage /> } />
                     </Route>
 
                     <Route element={ <ProtectedRoute roles={ [ "company" ] } /> }>

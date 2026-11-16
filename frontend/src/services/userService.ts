@@ -24,10 +24,10 @@ interface ProfileInput {
     phone: string
     careerId: number | null
     semester?: number | null        // student
-    hostCompany?: string            // intern
-    project?: string                // intern
-    endDate?: string                // intern
-    currentJob?: string             // graduate
+    hostCompany?: string | null     // intern
+    project?: string | null         // intern
+    endDate?: string | null         // intern
+    currentJob?: string | null      // graduate
 }
 
 const CV_MAX_BYTES = 5 * 1024 * 1024     // Same limit as the backend (multer).

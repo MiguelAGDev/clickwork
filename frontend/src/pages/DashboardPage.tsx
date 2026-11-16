@@ -16,13 +16,18 @@
 import { PageHeader } from "@/components/layout/PageHeader.tsx"
 import { useAuth } from "@/hooks/useAuth.ts"
 import { getDisplayName } from "@/lib/displayName.ts"
+import { isCandidate } from "@/lib/roles.ts"
+import { CandidateHomePage } from "@/pages/candidate/CandidateHomePage.tsx"
 
 function DashboardPage() {
     const { user } = useAuth()
 
     if( !user ) return null     // Never happens inside ProtectedRoute.
 
-    // The home of each role replaces this greeting in its own step.
+    if( isCandidate( user.role ) ) return <CandidateHomePage user={ user } />
+
+    // The home of the company and the admin replace this greeting in
+    // their own steps.
     return (
         <PageHeader
             title={ `Hola, ${ getDisplayName( user.email ) }` }
