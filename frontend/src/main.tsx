@@ -10,9 +10,9 @@
 //
 // Date: September 24th 2026
 
-// Latest Update:
-// Date:
-// By:
+// Latest Update: Wrap the app in AuthProvider so every screen can read the session.
+// Date: November 16th 2026
+// By: Miguel Angel Avila Garcia
 
 // Dependencies imports
 import { StrictMode }    from "react";             // StrictMode: React dev-only mode that catches common bugs (impure side-effects, etc.) by running some parts twice — does nothing in production.
@@ -20,6 +20,7 @@ import { createRoot }    from "react-dom/client";  // createRoot: connects Reat 
 import { BrowserRouter } from "react-router-dom";  // BrowserROuter: Wraps the whole app and turns the URL changes, without a full page reloat ( Single Page Application )
 
 // My own imports
+import { AuthProvider }   from "@/context/AuthProvider.tsx"  // AuthProvider: keeps who is logged in. It sits above <App /> so every screen can ask for the user.
 import { App }            from "@/App.tsx"          // The root component for the whole app. Everything else lives inside it.
 import "@/index.css"                            // Base CSS ( Tailwind + Shadcn theme ). Imported here to use it in the WHOLE app.
 // '@/' Search on src instead './' that says in this root
@@ -33,7 +34,9 @@ createRoot ( document.getElementById( "root" )! ).render(
 
     <StrictMode>  
         <BrowserRouter>
-            <App />
+            <AuthProvider>
+                <App />
+            </AuthProvider>
         </BrowserRouter>
     </StrictMode>
 
