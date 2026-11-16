@@ -163,3 +163,7 @@ notclaude/
 
 # PDF fixtures for tests (may contain real personal info, e.g. a real resume)
 *.pdf
+
+# Playwright output (end-to-end tests of the frontend)
+frontend/test-results/
+frontend/playwright-report/

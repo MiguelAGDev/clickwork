@@ -19,6 +19,8 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    // Only the unit tests in src/. The e2e/ folder belongs to Playwright.
+    include: ["src/**/*.test.{ts,tsx}"],
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     css: false,
