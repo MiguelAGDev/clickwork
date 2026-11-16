@@ -6,9 +6,11 @@
 //              content updates, and the admin approval workflow.
 // Date: May 5th 2026
 
-// Latest Update:
-// Date:
-// By:
+// Latest Update: Join the company on every read (name, city, state); the
+//      public list skips expired postings and paused companies, and joins
+//      careers only when filtering by one (no more duplicated rows).
+// Date: November 16th 2026
+// By: Miguel Angel Avila Garcia
 
 import { execute } from '../config/db.js';
 
@@ -70,14 +72,23 @@ async function createJobPosting( companyId, {
 }
 
 
-// Fetches a single job posting by primary key.
+// Columns of the company that owns a posting, added to every posting read.
+// The frontend shows them on each card ("Grupo Nexo · Guadalajara, JAL").
+const COMPANY_COLUMNS = `
+            c.cmp_name  AS company_name,
+            c.cmp_city  AS company_city,
+            c.cmp_state AS company_state`;
+
+
+// Fetches a single job posting by primary key, with its company name.
 // Returns null if not found. Used by convocatoriasController (detail page).
 async function findJobPostingById( id ) {
 
     const sql = `
-        SELECT *
-        FROM job_posting
-        WHERE jb_pst_id = ?
+        SELECT jp.*, ${ COMPANY_COLUMNS }
+        FROM job_posting jp
+        JOIN company c ON c.cmp_id_user = jp.jb_pst_id_company
+        WHERE jp.jb_pst_id = ?
     `;
 
     const [ rows ] = await execute( sql, [ id ] );
@@ -92,9 +103,10 @@ async function findJobPostingById( id ) {
 async function findJobPostingsByCompany( companyId ) {
 
     const sql = `
-        SELECT *
-        FROM job_posting
-        WHERE jb_pst_id_company = ?
+        SELECT jp.*, ${ COMPANY_COLUMNS }
+        FROM job_posting jp
+        JOIN company c ON c.cmp_id_user = jp.jb_pst_id_company
+        WHERE jp.jb_pst_id_company = ?
     `;
 
     const [ rows ] = await execute( sql, [ companyId ] );
@@ -104,17 +116,26 @@ async function findJobPostingsByCompany( companyId ) {
 }
 
 
-// Returns all approved job postings with optional filters.
+// Returns the approved, open job postings with optional filters.
 // Accepts modality, contract_type, experience_level, career_id, and a text search.
+// Open means: not expired, and its company has not paused itself.
 // Used by convocatoriasController for the browse/search page.
 async function getAllJobPostings( filters = {} ) {
 
+    // The careers table is joined only when filtering by career: a posting
+    // with several careers would otherwise come back once per career.
+    const careerJoin = filters.career_id
+        ? `JOIN job_posting_career jpc ON jp.jb_pst_id = jpc.jpc_id_job_posting`
+        : ``;
+
     let query = `
-        SELECT jp.*
+        SELECT DISTINCT jp.*, ${ COMPANY_COLUMNS }
         FROM job_posting jp
-        LEFT JOIN job_posting_career jpc
-            ON jp.jb_pst_id = jpc.jpc_id_job_posting
+        JOIN company c ON c.cmp_id_user = jp.jb_pst_id_company
+        ${ careerJoin }
         WHERE jp.jb_pst_approval_status = 'approved'
+          AND c.cmp_active = 1
+          AND ( jp.jb_pst_expiration_date IS NULL OR jp.jb_pst_expiration_date >= CURDATE() )
     `;
 
     const values = [];

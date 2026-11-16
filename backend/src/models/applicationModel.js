@@ -6,8 +6,9 @@
 //              by user and by job posting.
 // Date: May 5th 2026
 
-// Latest Update: Add findApplicationById and updateApplicationStatus
-// Date: August 26th 2026
+// Latest Update: findApplicationsByUser also returns the company name,
+//      city and state of each posting.
+// Date: November 16th 2026
 // By: Miguel Angel Avila Garcia
 
 import { execute } from '../config/db.js';
@@ -40,10 +41,17 @@ async function createApplication( userId, jobPostingId ) {
 async function findApplicationsByUser( userId ) {
 
     const sql = `
-        SELECT *
+        SELECT
+            a.*,
+            jp.*,
+            c.cmp_name  AS company_name,
+            c.cmp_city  AS company_city,
+            c.cmp_state AS company_state
         FROM application a
         JOIN job_posting jp
             ON a.app_id_job_posting = jp.jb_pst_id
+        JOIN company c
+            ON c.cmp_id_user = jp.jb_pst_id_company
         WHERE a.app_id_user = ?
     `;
 

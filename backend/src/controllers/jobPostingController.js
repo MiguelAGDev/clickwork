@@ -6,9 +6,11 @@
 //              of job postings.
 // Date: May 17th 2026
 
-// Lastest Update: Update company.cmp_* refs to unprefixed names (companyModel field rename)
-// Date: September 2nd 2026
-// By: Claude (Sonnet 5), at Miguel's explicit request
+// Lastest Update: Pass the list filters to the model with the keys it
+//      reads (contract_type, experience_level, career_id); accept
+//      careerId and career_id in the URL.
+// Date: November 16th 2026
+// By: Miguel Angel Avila Garcia
 
 
 import {
@@ -143,16 +145,18 @@ async function getAllJobPostings(req, res, next) {
 
     try {
 
-        // Build filters object from query params
+        // Build filters object from query params. The keys are the ones
+        // the model reads (snake_case, like the columns); the URL accepts
+        // both spellings of the career filter.
         const filters = {
 
             modality: req.query.modality,
 
-            contractType: req.query.contractType,
+            contract_type: req.query.contractType,
 
-            experienceLevel: req.query.experienceLevel,
+            experience_level: req.query.experienceLevel,
 
-            careerId: req.query.career_id,
+            career_id: req.query.careerId ?? req.query.career_id,
 
             search: req.query.search
 
