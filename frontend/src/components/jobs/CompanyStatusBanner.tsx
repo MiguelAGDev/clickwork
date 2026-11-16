@@ -19,7 +19,16 @@ import { Alert } from "@/components/ui/Alert.tsx"
 import type { Company } from "@/types/models.ts"
 
 function CompanyStatusBanner( { company }: { company: Company } ) {
-    if( company.approvalStatus === "approved" ) return null
+    if( company.approvalStatus === "approved" ) {
+        if( company.active ) return null
+
+        return (
+            <Alert tone="warning" title="Tu empresa está en pausa">
+                Tus vacantes no se muestran a los candidatos. Puedes reanudarla en el{ " " }
+                <Link to="/company/profile" className="font-bold underline">perfil de la empresa</Link>.
+            </Alert>
+        )
+    }
 
     if( company.approvalStatus === "pending" ) {
         return (

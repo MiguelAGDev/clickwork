@@ -24,6 +24,7 @@ interface JobPostingFilters {
     modality?: Modality | ""
     contractType?: ContractType | ""
     experienceLevel?: ExperienceLevel | ""
+    careerId?: number | null
 }
 
 // The list joins job_posting_career, so a posting linked to several
@@ -37,21 +38,19 @@ function dedupeById( postings: JobPosting[] ): JobPosting[] {
     } )
 }
 
-// Approved postings only (the backend filters by status).
+// Open postings only: the backend leaves out the unapproved, the expired
+// and the ones of a paused company, and applies every filter itself.
 async function getJobPostings( filters: JobPostingFilters = {} ): Promise<JobPosting[]> {
-    // Only "search" and "modality" are sent: they are the filters the
-    // backend really applies today. Contract type and experience level are
-    // accepted by the route but never reach the SQL, so they are applied
-    // here, on the result, to behave the same once the backend is fixed.
     const params: Record<string, string> = {}
     if( filters.search?.trim() ) params.search = filters.search.trim()
     if( filters.modality ) params.modality = filters.modality
+    if( filters.contractType ) params.contractType = filters.contractType
+    if( filters.experienceLevel ) params.experienceLevel = filters.experienceLevel
+    if( filters.careerId ) params.careerId = String( filters.careerId )
 
     const { data } = await api.get<ApiResponse<Row[]>>( "/announcements", { params } )
 
     return dedupeById( data.data.map( toJobPosting ) )
-        .filter( ( p ) => !filters.contractType || p.contractType === filters.contractType )
-        .filter( ( p ) => !filters.experienceLevel || p.experienceLevel === filters.experienceLevel )
 }
 
 // Returns the posting whatever its approval status (the route is public

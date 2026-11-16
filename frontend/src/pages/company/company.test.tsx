@@ -62,7 +62,10 @@ describe( "CompanyHomePage", () => {
 
         renderApp( <App />, "/dashboard" )
 
-        expect( await screen.findByRole( "heading", { name: "Hola, Manufactura Digital de la Laguna" } ) ).toBeInTheDocument()
+        // Three requests in a row (company, postings, then applicants) before
+        // the name shows: give it more than the default second when the whole
+        // suite runs at once.
+        expect( await screen.findByRole( "heading", { name: "Hola, Manufactura Digital de la Laguna" }, { timeout: 4000 } ) ).toBeInTheDocument()
         expect( screen.getByRole( "link", { name: /Vacantes publicadas/ } ) ).toHaveTextContent( "1" )
         expect( screen.getByRole( "link", { name: /Vacantes en revisión/ } ) ).toHaveTextContent( "1" )
         expect( screen.getByText( "Postulaciones recibidas" ).parentElement ).toHaveTextContent( "2" )
@@ -318,36 +321,41 @@ describe( "CompanyProfilePage", () => {
         } )
     } )
 
-    test( "asks for confirmation before deactivating and then closes the session", async () => {
+    test( "pauses the company after confirming, and can resume it", async () => {
         const user = userEvent.setup()
-        let called = false
+        let active = true
         mockCompany()
         server.use( http.patch( `${ API }/company/toggle-active`, () => {
-            called = true
-            return HttpResponse.json( { success: true, message: "Company active status toggled successfully." } )
+            active = !active
+            return HttpResponse.json( { success: true, message: "ok", data: { active } } )
         } ) )
         renderApp( <App />, "/company/profile" )
 
-        await user.click( await screen.findByRole( "button", { name: "Desactivar mi cuenta" } ) )
+        await user.click( await screen.findByRole( "button", { name: "Pausar empresa" } ) )
 
         const dialog = await screen.findByRole( "alertdialog" )
-        expect( dialog ).toHaveTextContent( /no podrás volver a entrar/ )
-        expect( called ).toBe( false )     // Nothing is sent until the user confirms.
+        expect( dialog ).toHaveTextContent( /Tu cuenta sigue activa/ )
+        expect( active ).toBe( true )      // Nothing is sent until the user confirms.
 
-        await user.click( within( dialog ).getByRole( "button", { name: "Sí, desactivar" } ) )
+        await user.click( within( dialog ).getByRole( "button", { name: "Sí, pausar" } ) )
 
-        expect( await screen.findByRole( "heading", { name: "Inicia sesión" } ) ).toBeInTheDocument()
-        expect( screen.getByText( "Tu cuenta quedó desactivada." ) ).toBeInTheDocument()
-        expect( called ).toBe( true )
-        expect( getToken() ).toBeNull()
+        // Still logged in, on the same screen, with the paused notice.
+        expect( await screen.findByRole( "button", { name: "Reanudar empresa" } ) ).toBeInTheDocument()
+        expect( screen.getByText( "Tu empresa está en pausa" ) ).toBeInTheDocument()
+        expect( getToken() ).not.toBeNull()
+
+        await user.click( screen.getByRole( "button", { name: "Reanudar empresa" } ) )
+
+        expect( await screen.findByRole( "button", { name: "Pausar empresa" } ) ).toBeInTheDocument()
+        expect( screen.queryByText( "Tu empresa está en pausa" ) ).not.toBeInTheDocument()
     } )
 
-    test( "cancelling the confirmation deactivates nothing", async () => {
+    test( "cancelling the confirmation pauses nothing", async () => {
         const user = userEvent.setup()
         mockCompany()
         renderApp( <App />, "/company/profile" )
 
-        await user.click( await screen.findByRole( "button", { name: "Desactivar mi cuenta" } ) )
+        await user.click( await screen.findByRole( "button", { name: "Pausar empresa" } ) )
         await user.click( within( await screen.findByRole( "alertdialog" ) ).getByRole( "button", { name: "Cancelar" } ) )
 
         // No handler for PATCH /company/toggle-active: calling it would fail the test.

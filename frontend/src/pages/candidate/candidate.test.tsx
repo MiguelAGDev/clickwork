@@ -93,7 +93,7 @@ describe( "JobsPage", () => {
 
         expect( await screen.findByText( "2 vacantes" ) ).toBeInTheDocument()
         expect( screen.getByRole( "link", { name: "Desarrollador de Software Jr." } ) ).toBeInTheDocument()
-        expect( screen.getByText( "Híbrido · Tiempo completo · Junior · $15,000 al mes" ) ).toBeInTheDocument()
+        expect( screen.getByText( "Manufactura Digital de la Laguna · Torreón, Coahuila · Híbrido · Tiempo completo · Junior · $15,000 al mes" ) ).toBeInTheDocument()
     } )
 
     test( "hides jobs whose expiration date already passed", async () => {
@@ -106,10 +106,19 @@ describe( "JobsPage", () => {
         expect( screen.queryByRole( "link", { name: "Practicante de Recursos Humanos" } ) ).not.toBeInTheDocument()
     } )
 
-    test( "filters by contract type", async () => {
+    test( "filters by contract type through the backend", async () => {
         const user = userEvent.setup()
         mockSession( studentRow )
-        mockJobsAndApplications( [ jobRow, internshipJobRow ], [] )
+        const seen: ( string | null )[] = []
+        server.use(
+            // The backend applies the filter; the mock does the same.
+            http.get( `${ API }/announcements`, ( { request } ) => {
+                const contract = new URL( request.url ).searchParams.get( "contractType" )
+                seen.push( contract )
+                return ok( [ jobRow, internshipJobRow ].filter( ( row ) => !contract || row.jb_pst_contract_type === contract ) )
+            } ),
+            http.get( `${ API }/applications/me`, () => ok( [] ) )
+        )
         renderApp( <App />, "/jobs" )
         await screen.findByText( "2 vacantes" )
 
@@ -117,6 +126,7 @@ describe( "JobsPage", () => {
 
         expect( await screen.findByText( "1 vacante" ) ).toBeInTheDocument()
         expect( screen.getByRole( "link", { name: "Practicante de Recursos Humanos" } ) ).toBeInTheDocument()
+        expect( seen ).toEqual( [ null, "internship" ] )
     } )
 
     test( "sends the search to the backend and explains an empty result", async () => {

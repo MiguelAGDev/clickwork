@@ -109,17 +109,27 @@ describe( "jobPostingService", () => {
         expect( postings[ 1 ].salary ).toBe( 6000 )     // arrived as "6000.00"
     } )
 
-    test( "getJobPostings sends only the filters the backend applies and filters the rest itself", async () => {
+    test( "getJobPostings sends every filter to the backend", async () => {
         let query: URLSearchParams | null = null
         server.use( http.get( `${ API }/announcements`, ( { request } ) => {
             query = new URL( request.url ).searchParams
-            return ok( [ jobRow, internshipJobRow ] )
+            return ok( [ internshipJobRow ] )
         } ) )
 
-        const postings = await getJobPostings( { search: " recursos ", modality: "on-site", contractType: "internship" } )
+        const postings = await getJobPostings( { search: " recursos ", modality: "on-site", contractType: "internship", experienceLevel: "junior", careerId: 8 } )
 
-        expect( Object.fromEntries( query! ) ).toEqual( { search: "recursos", modality: "on-site" } )
+        expect( Object.fromEntries( query! ) ).toEqual( {
+            search: "recursos", modality: "on-site", contractType: "internship", experienceLevel: "junior", careerId: "8",
+        } )
         expect( postings.map( ( p ) => p.id ) ).toEqual( [ 2 ] )
+    } )
+
+    test( "getJobPostings reads the company of each posting", async () => {
+        server.use( http.get( `${ API }/announcements`, () => ok( [ jobRow ] ) ) )
+
+        const [ posting ] = await getJobPostings()
+
+        expect( posting ).toMatchObject( { companyName: "Manufactura Digital de la Laguna", companyCity: "Torreón", companyState: "Coahuila" } )
     } )
 
     test( "createJobPosting sends the jb_pst_ prefixed body", async () => {

@@ -8,9 +8,10 @@
 //
 // Date: November 16th 2026
 
-// Latest Update:
-// Date:
-// By:
+// Latest Update: "Deactivate account" becomes "pause company": the
+//      backend now flips a company flag, so the account keeps working.
+// Date: November 16th 2026
+// By: Miguel Angel Avila Garcia
 
 import { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -26,11 +27,10 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog.tsx"
 import { SelectField, TextField } from "@/components/ui/Field.tsx"
 import { ErrorState, LoadingState } from "@/components/ui/States.tsx"
 import { useAsyncData } from "@/hooks/useAsyncData.ts"
-import { useAuth } from "@/hooks/useAuth.ts"
 import { COMPANY_SIZE_LABELS } from "@/lib/labels.ts"
 import { applyFieldErrors, emailRules, REQUIRED } from "@/lib/validation.ts"
 import { toApiError } from "@/services/api.ts"
-import { deactivateMyCompany, getMyCompany, updateMyCompany } from "@/services/companyService.ts"
+import { getMyCompany, toggleMyCompanyActive, updateMyCompany } from "@/services/companyService.ts"
 import type { Company, CompanySize } from "@/types/models.ts"
 
 // Names are the ones PUT /company/me validates (cmp_ prefix).
@@ -136,8 +136,7 @@ function CompanyForm( { company, onSaved }: { company: Company, onSaved: ( compa
     )
 }
 
-function DeactivateSection() {
-    const { logout } = useAuth()
+function PauseSection( { company, onChange }: { company: Company, onChange: ( company: Company ) => void } ) {
     const [ open, setOpen ] = useState( false )
     const [ working, setWorking ] = useState( false )
     const [ error, setError ] = useState<string | null>( null )
@@ -147,35 +146,44 @@ function DeactivateSection() {
         setError( null )
 
         try {
-            await deactivateMyCompany()
-
-            // The account no longer works: end the session here instead of
-            // waiting for the next request to be rejected. The route guard
-            // then shows the login, with this message on it.
-            logout( "Tu cuenta quedó desactivada." )
+            const active = await toggleMyCompanyActive()
+            onChange( { ...company, active } )
+            setOpen( false )
         } catch( caught ) {
             setError( toApiError( caught ).message )
+        } finally {
             setWorking( false )
         }
     }
 
+    if( !company.active ) {
+        return (
+            <SectionCard title="Empresa en pausa" description="Tus vacantes no se muestran a los candidatos mientras la empresa esté en pausa.">
+                <div>
+                    <Button loading={ working } onClick={ handleConfirm }>Reanudar empresa</Button>
+                </div>
+                { error && <Alert tone="error">{ error }</Alert> }
+            </SectionCard>
+        )
+    }
+
     return (
-        <SectionCard title="Desactivar cuenta" description="Tu empresa deja de poder entrar a ClickWork.">
+        <SectionCard title="Pausar empresa" description="Oculta tus vacantes a los candidatos sin perder tu cuenta ni tus datos.">
             <div>
-                <Button variant="danger" onClick={ () => setOpen( true ) }>Desactivar mi cuenta</Button>
+                <Button variant="danger" onClick={ () => setOpen( true ) }>Pausar empresa</Button>
             </div>
 
             <ConfirmDialog
                 open={ open }
                 onClose={ () => setOpen( false ) }
-                title="¿Desactivar la cuenta de tu empresa?"
+                title="¿Pausar tu empresa?"
                 description={
                     <>
-                        Se cerrará tu sesión y <strong>no podrás volver a entrar</strong>: una cuenta desactivada no
-                        puede iniciar sesión, así que tú no podrás reactivarla. Solo un administrador puede hacerlo.
+                        Tus vacantes dejarán de aparecer en el listado y nadie podrá postularse a ellas. Tu cuenta
+                        sigue activa: puedes reanudar la empresa cuando quieras desde esta misma pantalla.
                     </>
                 }
-                confirmLabel="Sí, desactivar"
+                confirmLabel="Sí, pausar"
                 tone="danger"
                 loading={ working }
                 error={ error }
@@ -212,7 +220,8 @@ function CompanyProfilePage() {
             ) }
 
             <ChangePasswordForm />
-            <DeactivateSection />
+
+            { company && <PauseSection company={ company } onChange={ setData } /> }
         </>
     )
 }

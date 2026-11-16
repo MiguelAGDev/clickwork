@@ -126,6 +126,9 @@ const jobRow: Row = {
     jb_pst_rejection_reason: null,
     jb_pst_id_company: 5,
     jb_pst_id_career: 1,
+    company_name: "Manufactura Digital de la Laguna",
+    company_city: "Torreón",
+    company_state: "Coahuila",
 }
 
 const internshipJobRow: Row = {
@@ -145,6 +148,9 @@ const internshipJobRow: Row = {
     jb_pst_rejection_reason: null,
     jb_pst_id_company: 5,
     jb_pst_id_career: 8,
+    company_name: "Manufactura Digital de la Laguna",
+    company_city: "Torreón",
+    company_state: "Coahuila",
 }
 
 const pendingJobRow: Row = {
@@ -190,6 +196,7 @@ const companyRow: Row = {
     contact_email: "contacto.seed@newman.test",
     approval_status: "approved",
     rejection_reason: null,
+    active: 1,
     permissions: 127231,
 }
 

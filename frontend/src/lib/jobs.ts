@@ -55,13 +55,15 @@ function getRecommendedJobs( jobs: JobPosting[], applications: Application[], us
         .slice( 0, limit )
 }
 
-// "Híbrido · Tiempo completo · Junior · $15,000 al mes". The design shows
-// company and city here; the backend list does not send them yet, so the
-// line uses what a posting does carry.
+// "Grupo Nexo · Torreón, Coahuila · Híbrido · Tiempo completo · Junior ·
+// $15,000 al mes": the company line of the design, then the conditions.
 function getJobSummary( job: JobPosting ): string {
     const salary = formatSalary( job.salary )
+    const place = [ job.companyCity, job.companyState ].filter( Boolean ).join( ", " )
 
     return [
+        job.companyName,
+        place,
         MODALITY_LABELS[ job.modality ],
         CONTRACT_TYPE_LABELS[ job.contractType ],
         EXPERIENCE_LEVEL_LABELS[ job.experienceLevel ],

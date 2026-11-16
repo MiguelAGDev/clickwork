@@ -73,6 +73,9 @@ interface JobPosting {
     approvalStatus: ApprovalStatus
     rejectionReason: string | null
     companyId: number               // user id of the company that owns it
+    companyName: string
+    companyCity: string | null
+    companyState: string | null
     careerId: number | null
 }
 
@@ -124,6 +127,9 @@ interface Company {
     contactEmail: string | null
     approvalStatus: ApprovalStatus
     rejectionReason: string | null
+    // false = the company paused itself: its postings are hidden from
+    // candidates until it resumes. The account keeps working meanwhile.
+    active: boolean
 }
 
 interface CompanyInput {

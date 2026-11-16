@@ -8,9 +8,10 @@
 //
 // Date: November 16th 2026
 
-// Latest Update:
-// Date:
-// By:
+// Latest Update: toggle-active now pauses or resumes the company instead
+//      of deactivating the account.
+// Date: November 16th 2026
+// By: Miguel Angel Avila Garcia
 
 import { api } from "@/services/api.ts"
 import { toCompany, toCompanyBody } from "@/services/mappers.ts"
@@ -30,11 +31,12 @@ async function updateMyCompany( input: CompanyInput ): Promise<Company> {
     return getMyCompany()
 }
 
-// Flips the active flag of the company ACCOUNT. Once inactive the backend
-// rejects every request and every login of that account, so from the
-// company side this is a one-way action: only an admin can undo it.
-async function deactivateMyCompany(): Promise<void> {
-    await api.patch( "/company/toggle-active" )
+// Pauses the company when it is active and resumes it when paused. While
+// paused its postings are hidden from candidates; the account keeps
+// working, so the company can undo this itself. Returns the new state.
+async function toggleMyCompanyActive(): Promise<boolean> {
+    const { data } = await api.patch<ApiResponse<{ active: boolean }>>( "/company/toggle-active" )
+    return data.data.active
 }
 
-export { getMyCompany, updateMyCompany, deactivateMyCompany }
+export { getMyCompany, updateMyCompany, toggleMyCompanyActive }

@@ -61,22 +61,19 @@
 > Ninguno se arregló desde el frontend: son propuestas. El frontend ya
 > funciona con cada uno tal como está (se indica cómo).
 
-* [ ] 🐛 Filtros de vacantes que no filtran — `getAllJobPostings`
-  (`jobPostingController.js`) arma `contractType`, `experienceLevel` y
-  `careerId`, pero `jobPostingModel.js` lee `contract_type`,
-  `experience_level` y `career_id`. Solo `modality` y `search` llegan al
-  SQL. El frontend filtra contrato y nivel del lado del cliente; el
-  filtro por carrera no se ofrece.
-* [ ] 🐛 Vacantes duplicadas en el listado público — el `LEFT JOIN
-  job_posting_career` regresa la vacante una vez por carrera. El
-  frontend deduplica por `jb_pst_id`. Propuesta: `SELECT DISTINCT` o
-  quitar el JOIN cuando no se filtra por carrera.
-* [ ] 🐛 El listado público incluye vacantes vencidas — no filtra por
-  `jb_pst_expiration_date`. El frontend las oculta al candidato.
-* [ ] 💡 Las vacantes no traen el nombre ni la ciudad de la empresa — el
-  diseño muestra "Grupo Nexo · Guadalajara, JAL" en cada fila. Propuesta:
-  JOIN con `company` en los listados y en el detalle. Hoy el candidato ve
-  modalidad, contrato, nivel y sueldo en su lugar.
+* [x] 🐛 Filtros de vacantes que no filtran — resuelto el 16-nov-2026 en
+  `feat/miguel-backend-fixes-1`: el controlador manda las claves que lee el modelo y la URL
+  acepta `careerId` o `career_id`.
+* [x] 🐛 Vacantes duplicadas en el listado público — resuelto el 16-nov-2026 en
+  `feat/miguel-backend-fixes-1`: el JOIN con carreras solo se hace al filtrar
+  por carrera, y el SELECT es DISTINCT.
+* [x] 🐛 El listado público incluye vacantes vencidas — resuelto el 16-nov-2026 en
+  `feat/miguel-backend-fixes-1`: se filtran en SQL por
+  `jb_pst_expiration_date`.
+* [x] 💡 Las vacantes no traen el nombre ni la ciudad de la empresa — resuelto el 16-nov-2026 en
+  `feat/miguel-backend-fixes-1`: `company_name`,
+  `company_city` y `company_state` en listado, detalle, mis vacantes y mis
+  aplicaciones.
 * [ ] 💡 La vacante no regresa sus carreras — `GET /announcements/:id` no
   incluye las filas de `job_posting_career`, y `createJobPosting` no
   llena `jb_pst_id_career`. Al editar, el formulario no puede mostrar las
@@ -87,11 +84,10 @@
 * [ ] ❓ Dos caminos para postularse — `POST /applications` (solo
   registra) y `POST /users/roll-me` (registra y manda el CV por correo).
   El frontend ofrece los dos botones. Decidir si se queda uno solo.
-* [ ] 🐛 Una empresa que se desactiva no puede reactivarse —
-  `PATCH /company/toggle-active` apaga `ap_usr_active`, y con eso
-  `authMiddleware` y el login responden 403. El frontend lo advierte y
-  cierra la sesión. Lo mismo le pasaría a un admin que se desactive a sí
-  mismo (el frontend no le muestra ese botón).
+* [x] 🐛 Una empresa que se desactiva no puede reactivarse — resuelto el 16-nov-2026 en
+  `feat/miguel-backend-fixes-1`: columna `cmp_active`
+  (migración en `backend/migrations/`); `toggle-active` pausa la empresa
+  (oculta sus vacantes) sin tocar la cuenta, y ella misma la reanuda.
 * [ ] 💡 Empresa rechazada sin forma de pedir nueva revisión — editar el
   perfil no regresa `cmp_approval_status` a `pending`; depende de que un
   admin la vuelva a abrir.

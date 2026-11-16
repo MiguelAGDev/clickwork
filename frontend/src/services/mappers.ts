@@ -97,6 +97,9 @@ function toJobPosting( row: Row ): JobPosting {
         approvalStatus: row.jb_pst_approval_status as ApprovalStatus,
         rejectionReason: text( row.jb_pst_rejection_reason ),
         companyId: Number( row.jb_pst_id_company ),
+        companyName: text( row.company_name ) ?? "",
+        companyCity: text( row.company_city ),
+        companyState: text( row.company_state ),
         careerId: num( row.jb_pst_id_career ),
     }
 }
@@ -163,6 +166,7 @@ function toCompany( row: Row ): Company {
         contactEmail: text( row.contact_email ),
         approvalStatus: row.approval_status as ApprovalStatus,
         rejectionReason: text( row.rejection_reason ),
+        active: Boolean( row.active ),
     }
 }
 
