@@ -16,7 +16,7 @@
 import { ChevronDown, LogOut, Menu, UserRound, X } from "lucide-react"
 import { DropdownMenu } from "radix-ui"
 import { useState } from "react"
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom"
+import { Link, NavLink, Outlet } from "react-router-dom"
 
 import { Logo } from "@/components/layout/Logo.tsx"
 import { useAuth } from "@/hooks/useAuth.ts"
@@ -70,13 +70,7 @@ function MobileNav( { items, onNavigate }: { items: NavItem[], onNavigate: () =>
 // Gold avatar with the user initials; opens the account menu.
 function UserMenu( { user }: { user: User } ) {
     const { logout } = useAuth()
-    const navigate = useNavigate()
     const name = getDisplayName( user.email )
-
-    function handleLogout() {
-        logout()
-        navigate( "/login", { replace: true } )
-    }
 
     const itemClasses = "flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-foreground outline-none data-[highlighted]:bg-muted"
 
@@ -111,7 +105,9 @@ function UserMenu( { user }: { user: User } ) {
                             Mi cuenta
                         </Link>
                     </DropdownMenu.Item>
-                    <DropdownMenu.Item onSelect={ handleLogout } className={ itemClasses }>
+                    {/* No navigate() here: once the session ends, the route guard
+                        around the shell sends the user to the login. */}
+                    <DropdownMenu.Item onSelect={ () => logout() } className={ itemClasses }>
                         <LogOut aria-hidden className="size-4 text-muted-foreground" />
                         Cerrar sesión
                     </DropdownMenu.Item>

@@ -29,7 +29,7 @@ interface ProtectedRouteProps {
 // Used as a layout route: <Route element={ <ProtectedRoute roles=... /> }>
 // with the real routes nested inside. <Outlet /> is where they render.
 function ProtectedRoute( { roles }: ProtectedRouteProps ) {
-    const { status, user } = useAuth()
+    const { status, user, loggedOut } = useAuth()
     const location = useLocation()
 
     // Still checking the saved token: redirecting now would send a
@@ -38,8 +38,10 @@ function ProtectedRoute( { roles }: ProtectedRouteProps ) {
 
     if( status === "anonymous" || !user ) {
         // Remember where the user was going, to return there after login.
+        // Not after a logout: the next person to log in on this browser
+        // should start at their own home, not on the last page of someone else.
         const from = location.pathname + location.search
-        return <Navigate to="/login" replace state={ { from } } />
+        return <Navigate to="/login" replace state={ loggedOut ? null : { from } } />
     }
 
     // Logged in but with another role. This only hides the screen: the

@@ -35,7 +35,7 @@ function Probe() {
             <p>user: { user?.email ?? "none" }</p>
             <p>expired: { String( sessionExpired ) }</p>
             <button onClick={ () => { login( "estudiante.seed@newman.test", "Secret123" ).catch( () => {} ) } }>login</button>
-            <button onClick={ logout }>logout</button>
+            <button onClick={ () => logout() }>logout</button>
         </div>
     )
 }

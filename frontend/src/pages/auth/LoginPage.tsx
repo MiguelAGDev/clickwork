@@ -37,7 +37,7 @@ interface LoginLocationState {
 }
 
 function LoginPage() {
-    const { login, sessionExpired } = useAuth()
+    const { login, sessionExpired, logoutNotice } = useAuth()
     const location = useLocation()
     const state = location.state as LoginLocationState | null
 
@@ -70,6 +70,7 @@ function LoginPage() {
                 <Alert tone="info">Tu sesión expiró. Inicia sesión de nuevo.</Alert>
             ) }
             { state?.notice && !serverError && <Alert tone="success">{ state.notice }</Alert> }
+            { logoutNotice && !serverError && <Alert tone="info">{ logoutNotice }</Alert> }
             { serverError && <Alert tone="error">{ serverError }</Alert> }
 
             {/* noValidate: the messages come from react-hook-form, in

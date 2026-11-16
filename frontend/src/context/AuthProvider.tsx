@@ -28,21 +28,26 @@ interface SessionState {
     status: AuthStatus
     user: User | null
     sessionExpired: boolean
+    loggedOut: boolean
+    logoutNotice: string | null
 }
+
+// A session with nobody in it; each case overrides what differs.
+const ANONYMOUS: SessionState = { status: "anonymous", user: null, sessionExpired: false, loggedOut: false, logoutNotice: null }
 
 // Decides the first state without waiting for an effect: with no usable
 // token there is nothing to check, so the app can render right away.
 function getInitialState(): SessionState {
     const token = getToken()
 
-    if( !token ) return { status: "anonymous", user: null, sessionExpired: false }
+    if( !token ) return ANONYMOUS
 
     if( isTokenExpired( token ) ) {
         clearToken()
-        return { status: "anonymous", user: null, sessionExpired: true }
+        return { ...ANONYMOUS, sessionExpired: true }
     }
 
-    return { status: "loading", user: null, sessionExpired: false }
+    return { ...ANONYMOUS, status: "loading" }
 }
 
 function AuthProvider( { children }: { children: ReactNode } ) {
@@ -51,7 +56,7 @@ function AuthProvider( { children }: { children: ReactNode } ) {
     // Ends the session because the token is no longer accepted.
     const expireSession = useCallback( () => {
         clearToken()
-        setSession( { status: "anonymous", user: null, sessionExpired: true } )
+        setSession( { ...ANONYMOUS, sessionExpired: true } )
     }, [] )
 
     // Tell the HTTP client what to do on a 401. Cleaned up on unmount so a
@@ -70,7 +75,7 @@ function AuthProvider( { children }: { children: ReactNode } ) {
 
         getMe().then(
             ( user ) => {
-                if( !cancelled ) setSession( { status: "authenticated", user, sessionExpired: false } )
+                if( !cancelled ) setSession( { ...ANONYMOUS, status: "authenticated", user } )
             },
             () => {
                 // Any failure other than 401 (server down, 403 for a
@@ -78,7 +83,7 @@ function AuthProvider( { children }: { children: ReactNode } ) {
                 // app, but the token is kept: a reload may work later.
                 if( !cancelled ) setSession( ( current ) => (
                     current.status === "loading"
-                        ? { status: "anonymous", user: null, sessionExpired: false }
+                        ? ANONYMOUS
                         : current
                 ) )
             }
@@ -110,7 +115,7 @@ function AuthProvider( { children }: { children: ReactNode } ) {
 
         try {
             const user = await getMe()
-            setSession( { status: "authenticated", user, sessionExpired: false } )
+            setSession( { ...ANONYMOUS, status: "authenticated", user } )
             return user
         } catch( error ) {
             clearToken()    // Half a session is worse than none.
@@ -118,9 +123,9 @@ function AuthProvider( { children }: { children: ReactNode } ) {
         }
     }, [] )
 
-    const logout = useCallback( () => {
+    const logout = useCallback( ( notice?: string ) => {
         clearToken()
-        setSession( { status: "anonymous", user: null, sessionExpired: false } )
+        setSession( { ...ANONYMOUS, loggedOut: true, logoutNotice: notice ?? null } )
     }, [] )
 
     const setUser = useCallback( ( user: User ) => {
@@ -137,6 +142,8 @@ function AuthProvider( { children }: { children: ReactNode } ) {
         status: session.status,
         user: session.user,
         sessionExpired: session.sessionExpired,
+        loggedOut: session.loggedOut,
+        logoutNotice: session.logoutNotice,
         login,
         logout,
         refreshUser,
